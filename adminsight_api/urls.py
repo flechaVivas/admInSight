@@ -1,15 +1,20 @@
 from django.urls import path
 from . import views
+from rest_framework.routers import DefaultRouter
+from django.urls import include
+
+
+router = DefaultRouter()
+router.register(r'systems', views.SystemViewSet, basename='systems')
+router.register(r'sys-users', views.SysUserViewSet, basename='sys-users')
+router.register(r'app-user-systems', views.AppUserSystemViewSet,
+                basename='app-user-systems')
+
 
 urlpatterns = [
-    path('login/', views.login, name='login'),
-    path('register/', views.register, name='register'),
-    path('profile/', views.profile, name='profile'),
-    path('systems/', views.system_list, name='system_list'),
-    path('systems/<int:pk>/', views.system_detail, name='system_detail'),
-    path('sysusers/', views.sysuser_list, name='sysuser_list'),
-    path('sysusers/<int:pk>/', views.sysuser_detail, name='sysuser_detail'),
-    path('appusersystems/', views.appusersystem_list, name='appusersystem_list'),
-    path('appusersystems/<int:pk>/', views.appusersystem_detail,
-         name='appusersystem_detail'),
+    path('', include(router.urls)),
+    path('login/', views.login),
+    path('register/', views.register),
+    path('profile/', views.profile),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
