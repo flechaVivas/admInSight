@@ -1,28 +1,6 @@
-# Archivos de configuración específicos de tu entorno local
-*.pyc
-*.pyo
-*.pyd
-__pycache__/
+adminsight-venv/
 
-# Directorio de archivos estáticos recopilados
-/staticfiles/
+adminsight_api/migrations/
+adminsight_api/__pycache__/
 
-# Directorio de archivos compilados de traducción
-/locale/
-
-# Directorio de registros de errores
-/log/
-
-# Archivo de configuración de entorno local
-.env
-
-# Directorio de archivos de usuario de Django
-media/
-
-/adminsight-venv/
-
-# Archivo de base de datos SQLite
-db.sqlite3
-
-# Archivos de migraciones de Django
-/migrations/
+adminsight_server/__pycache__/
