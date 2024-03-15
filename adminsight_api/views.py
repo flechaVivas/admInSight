@@ -7,7 +7,7 @@ from .serializers import (
     AppUserSystemSerializer,
     UserSerializer,
 )
-from .models import System, SysUser, AppUserSystem
+from .models import System, SysUser, AppUserSystem, SSHAuthToken
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework import status
@@ -21,6 +21,8 @@ from .ssh_utils import ssh_connect, register_server
 from rest_framework.views import APIView
 from django.core.cache import cache
 import uuid
+from django.utils import timezone
+from datetime import timedelta
 
 
 @api_view(["POST"])
@@ -157,11 +159,15 @@ class LoginServerView(APIView):
                              linux_username, linux_password)
 
         if client:
-            # Generar token de autenticación
-            token = str(uuid.uuid4())
-            cache_key = f'ssh_session_{request.user.id}_{system.id}'
-            # Caducidad del token en 1 hora
-            cache.set(cache_key, token, timeout=3600)
+            # Generar token de autenticación SSH
+            ssh_token = str(uuid.uuid4())
+            expires_at = timezone.now() + timedelta(hours=1)  # Caducidad del token en 1 hora
+            ssh_auth_token = SSHAuthToken.objects.create(
+                user=request.user,
+                system=system,
+                token=ssh_token,
+                expires_at=expires_at
+            )
 
             client.close()
             return Response({'message': 'Conexión SSH exitosa'}, status=status.HTTP_200_OK)
