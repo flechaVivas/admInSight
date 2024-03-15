@@ -19,6 +19,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from .ssh_utils import ssh_connect, register_server
 from rest_framework.views import APIView
+from django.core.cache import cache
+import uuid
 
 
 @api_view(["POST"])
@@ -46,10 +48,13 @@ def register(request):
     serializer = UserSerializer(data=request.data)
 
     if serializer.is_valid():
-        serializer.save()
 
-        user = User.objects.get(email=serializer.data["email"])
-        user.set_password(serializer.data["password"])
+        username = serializer.validated_data['username']
+        email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
+
+        user = User(username=username, email=email)
+        user.set_password(password)
         user.save()
 
         token = Token.objects.create(user=user)
@@ -128,3 +133,37 @@ class RegisterServerView(APIView):
             return Response({'message': 'Server registered successfully'}, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': 'Failed to register server'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoginServerView(APIView):
+    def post(self, request):
+        system_id = request.data.get('system_id')
+        linux_username = request.data.get('linux_username')
+        linux_password = request.data.get('linux_password')
+
+        try:
+            system = System.objects.get(id=system_id)
+            sys_user = SysUser.objects.get(
+                system=system, username=linux_username)
+            app_user_system = AppUserSystem.objects.get(
+                system=system, app_user=request.user)
+        except (System.DoesNotExist, SysUser.DoesNotExist, AppUserSystem.DoesNotExist):
+            return Response({'error': 'Sistema o usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        if sys_user.password != linux_password:
+            return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
+
+        client = ssh_connect(system.ip_address, system.ssh_port,
+                             linux_username, linux_password)
+
+        if client:
+            # Generar token de autenticación
+            token = str(uuid.uuid4())
+            cache_key = f'ssh_session_{request.user.id}_{system.id}'
+            # Caducidad del token en 1 hora
+            cache.set(cache_key, token, timeout=3600)
+
+            client.close()
+            return Response({'message': 'Conexión SSH exitosa'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Error al conectar al servidor'}, status=status.HTTP_400_BAD_REQUEST)
