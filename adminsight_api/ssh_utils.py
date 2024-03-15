@@ -1,52 +1,44 @@
-from paramiko import SSHClient, AutoAddPolicy
+
+import paramiko
 from .models import System, SysUser
 
 
-def ssh_connect(system_id, username, password):
-    system = System.objects.get(id=system_id)
-    sys_user = system.sysuser_set.first()
-
-    ssh = SSHClient()
-    ssh.set_missing_host_key_policy(AutoAddPolicy())
-
+def ssh_connect(hostname, port, username, password):
+    """
+    Establece una conexión SSH con el servidor especificado.
+    Devuelve un objeto SSHClient si la conexión es exitosa, de lo contrario, devuelve None.
+    """
     try:
-        ssh.connect(
-            hostname=system.ip_address,
-            port=system.ssh_port,
-            username=sys_user.username if username is None else username,
-            password=sys_user.password if password is None else password
-        )
-        return ssh
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(hostname=hostname, port=port,
+                       username=username, password=password)
+        return client
+    except paramiko.AuthenticationException:
+        print("Error de autenticación: Credenciales inválidas")
     except Exception as e:
-        raise e
+        print(f"Error al conectar: {e}")
+    return None
 
 
-def register_server(ip_address, ssh_port, username, password, public_key=None):
-    system = System.objects.create(
-        name=f"{username}@{ip_address}",
-        ip_address=ip_address,
-        ssh_port=ssh_port
-    )
-
-    sys_user = SysUser.objects.create(
-        username=username,
-        password=password,  # Hash the password before storing
-        system=system
-    )
-
-    ssh = SSHClient()
-    ssh.set_missing_host_key_policy(AutoAddPolicy())
-
-    try:
-        ssh.connect(
-            hostname=ip_address,
-            port=ssh_port,
+def register_server(hostname, port, username, password):
+    """
+    Intenta establecer una conexión SSH con el servidor especificado.
+    Si la conexión es exitosa, crea instancias de System y SysUser y las devuelve.
+    De lo contrario, devuelve None para ambas.
+    """
+    client = ssh_connect(hostname, port, username, password)
+    if client:
+        system = System.objects.create(
+            name=hostname,
+            ip_address=hostname,
+            ssh_port=port
+        )
+        sys_user = SysUser.objects.create(
             username=username,
             password=password,
-            pkey=public_key
+            system=system
         )
+        client.close()
         return system, sys_user
-    except Exception as e:
-        system.delete()
-        sys_user.delete()
-        raise e
+    return None, None

@@ -14,11 +14,11 @@ from rest_framework import status
 from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-from .permissions import IsAdminUser
+from .permissions import IsAdminOrReadOnly, IsAuthenticatedOrReadOnly
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from .ssh_utils import ssh_connect, register_server
-from django.http import JsonResponse
+from rest_framework.views import APIView
 
 
 @api_view(["POST"])
@@ -74,7 +74,7 @@ class SystemViewSet(viewsets.ModelViewSet):
     queryset = System.objects.all()
     serializer_class = SystemSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -87,7 +87,7 @@ class SysUserViewSet(viewsets.ModelViewSet):
     queryset = SysUser.objects.all()
     serializer_class = SysUserSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -100,10 +100,31 @@ class AppUserSystemViewSet(viewsets.ModelViewSet):
     queryset = AppUserSystem.objects.all()
     serializer_class = AppUserSystemSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_staff:
             return AppUserSystem.objects.all()
         else:
             return AppUserSystem.objects.filter(app_user=self.request.user)
+
+
+class RegisterServerView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def post(self, request):
+        hostname = request.data.get('server_ip_address')
+        port = request.data.get('port', 22)
+        username = request.data.get('server_username')
+        password = request.data.get('password')
+
+        system, sys_user = register_server(hostname, port, username, password)
+
+        if system and sys_user:
+            app_user_system = AppUserSystem.objects.create(
+                app_user=request.user,
+                system=system
+            )
+            return Response({'message': 'Server registered successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'error': 'Failed to register server'}, status=status.HTTP_400_BAD_REQUEST)

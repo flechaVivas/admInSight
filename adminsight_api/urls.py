@@ -16,5 +16,7 @@ urlpatterns = [
     path('login/', views.login),
     path('register/', views.register),
     path('profile/', views.profile),
+    path('register-server/', views.RegisterServerView.as_view(),
+         name='register-server'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

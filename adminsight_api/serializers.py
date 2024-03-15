@@ -6,7 +6,7 @@ from .models import System, SysUser, AppUserSystem
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'password']
+        fields = ['id', 'email', 'username', 'password']
 
 
 class SystemSerializer(serializers.ModelSerializer):
