@@ -18,5 +18,6 @@ urlpatterns = [
     path('profile/', views.profile),
     path('register-server/', views.RegisterServerView.as_view(),
          name='register-server'),
+    path('login-server/', views.LoginServerView.as_view(), name='login-server'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
