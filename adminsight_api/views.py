@@ -23,6 +23,7 @@ from django.core.cache import cache
 import uuid
 from django.utils import timezone
 from datetime import timedelta
+from .ssh_utils import ssh_connect, register_server, ssh_execute_command
 
 
 @api_view(["POST"])
@@ -171,5 +172,37 @@ class LoginServerView(APIView):
 
             client.close()
             return Response({'message': 'Conexión SSH exitosa'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Error al conectar al servidor'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ServerCommandView(APIView):
+    def post(self, request):
+        system_id = request.data.get('system_id')
+        commands = request.data.get('commands', [])
+        sudo_password = request.data.get('sudo_password')
+
+        if not isinstance(commands, list):
+            return Response({'error': 'El campo "commands" debe ser una lista'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            system = System.objects.get(id=system_id)
+            sys_user = SysUser.objects.get(system=system)
+            app_user_system = AppUserSystem.objects.get(
+                system=system, app_user=request.user)
+        except (System.DoesNotExist, SysUser.DoesNotExist, AppUserSystem.DoesNotExist):
+            return Response({'error': 'Sistema o usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        client = ssh_connect(system.ip_address, system.ssh_port,
+                             sys_user.username, sys_user.password)
+
+        if client:
+            output = {}
+            for command in commands:
+                stdout, stderr = ssh_execute_command(
+                    client, command, sudo_password)
+                output[command] = {'stdout': stdout, 'stderr': stderr}
+            client.close()
+            return Response(output, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Error al conectar al servidor'}, status=status.HTTP_400_BAD_REQUEST)

@@ -19,5 +19,7 @@ urlpatterns = [
     path('register-server/', views.RegisterServerView.as_view(),
          name='register-server'),
     path('login-server/', views.LoginServerView.as_view(), name='login-server'),
+    path('execute-command/', views.ServerCommandView.as_view(),
+         name='execute-command'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
