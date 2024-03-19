@@ -180,6 +180,7 @@ class ServerCommandView(APIView):
     def post(self, request):
         system_id = request.data.get('system_id')
         commands = request.data.get('commands', [])
+        linux_password = request.data.get('linux_password')
         sudo_password = request.data.get('sudo_password')
         ssh_token = request.headers.get('ssh_token')
 
@@ -200,7 +201,7 @@ class ServerCommandView(APIView):
             return Response({'error': 'Token SSH inválido o expirado'}, status=status.HTTP_401_UNAUTHORIZED)
 
         client = ssh_connect(system.ip_address, system.ssh_port,
-                             sys_user.username, sys_user.password)
+                             sys_user.username, linux_password)
 
         if client:
             output = {}
