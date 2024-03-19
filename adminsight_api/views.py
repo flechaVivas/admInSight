@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-from .permissions import IsAdminOrReadOnly, IsAuthenticatedOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from .ssh_utils import ssh_connect, register_server
@@ -82,7 +82,7 @@ class SystemViewSet(viewsets.ModelViewSet):
     queryset = System.objects.all()
     serializer_class = SystemSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -108,7 +108,7 @@ class AppUserSystemViewSet(viewsets.ModelViewSet):
     queryset = AppUserSystem.objects.all()
     serializer_class = AppUserSystemSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated, IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -118,7 +118,7 @@ class AppUserSystemViewSet(viewsets.ModelViewSet):
 
 
 class RegisterServerView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = []
 
     def post(self, request):
         hostname = request.data.get('server_ip_address')
@@ -171,7 +171,7 @@ class LoginServerView(APIView):
             )
 
             client.close()
-            return Response({'message': 'Conexión SSH exitosa'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Conexión SSH exitosa', 'ssh_token': ssh_token}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Error al conectar al servidor'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -181,6 +181,7 @@ class ServerCommandView(APIView):
         system_id = request.data.get('system_id')
         commands = request.data.get('commands', [])
         sudo_password = request.data.get('sudo_password')
+        ssh_token = request.headers.get('ssh_token')
 
         if not isinstance(commands, list):
             return Response({'error': 'El campo "commands" debe ser una lista'}, status=status.HTTP_400_BAD_REQUEST)
@@ -190,8 +191,13 @@ class ServerCommandView(APIView):
             sys_user = SysUser.objects.get(system=system)
             app_user_system = AppUserSystem.objects.get(
                 system=system, app_user=request.user)
-        except (System.DoesNotExist, SysUser.DoesNotExist, AppUserSystem.DoesNotExist):
-            return Response({'error': 'Sistema o usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+            ssh_auth_token = SSHAuthToken.objects.get(
+                token=ssh_token, system=system, user=request.user)
+        except (System.DoesNotExist, SysUser.DoesNotExist, AppUserSystem.DoesNotExist, SSHAuthToken.DoesNotExist):
+            return Response({'error': 'Sistema, usuario o token no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not ssh_token or ssh_auth_token.is_expired():
+            return Response({'error': 'Token SSH inválido o expirado'}, status=status.HTTP_401_UNAUTHORIZED)
 
         client = ssh_connect(system.ip_address, system.ssh_port,
                              sys_user.username, sys_user.password)
