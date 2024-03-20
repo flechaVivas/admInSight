@@ -24,6 +24,7 @@ import uuid
 from django.utils import timezone
 from datetime import timedelta
 from .ssh_utils import ssh_connect, register_server, ssh_execute_command
+from django.contrib.auth import logout
 
 
 @api_view(["POST"])
@@ -91,6 +92,10 @@ class SystemViewSet(viewsets.ModelViewSet):
             return System.objects.filter(app_users=self.request.user)
 
 
+def logout_view(request):
+    logout(request)
+
+
 class SysUserViewSet(viewsets.ModelViewSet):
     queryset = SysUser.objects.all()
     serializer_class = SysUserSerializer
@@ -121,9 +126,9 @@ class RegisterServerView(APIView):
     permission_classes = []
 
     def post(self, request):
-        hostname = request.data.get('server_ip_address')
+        hostname = request.data.get('ip_address')
         port = request.data.get('port', 22)
-        username = request.data.get('server_username')
+        username = request.data.get('username')
         password = request.data.get('password')
 
         system, sys_user = register_server(hostname, port, username, password)
@@ -141,8 +146,8 @@ class RegisterServerView(APIView):
 class LoginServerView(APIView):
     def post(self, request):
         system_id = request.data.get('system_id')
-        linux_username = request.data.get('linux_username')
-        linux_password = request.data.get('linux_password')
+        linux_username = request.data.get('username')
+        linux_password = request.data.get('password')
 
         try:
             system = System.objects.get(id=system_id)
@@ -180,7 +185,7 @@ class ServerCommandView(APIView):
     def post(self, request):
         system_id = request.data.get('system_id')
         commands = request.data.get('commands', [])
-        linux_password = request.data.get('linux_password')
+        linux_password = request.data.get('password')
         sudo_password = request.data.get('sudo_password')
         ssh_token = request.headers.get('ssh_token')
 
