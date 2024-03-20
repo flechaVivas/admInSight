@@ -49,7 +49,7 @@ export class LoginComponent implements OnInit {
     this.authService.login(user.email, user.password).subscribe({
       next: (data) => {
         this.authService.setLoggedInUser(data);
-        // this.router.navigateByUrl(`/home/${data.id}`);
+        this.router.navigateByUrl(`/login-server`);
       },
       error: (error) => {
         if (error.error && error.error.detail === "Not found.") {
