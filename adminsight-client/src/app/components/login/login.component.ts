@@ -46,17 +46,15 @@ export class LoginComponent implements OnInit {
       email: this.email || '',
       password: this.password || ''
     };
+
     this.authService.login(user.email, user.password).subscribe({
       next: (data) => {
-        this.authService.setLoggedInUser(data);
-        this.router.navigateByUrl(`/login-server`);
+        // Redirige al usuario a la página de inicio o a otra ruta después del inicio de sesión exitoso
+        this.router.navigate(['/login-server']);
       },
       error: (error) => {
-        if (error.error && error.error.detail === "Not found.") {
-          this.loginError = 'Usuario y/o contraseña no son correctos.';
-        } else {
-          this.loginError = 'Ocurrió un error al iniciar sesión.';
-        }
+        // Maneja el error de inicio de sesión
+        this.loginError = 'Usuario y/o contraseña no son correctos.';
       }
     });
   }

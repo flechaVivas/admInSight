@@ -26,7 +26,7 @@ import { SshFormComponent } from './components/ssh-form/ssh-form.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
   ],
   providers: [
     provideClientHydration(),

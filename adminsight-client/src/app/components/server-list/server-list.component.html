@@ -22,27 +22,12 @@
   <!-- Lista de servidores -->
   <div class="space-y-4">
     <!-- Ejemplo de servidor -->
+    @for (system of systems; track $index) {
     <div class="bg-gray-700 rounded-lg p-4">
-      <div class="font-bold">Servidor 1</div>
+      <div class="font-bold">{{system.name}}</div>
     </div>
-    <div class="bg-gray-700 rounded-lg p-4">
-      <div class="font-bold">Servidor 2</div>
-    </div>
-    <div class="bg-gray-700 rounded-lg p-4">
-      <div class="font-bold">Servidor 1</div>
-    </div>
-    <div class="bg-gray-700 rounded-lg p-4">
-      <div class="font-bold">Servidor 2</div>
-    </div>
-    <div class="bg-gray-700 rounded-lg p-4">
-      <div class="font-bold">Servidor 1</div>
-    </div>
-    <div class="bg-gray-700 rounded-lg p-4">
-      <div class="font-bold">Servidor 2</div>
-    </div>
-    <div class="bg-gray-700 rounded-lg p-4">
-      <div class="font-bold">Servidor 1</div>
-    </div>
+    }
+
 
     <!-- Repite para más servidores -->
   </div>
