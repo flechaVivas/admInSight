@@ -9,13 +9,19 @@ import { FormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, provideHttpClient, withFetch } from '@angular/common/http';
 import { TokenInterceptor } from './interceptors/token.interceptor';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { ServerListComponent } from './components/server-list/server-list.component';
+import { LoginServerComponent } from './components/login-server/login-server.component';
+import { SshFormComponent } from './components/ssh-form/ssh-form.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     RegisterComponent,
-    SidebarComponent
+    SidebarComponent,
+    ServerListComponent,
+    LoginServerComponent,
+    SshFormComponent
   ],
   imports: [
     BrowserModule,
