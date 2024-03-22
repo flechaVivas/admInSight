@@ -25,6 +25,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .ssh_utils import ssh_connect, register_server, ssh_execute_command
 from django.contrib.auth import logout
+from django.contrib.auth import logout as django_logout
 
 
 @api_view(["POST"])
@@ -79,6 +80,21 @@ def profile(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    try:
+        token = request.auth  # Obtener el token de autenticación
+        token.delete()  # Eliminar el token
+    except Exception as e:
+        print(f"Error al eliminar el token: {e}")
+
+    django_logout(request)  # Cerrar la sesión del usuario
+
+    return Response({"message": "Sesión cerrada exitosamente."}, status=status.HTTP_200_OK)
+
+
 class SystemViewSet(viewsets.ModelViewSet):
     queryset = System.objects.all()
     serializer_class = SystemSerializer
@@ -90,10 +106,6 @@ class SystemViewSet(viewsets.ModelViewSet):
             return System.objects.all()
         else:
             return System.objects.filter(app_users=self.request.user)
-
-
-def logout_view(request):
-    logout(request)
 
 
 class SysUserViewSet(viewsets.ModelViewSet):

@@ -1,20 +1,14 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor
-} from '@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
+  constructor(private authService: AuthService) { }
 
-  constructor() { }
-
-  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-    const token = userData.token;
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const token = this.authService.getToken();
 
     if (token) {
       request = request.clone({
@@ -22,6 +16,8 @@ export class TokenInterceptor implements HttpInterceptor {
           Authorization: `Token ${token}`
         }
       });
+    } else {
+      // Si no hay token, no realizar ninguna acción
     }
 
     return next.handle(request);

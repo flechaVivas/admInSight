@@ -12,9 +12,9 @@ export class UserProfileService {
     private http: HttpClient
   ) { }
 
-
-  getUser(userId: string | null): Observable<User> {
-    return this.http.get<User>(`http://localhost:8000/api/users/${userId}/`)
+  getUserData(): any {
+    const userData = localStorage.getItem('userData');
+    return userData ? JSON.parse(userData) : null;
   }
 
 }
