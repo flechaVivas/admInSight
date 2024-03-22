@@ -17,7 +17,6 @@ export class AuthService {
       })
     );
   }
-
   setLoggedInUser(userData: any): void {
     localStorage.setItem('userData', JSON.stringify(userData));
   }

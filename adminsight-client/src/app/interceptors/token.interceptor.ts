@@ -13,16 +13,17 @@ export class TokenInterceptor implements HttpInterceptor {
   constructor() { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-
     const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-    if (userData.token) {
+    const token = userData.token;
+
+    if (token) {
       request = request.clone({
         setHeaders: {
-          Authorization: `Token ${userData.token}`
+          Authorization: `Token ${token}`
         }
       });
     }
-    return next.handle(request);
 
+    return next.handle(request);
   }
 }
