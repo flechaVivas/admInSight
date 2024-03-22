@@ -37,15 +37,11 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
-    return this.http.post('http://127.0.0.1:8000/api/logout/', {}).pipe(
+    return this.http.post<any>('http://127.0.0.1:8000/api/logout/', {}).pipe(
       tap(() => {
-        this.removeUserData();
+        localStorage.clear();
       })
     );
-  }
-  removeUserData(): void {
-    this.localStorage.remove(this.TOKEN_KEY);
-    this.localStorage.remove(this.USER_DATA_KEY);
   }
 
 }

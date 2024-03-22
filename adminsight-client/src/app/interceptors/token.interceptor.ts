@@ -16,8 +16,6 @@ export class TokenInterceptor implements HttpInterceptor {
           Authorization: `Token ${token}`
         }
       });
-    } else {
-      // Si no hay token, no realizar ninguna acción
     }
 
     return next.handle(request);

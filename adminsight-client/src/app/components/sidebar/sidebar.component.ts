@@ -28,13 +28,8 @@ export class SidebarComponent implements OnInit {
   }
 
   logoutUser(): void {
-    this.authService.logout().subscribe(
-      () => {
-        this.router.navigate(['/login']);
-      },
-      (error) => {
-        console.error('Error al cerrar sesión:', error);
-      }
-    );
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
   }
 }
