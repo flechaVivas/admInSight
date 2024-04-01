@@ -14,6 +14,7 @@ import { SshFormComponent } from './components/ssh-form/ssh-form.component';
 import { isPlatformServer } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { RegisterServerComponent } from './components/register-server/register-server.component';
+import { ServerOptionsComponent } from './components/server-options/server-options.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -32,7 +33,8 @@ function initializeApp(platformId: Object): () => void {
     ServerListComponent,
     LoginServerComponent,
     SshFormComponent,
-    RegisterServerComponent
+    RegisterServerComponent,
+    ServerOptionsComponent
   ],
   imports: [
     BrowserModule,

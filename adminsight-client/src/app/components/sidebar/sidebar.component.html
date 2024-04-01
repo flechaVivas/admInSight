@@ -6,11 +6,11 @@
         AdmInSight
       </div>
     </div>
+    <button (click)="toggleRegisterForm()"
+      class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">
+      Add new server
+    </button>
     <div class="p-4 flex-grow overflow-y-auto server-list">
-      <button (click)="toggleRegisterForm()"
-        class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">
-        Add new server
-      </button>
       <app-server-list (systemSelected)="systemSelected.emit($event)"></app-server-list>
     </div>
     <div class="p-4 border-t-2 border-gray-700 bg-gray-800 flex justify-between items-center">
