@@ -32,3 +32,36 @@
 .server-list .bg-gray-700:hover .ml-4 {
   opacity: 1;
 }
+
+.search-input-container {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  overflow: hidden;
+  width: 0;
+  opacity: 0;
+}
+
+.search-input-container.show {
+  transform: translateX(0);
+  width: calc(100% - 2rem);
+  /* Ajusta el ancho según sea necesario */
+  opacity: 1;
+}
+
+.search-input {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  border: none;
+  background-color: #374151;
+  color: #fff;
+  outline: none;
+  width: 100%;
+}
+
+.servers-title {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.search-input-container.show+.servers-title {
+  opacity: 0;
+}
