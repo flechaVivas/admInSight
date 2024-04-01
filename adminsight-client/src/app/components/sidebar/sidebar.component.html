@@ -7,7 +7,7 @@
       </div>
     </div>
     <div class="p-4 flex-grow overflow-y-auto server-list">
-      <app-server-list></app-server-list>
+      <app-server-list (systemSelected)="systemSelected.emit($event)"></app-server-list>
     </div>
     <div class="p-4 border-t-2 border-gray-700 bg-gray-800 flex justify-between items-center">
       <span class="mr-2" *ngIf="userData">{{ userData.username }}</span>

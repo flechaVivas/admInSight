@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { System } from '../../models';
 import { SystemService } from '../../services/systems.service';
 
@@ -11,6 +11,9 @@ export class ServerListComponent {
   systems: System[] = [];
   filteredSystems: System[] = [];
   showSearch: boolean = false;
+  selectedSystem: System | null = null; // Variable para almacenar el sistema seleccionado
+
+  @Output() systemSelected = new EventEmitter<System>(); // Evento para emitir el sistema seleccionado
 
   constructor(private systemService: SystemService) { }
 
@@ -34,4 +37,9 @@ export class ServerListComponent {
       system.name.toLowerCase().includes(searchTerm)
     );
   }
-} 
+
+  selectSystem(system: System) {
+    this.selectedSystem = system;
+    this.systemSelected.emit(system); // Emitimos el sistema seleccionado
+  }
+}

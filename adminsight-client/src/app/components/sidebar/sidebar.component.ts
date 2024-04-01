@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { UserProfileService } from '../../services/user-profile.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { System } from '../../models';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,6 +12,7 @@ import { LocalStorageService } from '../../services/local-storage.service';
 })
 export class SidebarComponent implements OnInit {
   userData: any;
+  @Output() systemSelected = new EventEmitter<System>();
 
   constructor(
     private authService: AuthService,
