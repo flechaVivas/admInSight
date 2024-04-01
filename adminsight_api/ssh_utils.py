@@ -17,11 +17,11 @@ def ssh_connect(hostname, port, username, password):
     return None
 
 
-def register_server(hostname, port, username, password):
+def register_server(name, hostname, port, username, password):
     client = ssh_connect(hostname, port, username, password)
     if client:
         system = System.objects.create(
-            name=hostname,
+            name=name,
             ip_address=hostname,
             ssh_port=port
         )

@@ -138,12 +138,14 @@ class RegisterServerView(APIView):
     permission_classes = []
 
     def post(self, request):
+        name = request.data.get('name')
         hostname = request.data.get('ip_address')
         port = request.data.get('port', 22)
         username = request.data.get('username')
         password = request.data.get('password')
 
-        system, sys_user = register_server(hostname, port, username, password)
+        system, sys_user = register_server(
+            name, hostname, port, username, password)
 
         if system and sys_user:
             app_user_system = AppUserSystem.objects.create(
