@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { System } from '../models'; // Asegúrate de crear una interfaz o clase para representar un sistema
+import { System } from '../models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SystemService {
   private apiUrl = 'http://127.0.0.1:8000/api/systems/';
+  private registerServerUrl = 'http://127.0.0.1:8000/api/register-server/';
 
   constructor(private http: HttpClient) { }
 
@@ -24,5 +25,8 @@ export class SystemService {
     return this.http.post<System>(this.apiUrl, system);
   }
 
-  // Puedes agregar más métodos según tus necesidades (actualizar, eliminar, etc.)
+  registerServer(formData: any): Observable<any> {
+    return this.http.post(this.registerServerUrl, formData);
+  }
+
 }

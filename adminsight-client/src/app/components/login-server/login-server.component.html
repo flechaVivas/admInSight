@@ -1,8 +1,10 @@
 <div class="flex">
   <!-- Sidebar -->
-  <app-sidebar (systemSelected)="onSystemSelected($event)"></app-sidebar>
+  <app-sidebar (systemSelected)="onSystemSelected($event)" (registerFormToggled)="toggleRegisterForm()"></app-sidebar>
+
   <!-- Contenido principal -->
-  <div class="flex-grow" [ngClass]="{'main-content-background': !selectedSystem}">
-    <app-ssh-form *ngIf="selectedSystem" [selectedSystem]="selectedSystem"></app-ssh-form>
+  <div class="flex-grow" [ngClass]="{'main-content-background': !selectedSystem && !showRegisterForm}">
+    <app-register-server *ngIf="showRegisterForm"></app-register-server>
+    <app-ssh-form *ngIf="showSshForm && selectedSystem" [selectedSystem]="selectedSystem"></app-ssh-form>
   </div>
 </div>

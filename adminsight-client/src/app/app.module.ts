@@ -4,7 +4,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
 import { TokenInterceptor } from './interceptors/token.interceptor';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
@@ -13,6 +13,7 @@ import { LoginServerComponent } from './components/login-server/login-server.com
 import { SshFormComponent } from './components/ssh-form/ssh-form.component';
 import { isPlatformServer } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
+import { RegisterServerComponent } from './components/register-server/register-server.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -30,12 +31,14 @@ function initializeApp(platformId: Object): () => void {
     SidebarComponent,
     ServerListComponent,
     LoginServerComponent,
-    SshFormComponent
+    SshFormComponent,
+    RegisterServerComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpClientModule,
   ],
   providers: [

@@ -13,6 +13,7 @@ import { System } from '../../models';
 export class SidebarComponent implements OnInit {
   userData: any;
   @Output() systemSelected = new EventEmitter<System>();
+  @Output() registerFormToggled = new EventEmitter<boolean>();
 
   constructor(
     private authService: AuthService,
@@ -34,4 +35,9 @@ export class SidebarComponent implements OnInit {
       this.router.navigate(['/login']);
     });
   }
+
+  toggleRegisterForm() {
+    this.registerFormToggled.emit(true);
+  }
+
 }
