@@ -7,7 +7,8 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class SshService {
-  private apiUrl = 'http://localhost:8000/api/login-server/';
+  private apiLoginUrl = 'http://localhost:8000/api/login-server/';
+  private apiExecuteUrl = 'http://localhost:8000/api/execute-command/';
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
@@ -17,7 +18,7 @@ export class SshService {
       username: username,
       password: password
     };
-    return this.http.post<any>(this.apiUrl, body);
+    return this.http.post<any>(this.apiLoginUrl, body);
   }
 
   executeCommand(systemId: number, commands: string[], password: string, sudoPassword?: string): Observable<any> {
@@ -32,6 +33,6 @@ export class SshService {
       sudo_password: sudoPassword
     };
 
-    return this.http.post<any>('http://localhost:8000/api/execute-command/', body, { headers });
+    return this.http.post<any>(this.apiExecuteUrl, body, { headers });
   }
 }

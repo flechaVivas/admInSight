@@ -58,4 +58,11 @@ export class AuthService {
     return this.localStorage.get(this.SSH_TOKEN_KEY);
   }
 
+  isSshTokenValid(): boolean {
+    const sshToken = this.getSshToken();
+    // Aquí puedes agregar la lógica para verificar si el token SSH es válido
+    // Por ejemplo, puedes hacer una solicitud al backend para validar el token
+    return !!sshToken; // Retorna true si el token SSH no está vacío
+  }
+
 }
