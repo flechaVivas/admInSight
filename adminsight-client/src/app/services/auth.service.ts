@@ -15,6 +15,8 @@ export class AuthService {
 
   constructor(private http: HttpClient, private localStorage: LocalStorageService) { }
 
+  // User Token
+
   setToken(token: string): void {
     localStorage.setItem('token', token);
   }
@@ -42,6 +44,18 @@ export class AuthService {
         localStorage.clear();
       })
     );
+  }
+
+  // SSH Token
+
+  private readonly SSH_TOKEN_KEY = 'sshToken';
+
+  setSshToken(token: string): void {
+    this.localStorage.set(this.SSH_TOKEN_KEY, token);
+  }
+
+  getSshToken(): string | null {
+    return this.localStorage.get(this.SSH_TOKEN_KEY);
   }
 
 }

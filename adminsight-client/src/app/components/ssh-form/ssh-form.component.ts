@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { System } from '../../models';
-import { SshService } from '../../services/ssh.service'; // Asegúrate de tener este servicio configurado
+import { SshService } from '../../services/ssh.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-ssh-form',
@@ -12,7 +13,7 @@ export class SshFormComponent implements OnInit {
   username: string = '';
   password: string = '';
 
-  constructor(private sshService: SshService) { }
+  constructor(private sshService: SshService, private authService: AuthService) { }
 
   ngOnInit(): void { }
 
@@ -25,6 +26,7 @@ export class SshFormComponent implements OnInit {
     this.sshService.login(this.selectedSystem.id, this.username, this.password).subscribe(
       (response) => {
         console.log('Login successful', response);
+        this.authService.setSshToken(response.ssh_token);
         // Aquí puedes manejar la respuesta exitosa, por ejemplo, redirigir al usuario a otra página
       },
       (error) => {

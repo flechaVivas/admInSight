@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,7 @@ import { Observable } from 'rxjs';
 export class SshService {
   private apiUrl = 'http://localhost:8000/api/login-server/';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   login(systemId: number, username: string, password: string): Observable<any> {
     const body = {
@@ -17,5 +18,20 @@ export class SshService {
       password: password
     };
     return this.http.post<any>(this.apiUrl, body);
+  }
+
+  executeCommand(systemId: number, commands: string[], password: string, sudoPassword?: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'ssh_token': this.authService.getSshToken() || ''
+    });
+
+    const body = {
+      system_id: systemId,
+      commands: commands,
+      password: password,
+      sudo_password: sudoPassword
+    };
+
+    return this.http.post<any>('http://localhost:8000/api/execute-command/', body, { headers });
   }
 }
