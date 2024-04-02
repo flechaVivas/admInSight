@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { LocalStorageService } from './local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class SshService {
   private apiLoginUrl = 'http://localhost:8000/api/login-server/';
   private apiExecuteUrl = 'http://localhost:8000/api/execute-command/';
 
-  constructor(private http: HttpClient, private authService: AuthService) { }
+  constructor(private http: HttpClient, private authService: AuthService, private localStorage: LocalStorageService) { }
 
   login(systemId: number, username: string, password: string): Observable<any> {
     const body = {
@@ -34,5 +35,9 @@ export class SshService {
     };
 
     return this.http.post<any>(this.apiExecuteUrl, body, { headers });
+  }
+
+  logoutServer(): void {
+    this.localStorage.remove('sshToken');
   }
 }
