@@ -1,5 +1,6 @@
 <div *ngIf="selectedSystem" class="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white">
-  <form [formGroup]="sshForm" (ngSubmit)="onSubmit()" class="p-6 rounded-lg bg-gray-700 w-full max-w-2xl">
+  <form [formGroup]="sshForm" (ngSubmit)="onSubmit()"
+    class="p-6 rounded-lg bg-gray-700 w-full max-w-2xl mx-auto mt-10 mb-10">
     <h2 class="text-2xl font-bold mb-4">SSH Credentials for {{selectedSystem.name}}</h2>
     <div class="mb-4">
       <label class="block text-gray-300 font-medium mb-2" for="username">Enter the username for
