@@ -1,6 +1,12 @@
 /* ssh-form.component.css */
 .ssh-form {
-  max-width: 300px;
+  max-width: 30%;
+  margin: auto;
+  padding: 90px;
+}
+
+form {
+  max-width: 80%;
   margin: auto;
 }
 
