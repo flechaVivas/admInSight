@@ -26,7 +26,7 @@ export class SshFormComponent implements OnInit {
 
     this.sshService.login(this.selectedSystem.id, this.username, this.password).subscribe(
       (response) => {
-        console.log('Login successful', response);
+        //console.log('Login successful', response);
         this.authService.setSshToken(response.ssh_token);
 
         this.router.navigate(['/dashboard', this.selectedSystem?.id]);

@@ -1,14 +1,15 @@
-<!-- dashboard.component.html -->
 <div class="flex">
   <div class="w-64 bg-gray-800 text-white">
-    <app-sidebar (systemSelected)="selectedSystem" (optionSelected)="onOptionSelected($event)"></app-sidebar>
+    <app-sidebar (systemSelected)="onSystemSelected($event)" (optionSelected)="onOptionSelected($event)"
+      [isLoggedIntoServer]="isLoggedIntoServer" [selectedSystem]="selectedSystem"></app-sidebar>
   </div>
   <div class="flex-1 p-4">
-    <!-- Renderizar el contenido correspondiente a la opción seleccionada -->
     <div *ngIf="selectedOption === 'OS Information'">
-
+      <!-- Contenido de la opción OS Information -->
     </div>
     <div *ngIf="selectedOption === 'Hardware Information'">
       <!-- Contenido de la opción Hardware Information -->
     </div>
     <!-- Agregar más div's para las demás opciones -->
+  </div>
+</div>

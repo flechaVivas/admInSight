@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { UserProfileService } from '../../services/user-profile.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
@@ -13,13 +13,12 @@ import { SystemService } from '../../services/systems.service';
 })
 export class SidebarComponent implements OnInit {
   userData: any;
-  isLoggedIntoServer: boolean = false;
-  selectedSystem: System | null = null;
+  @Input() isLoggedIntoServer: boolean = false;
+  @Input() selectedSystem: System | null = null;
   @Output() systemSelected = new EventEmitter<System>();
-  @Output() optionSelected = new EventEmitter<Event>();
+  @Output() optionSelected = new EventEmitter<string>();
 
   @Output() registerFormToggled = new EventEmitter<boolean>();
-
 
   constructor(
     private authService: AuthService,
@@ -35,16 +34,6 @@ export class SidebarComponent implements OnInit {
     } else {
       this.userData = null;
     }
-
-    this.isLoggedIntoServer = this.authService.isSshTokenValid();
-    if (this.isLoggedIntoServer) {
-      const systemId = this.localStorage.get('selectedSystemId');
-      if (systemId) {
-        this.systemService.getSystem(systemId).subscribe(system => {
-          this.selectedSystem = system;
-        });
-      }
-    }
   }
 
   toggleRegisterForm() {
@@ -55,7 +44,8 @@ export class SidebarComponent implements OnInit {
     this.selectedSystem = system;
     this.systemSelected.emit(system);
   }
-  onOptionSelected(option: Event) {
+
+  onOptionSelected(option: string) {
     this.optionSelected.emit(option);
   }
 
@@ -64,5 +54,4 @@ export class SidebarComponent implements OnInit {
       this.router.navigate(['/login']);
     });
   }
-
 }
