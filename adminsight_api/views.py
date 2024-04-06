@@ -172,7 +172,7 @@ class LoginServerView(APIView):
         except (System.DoesNotExist, SysUser.DoesNotExist, AppUserSystem.DoesNotExist):
             return Response({'error': 'Sistema o usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
-        if not sys_user.check_password(linux_password):
+        if not sys_user.password:
             return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
 
         client = ssh_connect(system.ip_address, system.ssh_port,
@@ -199,7 +199,7 @@ class ServerCommandView(APIView):
     def post(self, request):
         system_id = request.data.get('system_id')
         commands = request.data.get('commands', [])
-        linux_password = request.data.get('password')
+
         sudo_password = request.data.get('sudo_password')
         ssh_token = request.headers.get('ssh_token')
 
@@ -220,7 +220,7 @@ class ServerCommandView(APIView):
             return Response({'error': 'Token SSH inválido o expirado'}, status=status.HTTP_401_UNAUTHORIZED)
 
         client = ssh_connect(system.ip_address, system.ssh_port,
-                             sys_user.username, linux_password)
+                             sys_user.username, sys_user.password)
 
         if client:
             output = {}

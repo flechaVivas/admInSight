@@ -27,9 +27,9 @@ def register_server(name, hostname, port, username, password):
         )
         sys_user = SysUser.objects.create(
             username=username,
-            system=system
+            system=system,
+            password=password
         )
-        sys_user.set_password(password)
         sys_user.save()
         client.close()
         return system, sys_user
