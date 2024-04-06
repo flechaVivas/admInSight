@@ -65,3 +65,8 @@
 .search-input-container.show+.servers-title {
   opacity: 0;
 }
+
+.selected-server {
+  background-color: white;
+  color: #374151;
+}

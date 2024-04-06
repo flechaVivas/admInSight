@@ -14,9 +14,9 @@
     </a>
   </div>
   <div class="space-y-4">
-    <div *ngFor="let system of filteredSystems; let i = index"
+    <div *ngFor="let system of systems; let i = index"
       class="bg-gray-700 rounded-lg p-4 flex items-center justify-between hover:bg-gray-600 transition-colors duration-200 relative"
-      (click)="selectSystem(system)">
+      [ngClass]="{'selected-server': selectedSystem?.id === system.id}" (click)="selectSystem(system)">
       <div
         class="server-name-container flex-grow absolute inset-0 bg-gray-700 bg-opacity-50 hover:bg-opacity-0 transition-opacity duration-200">
         <div class="font-bold truncate">{{ system.name }}</div>
@@ -37,10 +37,6 @@
           </svg>
         </button>
       </div>
-      <svg *ngIf="selectedSystem?.id === system.id" class="w-5 h-5 ml-2" fill="none" stroke="currentColor"
-        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
-      </svg>
     </div>
   </div>
 </div>
