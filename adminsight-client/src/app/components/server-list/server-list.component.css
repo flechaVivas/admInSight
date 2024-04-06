@@ -44,7 +44,6 @@
 .search-input-container.show {
   transform: translateX(0);
   width: calc(100% - 2rem);
-  /* Ajusta el ancho según sea necesario */
   opacity: 1;
 }
 

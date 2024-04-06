@@ -14,14 +14,15 @@
     </a>
   </div>
   <div class="space-y-4">
-    <div *ngFor="let system of systems; let i = index"
-      class="bg-gray-700 rounded-lg p-4 flex items-center justify-between hover:bg-gray-600 transition-colors duration-200 relative"
-      [ngClass]="{'selected-server': selectedSystem?.id === system.id}" (click)="selectSystem(system)">
+    @for (system of filteredSystems; track $index) {
+    <div class="bg-gray-700 rounded-lg p-4 flex items-center justify-between hover:bg-gray-600 transition-colors duration-200
+    relative" [ngClass]="{'selected-server': selectedSystem?.id === system.id}" (click)="selectSystem(system)">
       <div
         class="server-name-container flex-grow absolute inset-0 bg-gray-700 bg-opacity-50 hover:bg-opacity-0 transition-opacity duration-200">
         <div class="font-bold truncate">{{ system.name }}</div>
       </div>
       <div class="ml-4 flex items-center justify-center absolute inset-0">
+        @if (selectedSystem?.id === system.id) {
         <button class="text-blue-500 hover:text-blue-700 mr-1">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -36,7 +37,9 @@
             </path>
           </svg>
         </button>
+        }
       </div>
     </div>
+    }
+
   </div>
-</div>

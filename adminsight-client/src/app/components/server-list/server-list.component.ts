@@ -11,9 +11,9 @@ export class ServerListComponent {
   systems: System[] = [];
   filteredSystems: System[] = [];
   showSearch: boolean = false;
-  selectedSystem: System | null = null; // Variable para almacenar el sistema seleccionado
+  selectedSystem: System | null = null;
 
-  @Output() systemSelected = new EventEmitter<System>(); // Evento para emitir el sistema seleccionado
+  @Output() systemSelected = new EventEmitter<System>();
 
   constructor(private systemService: SystemService) { }
 
@@ -40,6 +40,6 @@ export class ServerListComponent {
 
   selectSystem(system: System) {
     this.selectedSystem = system;
-    this.systemSelected.emit(system); // Emitimos el sistema seleccionado
+    this.systemSelected.emit(system);
   }
 }
