@@ -142,10 +142,10 @@ class RegisterServerView(APIView):
         hostname = request.data.get('ip_address')
         port = request.data.get('port', 22)
         username = request.data.get('username')
-        password = request.data.get('password')
+        public_key = request.data.get('public_key')
 
         system, sys_user = register_server(
-            name, hostname, port, username, password)
+            name, hostname, port, username, public_key)
 
         if system and sys_user:
             app_user_system = AppUserSystem.objects.create(
@@ -160,23 +160,16 @@ class RegisterServerView(APIView):
 class LoginServerView(APIView):
     def post(self, request):
         system_id = request.data.get('system_id')
-        linux_username = request.data.get('username')
-        linux_password = request.data.get('password')
 
         try:
             system = System.objects.get(id=system_id)
-            sys_user = SysUser.objects.get(
-                system=system, username=linux_username)
+            sys_user = SysUser.objects.get(system=system)
             app_user_system = AppUserSystem.objects.get(
                 system=system, app_user=request.user)
         except (System.DoesNotExist, SysUser.DoesNotExist, AppUserSystem.DoesNotExist):
             return Response({'error': 'Sistema o usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
-        if not sys_user.check_password(linux_password):
-            return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
-
-        client = ssh_connect(system.ip_address, system.ssh_port,
-                             linux_username, linux_password)
+        client = ssh_connect(system.ip_address, system.ssh_port, sys_user)
 
         if client:
             # Generar token de autenticación SSH
@@ -199,7 +192,6 @@ class ServerCommandView(APIView):
     def post(self, request):
         system_id = request.data.get('system_id')
         commands = request.data.get('commands', [])
-        linux_password = request.data.get('password')
         sudo_password = request.data.get('sudo_password')
         ssh_token = request.headers.get('ssh_token')
 
@@ -219,8 +211,7 @@ class ServerCommandView(APIView):
         if not ssh_token or ssh_auth_token.is_expired():
             return Response({'error': 'Token SSH inválido o expirado'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        client = ssh_connect(system.ip_address, system.ssh_port,
-                             sys_user.username, linux_password)
+        client = ssh_connect(system.ip_address, system.ssh_port, sys_user)
 
         if client:
             output = {}

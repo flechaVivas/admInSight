@@ -1,39 +1,38 @@
 
 import paramiko
 from .models import System, SysUser
+from paramiko.rsakey import RSAKey
+from io import StringIO
 
 
-def ssh_connect(hostname, port, username, password):
+def ssh_connect(hostname, port, sys_user):
     try:
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(hostname=hostname, port=port,
-                       username=username, password=password)
+
+        # Cargar la clave privada desde el modelo SysUser
+        private_key_obj = RSAKey.from_private_key(
+            StringIO(sys_user.public_key))
+
+        client.connect(hostname=hostname, port=port, pkey=private_key_obj)
         return client
-    except paramiko.AuthenticationException:
-        print("Error de autenticación: Credenciales inválidas")
     except Exception as e:
         print(f"Error al conectar: {e}")
     return None
 
 
-def register_server(name, hostname, port, username, password):
-    client = ssh_connect(hostname, port, username, password)
-    if client:
-        system = System.objects.create(
-            name=name,
-            ip_address=hostname,
-            ssh_port=port
-        )
-        sys_user = SysUser.objects.create(
-            username=username,
-            system=system
-        )
-        sys_user.set_password(password)
-        sys_user.save()
-        client.close()
-        return system, sys_user
-    return None, None
+def register_server(name, hostname, port, username, public_key):
+    system = System.objects.create(
+        name=name,
+        ip_address=hostname,
+        ssh_port=port
+    )
+    sys_user = SysUser.objects.create(
+        username=username,
+        system=system,
+        public_key=public_key
+    )
+    return system, sys_user
 
 
 def ssh_execute_command(client, command, sudo_password=None):

@@ -14,14 +14,8 @@ class System(models.Model):
 
 class SysUser(models.Model):
     username = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)
+    public_key = models.TextField(blank=True, null=True)
     system = models.ForeignKey(System, on_delete=models.CASCADE)
-
-    def set_password(self, raw_password):
-        self.password = make_password(raw_password)
-
-    def check_password(self, raw_password):
-        return check_password(raw_password, self.password)
 
 
 class AppUserSystem(models.Model):
