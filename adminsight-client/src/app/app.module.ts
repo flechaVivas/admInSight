@@ -17,6 +17,8 @@ import { RegisterServerComponent } from './components/register-server/register-s
 import { ServerOptionsComponent } from './components/server-options/server-options.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { OsInfoComponent } from './components/options/os-info/os-info.component';
+import { HardwareComponent } from './components/options/hardware/hardware.component';
+import { ProcessesComponent } from './components/options/processes/processes.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -38,7 +40,9 @@ function initializeApp(platformId: Object): () => void {
     RegisterServerComponent,
     ServerOptionsComponent,
     DashboardComponent,
-    OsInfoComponent
+    OsInfoComponent,
+    HardwareComponent,
+    ProcessesComponent
   ],
   imports: [
     BrowserModule,

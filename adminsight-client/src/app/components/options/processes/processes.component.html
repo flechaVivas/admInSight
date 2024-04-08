@@ -1,0 +1,26 @@
+<!-- processes.component.html -->
+<div class="h-full bg-gray-800 p-4 rounded-lg">
+  <h2 class="text-xl font-semibold text-white mb-4">Running Processes</h2>
+  <div class="space-y-4">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-300 mb-2">All Processes</h3>
+      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ allProcesses }}</pre>
+    </div>
+    <div>
+      <h3 class="text-lg font-semibold text-gray-300 mb-2">Running Processes</h3>
+      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ runningProcesses }}</pre>
+    </div>
+    <div>
+      <h3 class="text-lg font-semibold text-gray-300 mb-2">Processes by User</h3>
+      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ processesByUser }}</pre>
+    </div>
+    <div>
+      <h3 class="text-lg font-semibold text-gray-300 mb-2">Processes by Memory Usage</h3>
+      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ processesByMemory }}</pre>
+    </div>
+    <div>
+      <h3 class="text-lg font-semibold text-gray-300 mb-2">Processes by CPU Usage</h3>
+      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ processesByCpu }}</pre>
+    </div>
+  </div>
+</div>

@@ -4,12 +4,14 @@
     <app-sidebar (systemSelected)="onSystemSelected($event)" (optionSelected)="onOptionSelected($event)"
       [isLoggedIntoServer]="isLoggedIntoServer" [selectedSystem]="selectedSystem"></app-sidebar>
   </div>
-  <div class="flex-1 bg-gray-800">
+  <div class="flex-1 bg-gray-800 main-content-container">
     <div *ngIf="selectedOption === 'OS Information'" class="h-full">
       <app-os-info class="h-full"></app-os-info>
     </div>
-    <div *ngIf="selectedOption === 'Hardware Information'" class="h-full">
-      <!-- Contenido de Hardware Information -->
+    <div *ngIf="selectedOption === 'Hardware'" class="h-full">
+      <app-hardware class="h-full"></app-hardware>
+    </div>
+    <div *ngIf="selectedOption === 'Processes'" class="h-full">
+      <app-processes class="h-full"></app-processes>
     </div>
   </div>
-</div>
