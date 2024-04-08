@@ -15,15 +15,17 @@ export class ServerOptionsComponent {
 
   serverOptions: string[] = [
     'OS Information',
-    'Hardware Information',
-    'Network Information',
-    'Software Information',
-    'User Information',
-    'Process Information',
-    'File Information',
-    'Log Information',
-    'Security Information',
-    'System Information'
+    'Hardware',
+    'Processes',
+    'Services',
+    'Packages',
+    'Network',
+    'Users & Groups',
+    'Logs',
+    'Security',
+    'Storage',
+    'File Explorer',
+    'Terminal'
   ];
 
   constructor(private sshService: SshService, private router: Router) { }
