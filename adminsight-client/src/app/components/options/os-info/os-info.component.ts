@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { SshService } from '../../../services/ssh.service';
+import { Router } from '@angular/router';
 
 interface CommandOutput {
   stdout: string;
@@ -16,7 +17,7 @@ interface CommandResponse {
   styleUrls: ['./os-info.component.css']
 })
 export class OsInfoComponent implements OnInit {
-  @Input() systemId: number = 27;
+
   @Input() sudoPassword: string | null = null;
 
   kernelInfo: string = '';
@@ -25,7 +26,9 @@ export class OsInfoComponent implements OnInit {
   distribution: string = '';
   version: string = '';
 
-  constructor(private sshService: SshService) { }
+  constructor(private sshService: SshService, private router: Router) { }
+
+  private systemId: number = Number(this.router.url.split('/')[2]);
 
   ngOnInit() {
     if (this.systemId) {
