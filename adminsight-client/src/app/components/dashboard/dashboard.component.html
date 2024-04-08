@@ -1,13 +1,14 @@
-<div class="flex">
+<!-- dashboard.component.html -->
+<div class="flex h-screen">
   <div class="w-64 bg-gray-800 text-white">
     <app-sidebar (systemSelected)="onSystemSelected($event)" (optionSelected)="onOptionSelected($event)"
       [isLoggedIntoServer]="isLoggedIntoServer" [selectedSystem]="selectedSystem"></app-sidebar>
   </div>
-  <div class="flex-1 p-4">
-    <div *ngIf="selectedOption === 'OS Information'">
-      <app-os-info></app-os-info>
+  <div class="flex-1 bg-gray-800">
+    <div *ngIf="selectedOption === 'OS Information'" class="h-full">
+      <app-os-info class="h-full"></app-os-info>
     </div>
-    <div *ngIf="selectedOption === 'Hardware Information'">
+    <div *ngIf="selectedOption === 'Hardware Information'" class="h-full">
       <!-- Contenido de Hardware Information -->
     </div>
   </div>
