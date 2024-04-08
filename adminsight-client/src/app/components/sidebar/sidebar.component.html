@@ -6,9 +6,9 @@
         AdmInSight
       </div>
     </div>
-    <button (click)="toggleRegisterForm()"
-      class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">
-      Add new server
+    <button (click)="toggleRegisterForm()" *ngIf="!isLoggedIntoServer"
+      class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded m-4 mb-1">
+      Add new server +
     </button>
 
     <div class="p-4 flex-grow overflow-y-auto server-list" *ngIf="!isLoggedIntoServer">
