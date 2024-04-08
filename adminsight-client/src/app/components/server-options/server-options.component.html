@@ -1,24 +1,29 @@
-<div class="p-4">
-  <div class="p-4 border-t-2 border-gray-700 bg-gray-800 flex justify-between items-center">
-    <span class="mr-2" *ngIf="selectedSystem">{{ selectedSystem.name }}</span>
-    <div class="flex items-center">
-      <a class="text-gray-400 hover:text-white cursor-pointer" (click)="logout()">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-        </svg>
-      </a>
+<div class="p-4 flex-grow overflow-y-auto">
+  <div class="flex justify-between items-center mb-4 relative">
+    <div class="flex items-center w-full">
+      <div class="p-4 border-t-2 border-gray-700 bg-gray-800 flex justify-between items-center">
+        <span class="mr-2" *ngIf="selectedSystem">{{ selectedSystem.name }}</span>
+        <div class="flex items-center">
+          <a class="text-gray-400 hover:text-white cursor-pointer" (click)="logout()">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+          </a>
+        </div>
+
+      </div>
     </div>
   </div>
-
-</div>
-<div class="p-4 flex-grow overflow-y-auto">
-  <div class="space-y-2">
-    @for (option of serverOptions; track $index) {
-    <div class="bg-gray-700 p-2 rounded-md cursor-pointer hover:bg-gray-600" (click)="handleOptionClick(option)">
-      {{option}}
+  <div class="p-4 flex-grow overflow-y-auto">
+    <div class="space-y-3">
+      @for (option of serverOptions; track $index) {
+      <div class="bg-gray-700 rounded-lg p-2 flex items-center justify-between hover:bg-gray-600 transition-colors duration-200
+    relative cursor-pointer" (click)=" handleOptionClick(option)">
+        {{option}}
+      </div>
+      }
     </div>
-    }
-
   </div>
 </div>

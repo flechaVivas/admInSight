@@ -14,9 +14,9 @@
     <div class="p-4 flex-grow overflow-y-auto server-list" *ngIf="!isLoggedIntoServer">
       <app-server-list (systemSelected)="onSystemSelected($event)"></app-server-list>
     </div>
-    <div *ngIf="isLoggedIntoServer">
-      <app-server-options [selectedSystem]="selectedSystem" (optionSelected)="onOptionSelected($event)">
-      </app-server-options>
+    <div class="p-4 flex-grow overflow-y-auto server-list" *ngIf="isLoggedIntoServer">
+      <app-server-options [selectedSystem]="selectedSystem"
+        (optionSelected)="onOptionSelected($event)"></app-server-options>
     </div>
 
 

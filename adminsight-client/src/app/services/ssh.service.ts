@@ -22,15 +22,14 @@ export class SshService {
     return this.http.post<any>(this.apiLoginUrl, body);
   }
 
-  executeCommand(systemId: number, commands: string[], password: string, sudoPassword?: string): Observable<any> {
+  executeCommand(systemId: number, commands: string[], sudoPassword?: string): Observable<any> {
     const headers = new HttpHeaders({
-      'ssh_token': this.authService.getSshToken() || ''
+      'ssh-token': this.authService.getSshToken() || ''
     });
 
     const body = {
       system_id: systemId,
       commands: commands,
-      password: password,
       sudo_password: sudoPassword
     };
 

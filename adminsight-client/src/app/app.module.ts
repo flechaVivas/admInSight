@@ -16,6 +16,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { RegisterServerComponent } from './components/register-server/register-server.component';
 import { ServerOptionsComponent } from './components/server-options/server-options.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { OsInfoComponent } from './components/options/os-info/os-info.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -36,7 +37,8 @@ function initializeApp(platformId: Object): () => void {
     SshFormComponent,
     RegisterServerComponent,
     ServerOptionsComponent,
-    DashboardComponent
+    DashboardComponent,
+    OsInfoComponent
   ],
   imports: [
     BrowserModule,

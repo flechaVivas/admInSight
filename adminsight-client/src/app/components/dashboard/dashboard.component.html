@@ -5,11 +5,11 @@
   </div>
   <div class="flex-1 p-4">
     <div *ngIf="selectedOption === 'OS Information'">
-      <!-- Contenido de la opción OS Information -->
+      <app-os-info (systemId)="selectedSystem?.id" [sudoPassword]="sudoPassword"></app-os-info>
     </div>
     <div *ngIf="selectedOption === 'Hardware Information'">
-      <!-- Contenido de la opción Hardware Information -->
+
     </div>
-    <!-- Agregar más div's para las demás opciones -->
+
   </div>
 </div>
