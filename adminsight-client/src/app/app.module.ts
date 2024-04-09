@@ -19,6 +19,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { OsInfoComponent } from './components/options/os-info/os-info.component';
 import { HardwareComponent } from './components/options/hardware/hardware.component';
 import { ProcessesComponent } from './components/options/processes/processes.component';
+import { ServicesComponent } from './components/options/services/services.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -42,7 +43,8 @@ function initializeApp(platformId: Object): () => void {
     DashboardComponent,
     OsInfoComponent,
     HardwareComponent,
-    ProcessesComponent
+    ProcessesComponent,
+    ServicesComponent
   ],
   imports: [
     BrowserModule,
