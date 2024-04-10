@@ -20,6 +20,8 @@ import { OsInfoComponent } from './components/options/os-info/os-info.component'
 import { HardwareComponent } from './components/options/hardware/hardware.component';
 import { ProcessesComponent } from './components/options/processes/processes.component';
 import { ServicesComponent } from './components/options/services/services.component';
+import { FilterServicesPipe } from './pipes/filter-services.pipe';
+import { OrderByPipe } from './pipes/order-by.pipe';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -44,7 +46,9 @@ function initializeApp(platformId: Object): () => void {
     OsInfoComponent,
     HardwareComponent,
     ProcessesComponent,
-    ServicesComponent
+    ServicesComponent,
+    FilterServicesPipe,
+    OrderByPipe
   ],
   imports: [
     BrowserModule,

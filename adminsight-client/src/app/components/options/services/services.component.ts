@@ -1,15 +1,11 @@
-// services.component.ts
 import { Component, OnInit } from '@angular/core';
 import { SshService } from '../../../services/ssh.service';
 import { Router } from '@angular/router';
 
-interface ServiceInfo {
-  pid: number;
+export interface Service {
   name: string;
   description: string;
   status: string;
-  enabled: boolean;
-  active: boolean;
 }
 
 @Component({
@@ -18,12 +14,13 @@ interface ServiceInfo {
   styleUrls: ['./services.component.css']
 })
 export class ServicesComponent implements OnInit {
-  services: ServiceInfo[] = [];
-  filteredServices: ServiceInfo[] = [];
+  services: Service[] = [];
+  filteredServices: Service[] = [];
   searchTerm: string = '';
-  statusFilter: string = '';
+  activeFilter: string = '';
   enabledFilter: string = '';
-  sortOption: string = 'name';
+  sortColumn: string = 'name';
+  sortDirection: string = 'asc';
 
   constructor(private sshService: SshService, private router: Router) { }
 
@@ -38,89 +35,59 @@ export class ServicesComponent implements OnInit {
   }
 
   fetchServiceInfo() {
-    const command = 'systemctl list-units --type=service --all --no-pager';
+    const commands = [
+      'systemctl list-units --type=service --all --no-pager'
+    ];
 
-    this.sshService.executeCommand(this.systemId, [command]).subscribe(
-      (response) => {
-        const serviceLines = response[command]?.stdout.trim().split('\n');
-        this.services = serviceLines
-          .slice(1) // Omitir la primera línea de encabezado
-          .map((line: string) => {
-            const columns = line.trim().split(/\s{2,}/); // Dividir por 2 o más espacios
+    this.sshService.executeCommand(this.systemId, commands)
+      .subscribe(
+        (response: any) => {
+          const output = response['systemctl list-units --type=service --all --no-pager']?.stdout || '';
+          const lines = output.trim().split('\n');
+          const headers = lines.shift()?.trim().split(/\s+/);
 
-            // Extraer nombre y estado
-            const name = columns[0];
-            const status = columns[1] || ''; // Si no hay estado, asignamos una cadena vacía
+          if (!headers || headers.length < 5) {
+            console.error('La salida del comando no tiene el formato esperado.');
+            return;
+          }
 
-            // Verificar si el servicio está activo y habilitado
-            const isActive = status.toLowerCase().includes('active');
-            const isEnabled = status.toLowerCase().includes('loaded');
+          const serviceNameIndex = headers.indexOf('UNIT');
+          const loadStateIndex = headers.indexOf('LOAD');
+          const activeStateIndex = headers.indexOf('ACTIVE');
+          const subStateIndex = headers.indexOf('SUB');
+          const descriptionIndex = headers.indexOf('DESCRIPTION');
 
-            // Extraer la descripción si está disponible
-            let description = '';
-            const descriptionMatch = line.match(/(.+)\.service/);
-            if (descriptionMatch && descriptionMatch.length > 1) {
-              description = descriptionMatch[1];
-            }
+          this.services = lines
+            .filter((line: string) => line.trim() !== '')
+            .map((line: string) => {
+              const parts = line.trim().split(/\s+/);
+              const serviceName = parts[serviceNameIndex] || '';
+              const loadState = parts[loadStateIndex] || '';
+              const activeState = parts[activeStateIndex] || '';
+              const subState = parts[subStateIndex] || '';
+              const description = parts[descriptionIndex] || '';
+              const status = `${activeState} ${subState}`.trim();
 
-            return {
-              pid: null, // PID no disponible en esta salida
-              name: name,
-              description: description,
-              status: isActive ? 'active' : 'inactive',
-              enabled: isEnabled,
-              active: isActive
-            };
-          });
-
-        this.filterServices();
-      },
-      (error) => {
-        console.error('Error al obtener la información de servicios:', error);
-      }
-    );
+              return {
+                name: serviceName,
+                description,
+                status
+              };
+            });
+          this.filteredServices = [...this.services];
+        },
+        (error) => {
+          console.error('Error al obtener la información de los servicios:', error);
+        }
+      );
   }
 
-
-
-
-
-
-  filterServices() {
-    this.filteredServices = this.services.filter((service) => {
-      const nameMatch = service.name.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const statusMatch =
-        this.statusFilter === ''
-          ? true
-          : this.statusFilter === 'active'
-            ? service.active
-            : !service.active;
-      const enabledMatch =
-        this.enabledFilter === ''
-          ? true
-          : this.enabledFilter === 'enabled'
-            ? service.enabled
-            : !service.enabled;
-
-      return nameMatch && statusMatch && enabledMatch;
-    });
-
-    this.sortServices();
-  }
-
-  sortServices() {
-    this.filteredServices.sort((a, b) => {
-      switch (this.sortOption) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'pid':
-          return a.pid - b.pid;
-        case 'memory':
-          // Aquí deberías implementar la lógica para ordenar por uso de memoria
-          return 0;
-        default:
-          return 0;
-      }
-    });
+  sort(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
   }
 }
