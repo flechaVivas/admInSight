@@ -61,19 +61,21 @@ export class ServicesComponent implements OnInit {
             .filter((line: string) => line.trim() !== '')
             .map((line: string) => {
               const parts = line.trim().split(/\s+/);
-              const serviceName = parts[serviceNameIndex] || '';
+              const serviceName = parts[serviceNameIndex]?.replace(/^●/, '') || '';
               const loadState = parts[loadStateIndex] || '';
               const activeState = parts[activeStateIndex] || '';
               const subState = parts[subStateIndex] || '';
-              const description = parts[descriptionIndex] || '';
+              const description = parts.slice(descriptionIndex).join(' ') || '';
               const status = `${activeState} ${subState}`.trim();
+              const hasMarker = parts[serviceNameIndex]?.startsWith('●');
 
               return {
-                name: serviceName,
+                name: `${hasMarker ? '●' : ''} ${serviceName}`,
                 description,
                 status
               };
             });
+
           this.filteredServices = [...this.services];
         },
         (error) => {
@@ -94,5 +96,4 @@ export class ServicesComponent implements OnInit {
   refreshServices() {
     this.fetchServiceInfo();
   }
-
 }
