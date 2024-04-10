@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, catchError, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { LocalStorageService } from './local-storage.service';
+import { HttpErrorService } from './http-error.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,12 @@ export class SshService {
   private apiLoginUrl = 'http://localhost:8000/api/login-server/';
   private apiExecuteUrl = 'http://localhost:8000/api/execute-command/';
 
-  constructor(private http: HttpClient, private authService: AuthService, private localStorage: LocalStorageService) { }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private localStorage: LocalStorageService,
+    private httpErrorService: HttpErrorService
+  ) { }
 
   login(systemId: number, username: string, password: string): Observable<any> {
     const body = {
@@ -33,7 +39,12 @@ export class SshService {
       sudo_password: sudoPassword
     };
 
-    return this.http.post<any>(this.apiExecuteUrl, body, { headers });
+    return this.http.post<any>(this.apiExecuteUrl, body, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        this.httpErrorService.handleError(error);
+        return throwError(error);
+      })
+    );
   }
 
   logoutServer(): void {
