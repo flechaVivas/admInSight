@@ -90,4 +90,9 @@ export class ServicesComponent implements OnInit {
       this.sortDirection = 'asc';
     }
   }
+
+  refreshServices() {
+    this.fetchServiceInfo();
+  }
+
 }
