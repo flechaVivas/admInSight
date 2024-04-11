@@ -70,3 +70,6 @@
     </table>
   </div>
 </div>
+<app-password-modal *ngIf="showPasswordModal" [serviceName]="currentServiceName" [action]="currentAction"
+  (confirm)="onPasswordConfirm($event.password, $event.serviceName, $event.action)"
+  (cancel)="onPasswordCancel()"></app-password-modal>

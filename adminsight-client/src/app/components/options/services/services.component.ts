@@ -22,6 +22,10 @@ export class ServicesComponent implements OnInit {
   sortColumn: string = 'name';
   sortDirection: string = 'asc';
 
+  showPasswordModal: boolean = false;
+  currentServiceName: string = '';
+  currentAction: 'start' | 'stop' | 'restart' = 'start';
+
   constructor(private sshService: SshService, private router: Router) { }
 
   private systemId: number = Number(this.router.url.split('/')[2]);
@@ -97,22 +101,56 @@ export class ServicesComponent implements OnInit {
   }
 
   rebootService(serviceName: string) {
-    const commands = [`sudo systemctl restart ${serviceName}`];
-    this.executeCommands(commands);
+    this.showPasswordModal = true;
+    this.currentServiceName = serviceName;
+    this.currentAction = 'restart';
   }
 
   stopService(serviceName: string) {
-    const commands = [`sudo systemctl stop ${serviceName}`];
-    this.executeCommands(commands);
+    this.showPasswordModal = true;
+    this.currentServiceName = serviceName;
+    this.currentAction = 'stop';
   }
 
   startService(serviceName: string) {
-    const commands = [`sudo systemctl start ${serviceName}`];
+    this.showPasswordModal = true;
+    this.currentServiceName = serviceName;
+    this.currentAction = 'start';
+  }
+
+  onPasswordConfirm(sudoPassword: string, serviceName: string, action: 'start' | 'stop' | 'restart') {
+    this.executeCommand(serviceName, action, sudoPassword);
+    this.showPasswordModal = false;
+  }
+
+  onPasswordCancel() {
+    this.showPasswordModal = false;
+  }
+
+  executeCommand(serviceName: string, action: 'start' | 'stop' | 'restart', sudoPassword: string) {
+    let command: string;
+
+    switch (action) {
+      case 'start':
+        command = `echo '${sudoPassword}' | sudo -S systemctl start ${serviceName}`;
+        break;
+      case 'stop':
+        command = `echo '${sudoPassword}' | sudo -S systemctl stop ${serviceName}`;
+        break;
+      case 'restart':
+        command = `echo '${sudoPassword}' | sudo -S systemctl restart ${serviceName}`;
+        break;
+      default:
+        console.error('Invalid action');
+        return;
+    }
+
+    const commands = [command];
     this.executeCommands(commands);
   }
 
-  private executeCommands(commands: string[]) {
-    this.sshService.executeCommand(this.systemId, commands)
+  private executeCommands(commands: string[], sudoPassword?: string) {
+    this.sshService.executeCommand(this.systemId, commands, sudoPassword)
       .subscribe(
         (response: any) => {
           // Maneja la respuesta del servidor si es necesario

@@ -22,6 +22,7 @@ import { ProcessesComponent } from './components/options/processes/processes.com
 import { ServicesComponent } from './components/options/services/services.component';
 import { FilterServicesPipe } from './pipes/filter-services.pipe';
 import { OrderByPipe } from './pipes/order-by.pipe';
+import { PasswordModalComponent } from './components/password-modal/password-modal.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -48,7 +49,8 @@ function initializeApp(platformId: Object): () => void {
     ProcessesComponent,
     ServicesComponent,
     FilterServicesPipe,
-    OrderByPipe
+    OrderByPipe,
+    PasswordModalComponent
   ],
   imports: [
     BrowserModule,
