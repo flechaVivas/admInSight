@@ -58,19 +58,18 @@ export class ServicesComponent implements OnInit {
           const descriptionIndex = headers.indexOf('DESCRIPTION');
 
           this.services = lines
-            .filter((line: string) => line.trim() !== '')
+            .filter((line: string) => !line.includes('LOAD') && !line.includes('ACTIVE') && !line.includes('SUB') && !line.includes('listed') && !line.includes('To'))
             .map((line: string) => {
               const parts = line.trim().split(/\s+/);
-              const serviceName = parts[serviceNameIndex]?.replace(/^●/, '') || '';
+              const serviceName = parts[serviceNameIndex]?.replace(/^●\s?/, '') || '';
               const loadState = parts[loadStateIndex] || '';
               const activeState = parts[activeStateIndex] || '';
               const subState = parts[subStateIndex] || '';
               const description = parts.slice(descriptionIndex).join(' ') || '';
               const status = `${activeState} ${subState}`.trim();
-              const hasMarker = parts[serviceNameIndex]?.startsWith('●');
 
               return {
-                name: `${hasMarker ? '●' : ''} ${serviceName}`,
+                name: serviceName,
                 description,
                 status
               };
@@ -95,5 +94,34 @@ export class ServicesComponent implements OnInit {
 
   refreshServices() {
     this.fetchServiceInfo();
+  }
+
+  rebootService(serviceName: string) {
+    const commands = [`sudo systemctl restart ${serviceName}`];
+    this.executeCommands(commands);
+  }
+
+  stopService(serviceName: string) {
+    const commands = [`sudo systemctl stop ${serviceName}`];
+    this.executeCommands(commands);
+  }
+
+  startService(serviceName: string) {
+    const commands = [`sudo systemctl start ${serviceName}`];
+    this.executeCommands(commands);
+  }
+
+  private executeCommands(commands: string[]) {
+    this.sshService.executeCommand(this.systemId, commands)
+      .subscribe(
+        (response: any) => {
+          // Maneja la respuesta del servidor si es necesario
+          console.log(response);
+          this.fetchServiceInfo(); // Actualiza la lista de servicios después de ejecutar los comandos
+        },
+        (error) => {
+          console.error('Error al ejecutar los comandos:', error);
+        }
+      );
   }
 }
