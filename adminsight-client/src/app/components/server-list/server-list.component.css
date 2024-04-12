@@ -7,7 +7,6 @@
 .server-list .bg-gray-700 {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 1.35rem;
   width: 100%;
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
@@ -18,45 +17,13 @@
   color: #e2e8f0;
 }
 
-.server-list .bg-gray-700 .server-name-container {
-  transition: opacity 0.3s ease-in-out;
-}
-
 .server-list .bg-gray-700:hover .server-name-container {
   opacity: 1;
 }
 
-.server-list .bg-gray-700 .ml-4 {
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.server-list .bg-gray-700:hover .ml-4 {
-  opacity: 1;
-}
-
-.server-list .bg-gray-700.selected {
-  position: relative;
-}
-
-.server-list .bg-gray-700.selected .server-name-container {
-  opacity: 0;
-}
-
-.server-list .bg-gray-700.selected:hover .server-name-container {
-  opacity: 0;
-}
-
-.server-list .bg-gray-700.selected:hover .ml-4 {
-  opacity: 1;
-}
-
-.server-list .bg-gray-700.selected .ml-4 {
-  opacity: 0;
-  position: absolute;
-  right: 1.35rem;
-  top: 50%;
-  transform: translateY(-50%);
+.server-list .bg-gray-700 .server-name-container input {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search-input-container {
@@ -89,9 +56,4 @@
 
 .search-input-container.show+.servers-title {
   opacity: 0;
-}
-
-.selected-server {
-  background-color: white;
-  color: #374151;
 }

@@ -52,6 +52,32 @@ export class ServerListComponent {
     this.systemSelected.emit(system);
   }
 
+  isEditingSystemName(system: System): boolean {
+    return this.editingSystem?.id === system.id;
+  }
+
+  editSystemName(system: System) {
+    this.editingSystem = system;
+    this.editingSystemName = system.name;
+  }
+
+  saveSystemName(system: System) {
+    if (this.editingSystemName.trim() !== '') {
+      system.name = this.editingSystemName.trim();
+      this.systemService.updateSystem(system.id, system).subscribe(
+        () => {
+          this.editingSystem = null;
+          this.editingSystemName = '';
+          this.fetchSystems();
+        },
+        (error) => console.log(error)
+      );
+    } else {
+      this.editingSystem = null;
+      this.editingSystemName = '';
+    }
+  }
+
   deleteSystem(system: System) {
     this.openDeleteModal(system);
   }
@@ -79,20 +105,4 @@ export class ServerListComponent {
     }
   }
 
-  editSystemName(system: System) {
-    this.editingSystem = { ...system };
-    this.editingSystemName = system.name;
-  }
-
-  saveSystemName(system: System) {
-    system.name = this.editingSystemName;
-    this.systemService.updateSystem(system.id, system).subscribe(
-      () => {
-        this.editingSystem = null;
-        this.editingSystemName = '';
-        this.fetchSystems();
-      },
-      (error) => console.log(error)
-    );
-  }
 }
