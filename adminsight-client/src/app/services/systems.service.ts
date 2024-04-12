@@ -29,4 +29,14 @@ export class SystemService {
     return this.http.post(this.registerServerUrl, formData);
   }
 
+  deleteSystem(id: number): Observable<any> {
+    const url = `${this.apiUrl}${id}/`;
+    return this.http.delete(url);
+  }
+
+  updateSystem(id: number, system: System): Observable<System> {
+    const url = `${this.apiUrl}${id}/`;
+    return this.http.put<System>(url, system);
+  }
+
 }

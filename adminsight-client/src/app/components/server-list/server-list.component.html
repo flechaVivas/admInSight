@@ -10,24 +10,30 @@
       (click)="toggleSearch()"></i>
   </div>
   <div class="space-y-4">
-    @for (system of filteredSystems; track $index) {
-    <div class="bg-gray-700 rounded-lg p-4 flex items-center justify-between hover:bg-gray-600 transition-colors duration-200
-    relative" [ngClass]="{'selected-server': selectedSystem?.id === system.id}" (click)="selectSystem(system)">
-      <div
-        class="server-name-container flex-grow absolute inset-0 bg-gray-700 bg-opacity-50 hover:bg-opacity-0 transition-opacity duration-200">
+    <div *ngFor="let system of filteredSystems; let i = index"
+      class="bg-gray-700 rounded-lg p-4 flex items-center justify-between hover:bg-gray-600 transition-colors duration-200 relative"
+      [ngClass]="{'selected-server': selectedSystem?.id === system.id}">
+      <div *ngIf="editingSystem?.id !== system.id; else editInput"
+        class="server-name-container flex-grow absolute inset-0 bg-gray-700 bg-opacity-50 hover:bg-opacity-0 transition-opacity duration-200 cursor-pointer"
+        (click)="selectSystem(system)">
         <div class="font-bold truncate">{{ system.name }}</div>
       </div>
+      <ng-template #editInput>
+        <div class="flex items-center">
+          <input type="text" class="bg-gray-600 text-white rounded-lg px-2 py-1" [(ngModel)]="editingSystemName">
+          <i class="fa-solid fa-check text-green-500 ml-2 cursor-pointer" (click)="saveSystemName(editingSystem!)"></i>
+        </div>
+      </ng-template>
       <div class="ml-4 flex items-center justify-center absolute inset-0">
-        @if (selectedSystem?.id === system.id) {
-        <button class="text-blue-500 hover:text-blue-700 mr-1">
+        <button class="text-blue-500 hover:text-blue-700 mr-1" (click)="editSystemName(system)">
           <i class="fa-solid fa-pen-to-square w-5 h-5"></i>
         </button>
-        <button class="text-red-500 hover:text-red-700">
+        <button class="text-red-500 hover:text-red-700" (click)="deleteSystem(system)">
           <i class="fa-solid fa-trash w-5 h-5"></i>
         </button>
-        }
       </div>
     </div>
-    }
-
   </div>
+</div>
+<app-delete-confirmation-modal [visible]="showDeleteModal" [systemToDelete]="deletingSystem"
+  (confirmDelete)="confirmDelete()" (cancelDelete)="cancelDelete()"></app-delete-confirmation-modal>

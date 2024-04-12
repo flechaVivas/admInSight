@@ -1,0 +1,14 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center" *ngIf="visible">
+  <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
+    <h2 class="text-xl font-bold mb-4">Confirm Deletion</h2>
+    <p class="mb-6">Are you sure you want to delete {{ systemToDelete?.name }}?</p>
+    <div class="flex justify-end">
+      <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mr-2" (click)="confirmDelete.emit()">
+        Delete
+      </button>
+      <button class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded" (click)="cancelDelete.emit()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>

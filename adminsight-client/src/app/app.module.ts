@@ -22,7 +22,8 @@ import { ProcessesComponent } from './components/options/processes/processes.com
 import { ServicesComponent } from './components/options/services/services.component';
 import { FilterServicesPipe } from './pipes/filter-services.pipe';
 import { OrderByPipe } from './pipes/order-by.pipe';
-import { PasswordModalComponent } from './components/password-modal/password-modal.component';
+import { PasswordModalComponent } from './components/modals/password-modal/password-modal.component';
+import { DeleteConfirmationModalComponent } from './components/modals/delete-confirmation-modal/delete-confirmation-modal.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -50,7 +51,8 @@ function initializeApp(platformId: Object): () => void {
     ServicesComponent,
     FilterServicesPipe,
     OrderByPipe,
-    PasswordModalComponent
+    PasswordModalComponent,
+    DeleteConfirmationModalComponent
   ],
   imports: [
     BrowserModule,

@@ -12,12 +12,21 @@ export class ServerListComponent {
   filteredSystems: System[] = [];
   showSearch: boolean = false;
   selectedSystem: System | null = null;
+  editingSystem: System | null = null;
+  editingSystemName: string = '';
+
+  showDeleteModal: boolean = false;
+  deletingSystem: System | null = null;
 
   @Output() systemSelected = new EventEmitter<System>();
 
   constructor(private systemService: SystemService) { }
 
   ngOnInit() {
+    this.fetchSystems();
+  }
+
+  fetchSystems() {
     this.systemService.getSystems().subscribe(
       (systems) => {
         this.systems = systems;
@@ -41,5 +50,49 @@ export class ServerListComponent {
   selectSystem(system: System) {
     this.selectedSystem = system;
     this.systemSelected.emit(system);
+  }
+
+  deleteSystem(system: System) {
+    this.openDeleteModal(system);
+  }
+
+  cancelDelete() {
+    this.showDeleteModal = false;
+    this.deletingSystem = null;
+  }
+
+  openDeleteModal(system: System) {
+    this.deletingSystem = system;
+    this.showDeleteModal = true;
+  }
+
+  confirmDelete() {
+    if (this.deletingSystem) {
+      this.systemService.deleteSystem(this.deletingSystem.id).subscribe(
+        () => {
+          this.fetchSystems();
+          this.showDeleteModal = false;
+          this.deletingSystem = null;
+        },
+        (error) => console.log(error)
+      );
+    }
+  }
+
+  editSystemName(system: System) {
+    this.editingSystem = { ...system };
+    this.editingSystemName = system.name;
+  }
+
+  saveSystemName(system: System) {
+    system.name = this.editingSystemName;
+    this.systemService.updateSystem(system.id, system).subscribe(
+      () => {
+        this.editingSystem = null;
+        this.editingSystemName = '';
+        this.fetchSystems();
+      },
+      (error) => console.log(error)
+    );
   }
 }
