@@ -28,6 +28,8 @@ export class ServerOptionsComponent {
     'Terminal'
   ];
 
+  selectedOption: string | null = null; // Variable para almacenar la opción seleccionada
+
   constructor(private sshService: SshService, private router: Router) { }
 
   logout() {
@@ -39,6 +41,7 @@ export class ServerOptionsComponent {
 
   handleOptionClick(option: string) {
     this.optionSelected.emit(option);
+    this.selectedOption = option; // Actualiza la opción seleccionada
     // Lógica para cargar los datos correspondientes a la opción seleccionada
   }
 }
