@@ -4,23 +4,28 @@
   <ul class="space-y-2">
     <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
       <span class="text-gray-300">Kernel:</span>
-      <span class="text-white">{{ kernelInfo }}</span>
+      <span class="text-white" *ngIf="kernelInfo; else noKernelInfo">{{ kernelInfo }}</span>
+      <ng-template #noKernelInfo><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
     </li>
     <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
       <span class="text-gray-300">Hostname:</span>
-      <span class="text-white">{{ hostname }}</span>
+      <span class="text-white" *ngIf="hostname; else noHostname">{{ hostname }}</span>
+      <ng-template #noHostname><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
     </li>
     <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
       <span class="text-gray-300">Uptime:</span>
-      <span class="text-white">{{ uptime }}</span>
+      <span class="text-white" *ngIf="uptime; else noUptime">{{ uptime }}</span>
+      <ng-template #noUptime><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
     </li>
     <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
       <span class="text-gray-300">Distribution:</span>
-      <span class="text-white">{{ distribution }}</span>
+      <span class="text-white" *ngIf="distribution; else noDistribution">{{ distribution }}</span>
+      <ng-template #noDistribution><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
     </li>
     <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
       <span class="text-gray-300">Version:</span>
-      <span class="text-white">{{ version }}</span>
+      <span class="text-white" *ngIf="version; else noVersion">{{ version }}</span>
+      <ng-template #noVersion><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
     </li>
   </ul>
 </div>

@@ -25,6 +25,7 @@ export class OsInfoComponent implements OnInit {
   uptime: string = '';
   distribution: string = '';
   version: string = '';
+  dataLoaded = false; // Variable para indicar si los datos están cargados
 
   constructor(private sshService: SshService, private router: Router) { }
 
@@ -55,6 +56,7 @@ export class OsInfoComponent implements OnInit {
           this.uptime = response['uptime -p']?.stdout.trim() || '';
           this.distribution = response['cat /etc/os-release | grep PRETTY_NAME | cut -d \'"\' -f2']?.stdout.trim() || '';
           this.version = response['cat /etc/os-release | grep VERSION_ID | cut -d \'"\' -f2']?.stdout.trim() || '';
+          this.dataLoaded = true; // Actualiza dataLoaded a true una vez que los datos estén cargados
         },
         (error) => {
           console.error('Error al obtener la información del sistema operativo:', error);
