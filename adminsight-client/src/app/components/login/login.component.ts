@@ -16,7 +16,9 @@ export class LoginComponent implements OnInit {
   emailError: string = '';
   passwordError: string = '';
   loginError: string = '';
-  isLoading: boolean = false; // Nueva variable para controlar el spinner
+  isLoading: boolean = false;
+
+  passwordVisible: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -24,6 +26,10 @@ export class LoginComponent implements OnInit {
   ) { };
 
   ngOnInit(): void {
+  }
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible = !this.passwordVisible;
   }
 
   logInUser(): void {
