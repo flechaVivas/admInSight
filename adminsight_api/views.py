@@ -195,6 +195,23 @@ class LoginServerView(APIView):
             return Response({'error': 'Error al conectar al servidor'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    user = request.user
+    current_password = request.data.get('currentPassword')
+    new_password = request.data.get('newPassword')
+
+    if not user.check_password(current_password):
+        return Response({'error': 'La contraseña actual es incorrecta.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(new_password)
+    user.save()
+
+    return Response({'message': 'Contraseña actualizada exitosamente.'}, status=status.HTTP_200_OK)
+
+
 class ServerCommandView(APIView):
     def post(self, request):
         system_id = request.data.get('system_id')

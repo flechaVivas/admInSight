@@ -22,5 +22,6 @@ urlpatterns = [
     path('login-server/', views.LoginServerView.as_view(), name='login-server'),
     path('execute-command/', views.ServerCommandView.as_view(),
          name='execute-command'),
+    path('change-password/', views.change_password, name='change-password'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
