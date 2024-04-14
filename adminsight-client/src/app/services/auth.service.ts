@@ -72,7 +72,7 @@ export class AuthService {
       email: email
     };
 
-    return this.http.put('http://127.0.0.1:8000/api/profile', body, { headers });
+    return this.http.put('http://127.0.0.1:8000/api/update-profile/', body, { headers });
   }
 
   deleteAccount(): Observable<any> {
@@ -81,7 +81,7 @@ export class AuthService {
       'Authorization': `Token ${this.getToken()}`
     });
 
-    return this.http.delete('http://127.0.0.1:8000/api/profile', { headers });
+    return this.http.delete('http://127.0.0.1:8000/api/delete-account/', { headers });
   }
 
   // SSH Token

@@ -14,8 +14,13 @@
             formControlName="email" readonly>
           <small class="text-gray-400">El email no se puede editar</small>
         </div>
-        <button class="w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold" type="submit">
-          Update Profile
+        <div class="w-1/2 pl-4"></div>
+        <button
+          class="w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold flex items-center justify-center"
+          type="submit">
+          <i *ngIf="isLoadingProfile" class="fa-solid fa-spinner fa-spin-pulse mr-2"></i>
+          <span *ngIf="!isLoadingProfile && !isUpdateProfileSuccess">Update Profile</span>
+          <i *ngIf="isUpdateProfileSuccess" class="fa-solid fa-check mr-2"></i>
         </button>
         <button
           class="w-full py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold flex items-center justify-center mt-6"

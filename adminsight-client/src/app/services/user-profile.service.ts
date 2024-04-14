@@ -1,20 +1,17 @@
 import { Injectable } from '@angular/core';
-import { User } from '../auth';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserProfileService {
-
-  constructor(
-    private http: HttpClient
-  ) { }
+  private readonly USER_DATA_KEY = 'userData';
 
   getUserData(): any {
-    const userData = localStorage.getItem('userData');
+    const userData = localStorage.getItem(this.USER_DATA_KEY);
     return userData ? JSON.parse(userData) : null;
   }
 
+  setUserData(userData: any): void {
+    localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(userData));
+  }
 }

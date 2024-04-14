@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserProfileService } from '../../services/user-profile.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { LocalStorageService } from '../../services/local-storage.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -20,11 +21,15 @@ export class UserProfileComponent implements OnInit {
   isUpdateProfileSuccess: boolean = false;
   updateProfileError: string = '';
 
+  isLoadingProfile: boolean = false;
+  isLoadingPassword: boolean = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private userProfileService: UserProfileService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private localStorage: LocalStorageService
   ) {
     this.userProfileForm = this.formBuilder.group({
       username: ['', Validators.required],
@@ -47,6 +52,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   onUpdateProfile(): void {
+    this.isLoadingProfile = true;
     this.isLoading = true;
     this.isUpdateProfileSuccess = false;
     this.updateProfileError = '';
@@ -55,13 +61,14 @@ export class UserProfileComponent implements OnInit {
 
     this.authService.updateUserProfile(username, email)
       .subscribe(
-        () => {
+        (response) => {
           this.isUpdateProfileSuccess = true;
+          this.isLoadingProfile = false;
           this.updateProfileError = '';
           this.isLoading = false;
-          this.userData.username = username;
-          this.userData.email = email;
-          this.authService.setLoggedInUser(this.userData);
+          this.userData.username = response.username; // Actualizar username en userData
+          this.userData.email = response.email; // Actualizar email en userData
+          this.userProfileService.setUserData(this.userData); // Guardar userData actualizada
         },
         (error) => {
           this.updateProfileError = 'Error al actualizar el perfil de usuario';
@@ -72,6 +79,7 @@ export class UserProfileComponent implements OnInit {
 
   onChangePassword(): void {
     this.isLoading = true;
+    this.isLoadingPassword = true;
     const { currentPassword, newPassword, confirmNewPassword } = this.changePasswordForm.value;
 
     if (newPassword !== confirmNewPassword) {
@@ -105,10 +113,11 @@ export class UserProfileComponent implements OnInit {
   }
 
   deleteAccount(): void {
-    // Lógica para eliminar la cuenta del usuario
     this.authService.deleteAccount().subscribe(
       () => {
         this.closeDeleteAccountModal();
+        this.authService.logout(); // Cerrar sesión del usuario
+        this.localStorage.clear(); // Limpiar la localStorage
         this.router.navigate(['/login']);
       },
       (error) => {
