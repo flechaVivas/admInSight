@@ -1,0 +1,63 @@
+<div class="flex justify-center items-center h-screen bg-gray-800 text-white">
+  <div class="p-6 rounded-lg bg-gray-700 w-full max-w-4xl flex">
+    <div class="w-1/2 pr-4">
+      <h2 class="text-2xl font-bold mb-4">User Profile</h2>
+      <form [formGroup]="userProfileForm" (ngSubmit)="onUpdateProfile()">
+        <div class="mb-4">
+          <label class="block text-gray-300 font-medium mb-2" for="username">Username</label>
+          <input class="w-full px-3 py-2 rounded-lg bg-gray-600 text-white" type="text" id="username"
+            formControlName="username">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-300 font-medium mb-2" for="email">Email</label>
+          <input class="w-full px-3 py-2 rounded-lg bg-gray-600 text-white" type="email" id="email"
+            formControlName="email" readonly>
+          <small class="text-gray-400">El email no se puede editar</small>
+        </div>
+        <button class="w-full py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold" type="submit">
+          Update Profile
+        </button>
+        <button
+          class="w-full py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold flex items-center justify-center mt-6"
+          (click)="openDeleteAccountModal()">
+          <i class="fa-solid fa-trash mr-2"></i>
+          Delete Account
+        </button>
+      </form>
+    </div>
+
+    <div class="w-1/2 pl-4">
+      <h2 class="text-2xl font-bold mb-4">Change Password</h2>
+      <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePassword()">
+        <div class="mb-4">
+          <label class="block text-gray-300 font-medium mb-2" for="currentPassword">Current Password</label>
+          <input class="w-full px-3 py-2 rounded-lg bg-gray-600 text-white" type="password" id="currentPassword"
+            formControlName="currentPassword">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-300 font-medium mb-2" for="newPassword">New Password</label>
+          <input class="w-full px-3 py-2 rounded-lg bg-gray-600 text-white" type="password" id="newPassword"
+            formControlName="newPassword">
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-300 font-medium mb-2" for="confirmNewPassword">Confirm New Password</label>
+          <input class="w-full px-3 py-2 rounded-lg bg-gray-600 text-white" type="password" id="confirmNewPassword"
+            formControlName="confirmNewPassword">
+        </div>
+        <button
+          class="w-full py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold flex items-center justify-center"
+          type="submit" [disabled]="isLoading">
+          <i *ngIf="isLoading" class="fa-solid fa-spinner fa-spin-pulse mr-2"></i>
+          <span *ngIf="!isLoading && !isPasswordChangeSuccess">Change Password</span>
+          <i *ngIf="isPasswordChangeSuccess" class="fa-solid fa-check mr-2"></i>
+        </button>
+        <div class="flex justify-center mt-4">
+          <p class="text-red-500 font-bold text-lg" *ngIf="passwordChangeError">{{ passwordChangeError }}</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<app-delete-account-modal *ngIf="showDeleteAccountModal" (confirmDelete)="deleteAccount()"
+  (cancelDelete)="closeDeleteAccountModal()">
+</app-delete-account-modal>

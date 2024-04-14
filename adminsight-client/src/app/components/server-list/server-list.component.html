@@ -1,39 +1,39 @@
 <div class="p-4 flex-grow overflow-y-auto server-list">
   <div class="flex justify-between items-center mb-4 relative">
     <div class="flex items-center w-full">
-      <span class="mr-2 servers-title">Servers</span>
       <div class="search-input-container" [ngClass]="{ 'show': showSearch }">
         <input type="text" class="search-input" placeholder="Search servers..." (input)="filterServers($event)">
       </div>
+      <span class="servers-title">Servers</span>
     </div>
     <i class="fa-solid fa-magnifying-glass w-5 h-5 text-gray-400 hover:text-white search-icon cursor-pointer"
       (click)="toggleSearch()"></i>
   </div>
-</div>
-<div class="space-y-4">
-  <div *ngFor="let system of filteredSystems; let i = index" class="server-container">
-    <div class="server-name-container" [ngClass]="{'selected': selectedSystem?.id === system.id}"
-      (click)="selectSystem(system)" (dblclick)="editSystemName(system)">
-      <div *ngIf="!isEditingSystemName(system); else editNameTemplate" class="font-bold truncate">{{ system.name }}
+  <div class="separator"></div>
+  <div class="space-y-4">
+    <div *ngFor="let system of filteredSystems; let i = index" class="server-container">
+      <div class="server-name-container" [ngClass]="{'selected': selectedSystem?.id === system.id}"
+        (click)="selectSystem(system)" (dblclick)="editSystemName(system)">
+        <div *ngIf="!isEditingSystemName(system); else editNameTemplate" class="font-bold truncate">{{ system.name }}
+        </div>
+        <ng-template #editNameTemplate>
+          <input type="text" class="bg-gray-600 text-white rounded-lg px-2 py-1 w-full" [(ngModel)]="editingSystemName"
+            (keyup.enter)="saveSystemName(system)">
+        </ng-template>
       </div>
-      <ng-template #editNameTemplate>
-        <input type="text" class="bg-gray-600 text-white rounded-lg px-2 py-1 w-full" [(ngModel)]="editingSystemName"
-          (keyup.enter)="saveSystemName(system)">
-      </ng-template>
-    </div>
-    <div *ngIf="selectedSystem?.id === system.id" class="server-actions">
-      <i *ngIf="isEditingSystemName(system)" class="fa-solid fa-check text-green-500 cursor-pointer mr-2"
-        (click)="saveSystemName(system)"></i>
-      <button *ngIf="!isEditingSystemName(system)" class="text-blue-500 hover:text-blue-700 mr-1"
-        (click)="editSystemName(system)">
-        <i class="fa-solid fa-pen-to-square w-5 h-5"></i>
-      </button>
-      <button *ngIf="!isEditingSystemName(system)" class="text-red-500 hover:text-red-700"
-        (click)="openDeleteModal(system)">
-        <i class="fa-solid fa-trash w-5 h-5"></i>
-      </button>
+      <div *ngIf="selectedSystem?.id === system.id" class="server-actions">
+        <i *ngIf="isEditingSystemName(system)" class="fa-solid fa-check text-green-500 cursor-pointer"
+          (click)="saveSystemName(system)"></i>
+        <button *ngIf="!isEditingSystemName(system)" class="text-blue-500 hover:text-blue-700 mr-1"
+          (click)="editSystemName(system)">
+          <i class="fa-solid fa-pen-to-square w-5 h-5"></i>
+        </button>
+        <button *ngIf="!isEditingSystemName(system)" class="text-red-500 hover:text-red-700"
+          (click)="openDeleteModal(system)">
+          <i class="fa-solid fa-trash w-5 h-5"></i>
+        </button>
+      </div>
     </div>
   </div>
-</div>
-<app-delete-confirmation-modal [visible]="showDeleteModal" [systemToDelete]="deletingSystem"
-  (confirmDelete)="confirmDelete()" (cancelDelete)="cancelDelete()"></app-delete-confirmation-modal>
+  <app-delete-confirmation-modal [visible]="showDeleteModal" [systemToDelete]="deletingSystem"
+    (confirmDelete)="confirmDelete()" (cancelDelete)="cancelDelete()"></app-delete-confirmation-modal>

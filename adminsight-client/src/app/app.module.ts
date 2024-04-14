@@ -24,6 +24,8 @@ import { FilterServicesPipe } from './pipes/filter-services.pipe';
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { PasswordModalComponent } from './components/modals/password-modal/password-modal.component';
 import { DeleteConfirmationModalComponent } from './components/modals/delete-confirmation-modal/delete-confirmation-modal.component';
+import { UserProfileComponent } from './components/user-profile/user-profile.component';
+import { DeleteAccountModalComponent } from './components/modals/delete-account-modal/delete-account-modal.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -52,7 +54,9 @@ function initializeApp(platformId: Object): () => void {
     FilterServicesPipe,
     OrderByPipe,
     PasswordModalComponent,
-    DeleteConfirmationModalComponent
+    DeleteConfirmationModalComponent,
+    UserProfileComponent,
+    DeleteAccountModalComponent
   ],
   imports: [
     BrowserModule,

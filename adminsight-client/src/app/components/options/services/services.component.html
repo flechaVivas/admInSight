@@ -53,9 +53,9 @@
           <td class="py-4 px-6">{{ service.description }}</td>
           <td class="py-4 px-6">
             <span [ngClass]="{
-                'text-green-500 py-1 px-3 rounded-full': service.status === 'active running',
-                'text-red-500 py-1 px-3 rounded-full': service.status === 'inactive dead',
-                'text-yellow-500 py-1 px-3 rounded-full': service.status === 'active exited'
+              'text-green-500 py-1 px-3': service.status === 'active running',
+              'text-yellow-500 py-1 px-3': service.status === 'active exited',
+              'text-red-500 py-1 px-3': service.status === 'inactive dead'
               }">{{ service.status }}</span>
           </td>
           <td>

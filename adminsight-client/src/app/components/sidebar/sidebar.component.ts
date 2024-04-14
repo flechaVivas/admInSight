@@ -20,6 +20,8 @@ export class SidebarComponent implements OnInit {
 
   @Output() registerFormToggled = new EventEmitter<boolean>();
 
+  @Output() userProfileClicked = new EventEmitter<void>();
+
   constructor(
     private authService: AuthService,
     private systemService: SystemService,
@@ -38,6 +40,10 @@ export class SidebarComponent implements OnInit {
 
   toggleRegisterForm() {
     this.registerFormToggled.emit(true);
+  }
+
+  toggleUserProfile() {
+    this.userProfileClicked.emit();
   }
 
   onSystemSelected(system: System) {

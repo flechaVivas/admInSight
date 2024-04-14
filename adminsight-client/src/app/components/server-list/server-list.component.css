@@ -4,6 +4,14 @@
   gap: .8rem;
 }
 
+.separator {
+  height: 1px;
+  background-color: #4b5563;
+  width: 100%;
+  margin-bottom: 1rem;
+  margin-top: -1.8rem;
+}
+
 .server-container {
   display: flex;
   align-items: center;
@@ -46,7 +54,6 @@
 }
 
 /* Estilos de búsqueda */
-
 .search-input-container {
   transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
@@ -57,7 +64,7 @@
 
 .search-input-container.show {
   transform: translateX(0);
-  width: calc(100% - 2rem);
+  width: 100%;
   opacity: 1;
 }
 
