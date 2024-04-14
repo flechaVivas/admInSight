@@ -1,0 +1,138 @@
+<div class="flex flex-col h-full">
+  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+    <h2 class="text-2xl font-semibold">Usuarios y Grupos</h2>
+    <div class="flex items-center">
+      <div class="flex bg-gray-700 rounded-md">
+        <button class="py-2 px-4 rounded-l-md"
+          [ngClass]="{ 'bg-gray-600': activeTab === 'users', 'bg-gray-700': activeTab !== 'users' }"
+          (click)="activeTab = 'users'">
+          Users
+        </button>
+        <button class="py-2 px-4 rounded-r-md"
+          [ngClass]="{ 'bg-gray-600': activeTab === 'groups', 'bg-gray-700': activeTab !== 'groups' }"
+          (click)="activeTab = 'groups'">
+          Groups
+        </button>
+      </div>
+      <input type="text" placeholder="{{ activeTab === 'users' ? 'Search users...' : 'Search groups...' }}"
+        class="bg-gray-700 text-white py-2 px-4 rounded-md ml-4" [(ngModel)]="searchTerm" />
+    </div>
+  </div>
+  <div class="flex-1 overflow-auto">
+    <div *ngIf="activeTab === 'users'" class="h-full">
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortUsers('name')">
+              Username
+              <i class="fas fa-sort ml-2" [ngClass]="{
+                  'fas fa-sort-up': sortUserColumn === 'name' && sortUserDirection === 'asc',
+                  'fas fa-sort-down': sortUserColumn === 'name' && sortUserDirection === 'desc'
+                }"></i>
+            </th>
+            <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortUsers('uid')">
+              UID
+              <i class="fas fa-sort ml-2" [ngClass]="{
+                  'fas fa-sort-up': sortUserColumn === 'uid' && sortUserDirection === 'asc',
+                  'fas fa-sort-down': sortUserColumn === 'uid' && sortUserDirection === 'desc'
+                }"></i>
+            </th>
+            <th scope="col" class="py-3 px-6">Home Directory</th>
+            <th scope="col" class="py-3 px-6">Default Shell</th>
+            <th scope="col" class="py-3 px-6">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers | filterUsers: searchTerm | orderBy: sortUserColumn:sortUserDirection"
+            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <td class="py-4 px-6">
+              <input *ngIf="user.isEditing; else displayName" type="text"
+                class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="user.name" />
+              <ng-template #displayName>{{ user.name }}</ng-template>
+            </td>
+            <td class="py-4 px-6">{{ user.uid }}</td>
+            <td class="py-4 px-6">
+              <input *ngIf="user.isEditing" type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md"
+                [(ngModel)]="user.homeDir" />
+              <span *ngIf="!user.isEditing">{{ user.homeDir }}</span>
+            </td>
+            <td class="py-4 px-6">
+              <input *ngIf="user.isEditing" type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md"
+                [(ngModel)]="user.shell" />
+              <span *ngIf="!user.isEditing">{{ user.shell }}</span>
+            </td>
+            <td class="py-4 px-6">
+              <div class="flex items-center justify-center space-x-2">
+                <i *ngIf="!user.isEditing; else saveUserChanges" class="fas fa-edit cursor-pointer"
+                  (click)="user.isEditing = true"></i>
+                <ng-template #saveUserChanges>
+                  <i class="fas fa-check cursor-pointer" (click)="saveUser(user)"></i>
+                </ng-template>
+                <i class="fas fa-trash cursor-pointer" (click)="openDeleteUserModal(user)"></i>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="activeTab === 'groups'" class="h-full">
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortGroups('name')">
+              Group Name
+              <i class="fas fa-sort ml-2" [ngClass]="{
+                  'fas fa-sort-up': sortGroupColumn === 'name' && sortGroupDirection === 'asc',
+                  'fas fa-sort-down': sortGroupColumn === 'name' && sortGroupDirection === 'desc'
+                }"></i>
+            </th>
+            <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortGroups('gid')">
+              GID
+              <i class="fas fa-sort ml-2" [ngClass]="{
+                  'fas fa-sort-up': sortGroupColumn === 'gid' && sortGroupDirection === 'asc',
+                  'fas fa-sort-down': sortGroupColumn === 'gid' && sortGroupDirection === 'desc'
+                }"></i>
+            </th>
+            <th scope="col" class="py-3 px-6">Users</th>
+            <th scope="col" class="py-3 px-6">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let group of filteredGroups | filterGroups: searchTerm | orderBy: sortGroupColumn:sortGroupDirection"
+            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <td class="py-4 px-6">
+              <input *ngIf="group.isEditing; else displayName" type="text"
+                class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="group.name" />
+              <ng-template #displayName>{{ group.name }}</ng-template>
+            <td class="py-4 px-6">{{ group.gid }}</td>
+            <td class="py-4 px-6">
+              <input *ngIf="group.isEditing" type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md"
+                [(ngModel)]="group.users" />
+              <span *ngIf="!group.isEditing">{{ group.users.join(', ') }}</span>
+            </td>
+            <td class="py-4 px-6">
+              <div class="flex items-center justify-center space-x-2">
+                <i *ngIf="!group.isEditing; else saveGroupChanges" class="fas fa-edit cursor-pointer"
+                  (click)="group.isEditing = true"></i>
+                <ng-template #saveGroupChanges>
+                  <i class="fas fa-check cursor-pointer" (click)="saveGroup(group)"></i>
+                </ng-template>
+                <i class="fas fa-trash cursor-pointer" (click)="openDeleteGroupModal(group)"></i>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación de eliminación de usuario -->
+  <!-- <app-delete-user-group-modal *ngIf="showDeleteUserModal" [itemName]="deleteUserForm.name" [itemType]="'user'"
+    (confirmDelete)="deleteUser()" (cancelDelete)="closeDeleteUserModal()"></app-delete-user-group-modal> -->
+
+  <!-- Modal de confirmación de eliminación de grupo -->
+  <!-- <app-delete-user-group-modal *ngIf="showDeleteGroupModal" [itemName]="deleteGroupForm.name" [itemType]="'group'"
+    (confirmDelete)="deleteGroup()" (cancelDelete)="closeDeleteGroupModal()"></app-delete-user-group-modal> -->
+</div>

@@ -26,6 +26,8 @@ import { PasswordModalComponent } from './components/modals/password-modal/passw
 import { DeleteConfirmationModalComponent } from './components/modals/delete-confirmation-modal/delete-confirmation-modal.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { DeleteAccountModalComponent } from './components/modals/delete-account-modal/delete-account-modal.component';
+import { UsersGroupsComponent } from './components/options/users-groups/users-groups.component';
+import { FilterGroupsPipe, FilterUsersPipe } from './pipes/filter-users-groups.pipe';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -53,10 +55,13 @@ function initializeApp(platformId: Object): () => void {
     ServicesComponent,
     FilterServicesPipe,
     OrderByPipe,
+    FilterUsersPipe,
+    FilterGroupsPipe,
     PasswordModalComponent,
     DeleteConfirmationModalComponent,
     UserProfileComponent,
-    DeleteAccountModalComponent
+    DeleteAccountModalComponent,
+    UsersGroupsComponent,
   ],
   imports: [
     BrowserModule,
