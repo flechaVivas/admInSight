@@ -1,6 +1,6 @@
-<div class="flex flex-col h-full">
+<div class="h-full">
   <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
-    <h2 class="text-2xl font-semibold">Usuarios y Grupos</h2>
+    <h2 class="text-2xl font-semibold">Users & Groups</h2>
     <div class="flex items-center">
       <div class="flex bg-gray-700 rounded-md">
         <button class="py-2 px-4 rounded-l-md"
@@ -63,12 +63,12 @@
             </td>
             <td class="py-4 px-6">
               <div class="flex items-center justify-center space-x-2">
-                <i *ngIf="!user.isEditing; else saveUserChanges" class="fas fa-edit cursor-pointer"
-                  (click)="user.isEditing = true"></i>
-                <ng-template #saveUserChanges>
-                  <i class="fas fa-check cursor-pointer" (click)="saveUser(user)"></i>
+                <i *ngIf="!user.isEditing; else editMode" class="fas fa-edit cursor-pointer"
+                  (click)="editUser(user)"></i>
+                <ng-template #editMode>
+                  <i class="fas fa-check cursor-pointer" (click)="saveUserChanges(user)"></i>
                 </ng-template>
-                <i class="fas fa-trash cursor-pointer" (click)="openDeleteUserModal(user)"></i>
+                <i class="fas fa-trash cursor-pointer" (click)="deleteUser(user)"></i>
               </div>
             </td>
           </tr>
@@ -106,6 +106,7 @@
               <input *ngIf="group.isEditing; else displayName" type="text"
                 class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="group.name" />
               <ng-template #displayName>{{ group.name }}</ng-template>
+            </td>
             <td class="py-4 px-6">{{ group.gid }}</td>
             <td class="py-4 px-6">
               <input *ngIf="group.isEditing" type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md"
@@ -114,12 +115,12 @@
             </td>
             <td class="py-4 px-6">
               <div class="flex items-center justify-center space-x-2">
-                <i *ngIf="!group.isEditing; else saveGroupChanges" class="fas fa-edit cursor-pointer"
-                  (click)="group.isEditing = true"></i>
-                <ng-template #saveGroupChanges>
-                  <i class="fas fa-check cursor-pointer" (click)="saveGroup(group)"></i>
+                <i *ngIf="!group.isEditing; else editMode" class="fas fa-edit cursor-pointer"
+                  (click)="editGroup(group)"></i>
+                <ng-template #editMode>
+                  <i class="fas fa-check cursor-pointer" (click)="saveGroupChanges(group)"></i>
                 </ng-template>
-                <i class="fas fa-trash cursor-pointer" (click)="openDeleteGroupModal(group)"></i>
+                <i class="fas fa-trash cursor-pointer" (click)="deleteGroup(group)"></i>
               </div>
             </td>
           </tr>
@@ -128,11 +129,7 @@
     </div>
   </div>
 
-  <!-- Modal de confirmación de eliminación de usuario -->
-  <!-- <app-delete-user-group-modal *ngIf="showDeleteUserModal" [itemName]="deleteUserForm.name" [itemType]="'user'"
-    (confirmDelete)="deleteUser()" (cancelDelete)="closeDeleteUserModal()"></app-delete-user-group-modal> -->
+  <app-password-modal *ngIf="showDeleteGroupModal" (confirm)="confirmDeleteGroup()"
+    (cancel)="cancelDeleteGroup()"></app-password-modal>
 
-  <!-- Modal de confirmación de eliminación de grupo -->
-  <!-- <app-delete-user-group-modal *ngIf="showDeleteGroupModal" [itemName]="deleteGroupForm.name" [itemType]="'group'"
-    (confirmDelete)="deleteGroup()" (cancelDelete)="closeDeleteGroupModal()"></app-delete-user-group-modal> -->
 </div>

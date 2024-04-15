@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SshService } from '../../../services/ssh.service';
 import { Router } from '@angular/router';
+import { PasswordModalComponent } from '../../modals/password-modal/password-modal.component';
 
 export interface User {
   name: string;
@@ -43,6 +44,8 @@ export class UsersGroupsComponent implements OnInit {
   showDeleteGroupModal: boolean = false;
   deleteGroupForm: Group = { name: '', gid: 0, users: [], isEditing: false };
 
+  sudoPassword: string = '';
+
   constructor(private sshService: SshService, private router: Router) { }
 
   private systemId: number = Number(this.router.url.split('/')[2]);
@@ -55,7 +58,6 @@ export class UsersGroupsComponent implements OnInit {
       console.error('No se ha proporcionado el ID del sistema');
     }
   }
-
 
   fetchUserInfo() {
     const commands = [
@@ -74,7 +76,8 @@ export class UsersGroupsComponent implements OnInit {
               name,
               uid: parseInt(uid, 10),
               homeDir,
-              shell
+              shell,
+              isEditing: false
             };
           });
 
@@ -107,7 +110,8 @@ export class UsersGroupsComponent implements OnInit {
             return {
               name,
               gid: parseInt(gid, 10),
-              users
+              users,
+              isEditing: false
             };
           });
 
@@ -137,47 +141,147 @@ export class UsersGroupsComponent implements OnInit {
     }
   }
 
-  openDeleteUserModal(user: User) {
-    this.deleteUserForm = { ...user };
+  // DELETE USER
+  deleteUser(usuarioActual: User) {
+    this.deleteUserForm = { ...usuarioActual };
     this.showDeleteUserModal = true;
   }
 
-  closeDeleteUserModal() {
+  confirmDeleteUser() {
+    const commands = [`sudo userdel ${this.deleteUserForm.name}`];
+
+    this.sshService.executeCommand(this.systemId, commands, this.sudoPassword)
+      .subscribe(
+        () => {
+          this.fetchUserInfo();
+          this.showDeleteUserModal = false;
+          this.sudoPassword = '';
+        },
+        (error) => {
+          console.error('Error al eliminar el usuario:', error);
+        }
+      );
+  }
+
+  cancelDeleteUser() {
     this.showDeleteUserModal = false;
-    this.deleteUserForm = { name: '', uid: 0, homeDir: '', shell: '', isEditing: false };
+    this.sudoPassword = '';
   }
 
-  deleteUser() {
-    // Lógica para eliminar el usuario
-    console.log(`Eliminando usuario: ${this.deleteUserForm.name}`);
-    this.closeDeleteUserModal();
+  // EDIT USER
+
+  editUser(user: User) {
+    user.isEditing = true;
   }
 
-  openDeleteGroupModal(group: Group) {
+  saveUserChanges(user: User) {
+    const commands = [];
+
+    if (user.name !== this.users.find(u => u.uid === user.uid)?.name) {
+      commands.push(`sudo usermod -l ${user.name} ${this.users.find(u => u.uid === user.uid)?.name}`);
+    }
+
+    if (user.homeDir !== this.users.find(u => u.uid === user.uid)?.homeDir) {
+      commands.push(`sudo usermod -d ${user.homeDir} ${user.name}`);
+    }
+
+    if (user.shell !== this.users.find(u => u.uid === user.uid)?.shell) {
+      commands.push(`sudo usermod -s ${user.shell} ${user.name}`);
+    }
+
+    if (commands.length > 0) {
+      this.sshService.executeCommand(this.systemId, commands, this.sudoPassword)
+        .subscribe(
+          () => {
+            user.isEditing = false;
+            this.fetchUserInfo();
+            this.sudoPassword = '';
+          },
+          (error) => {
+            console.error('Error al editar el usuario:', error);
+          }
+        );
+    } else {
+      user.isEditing = false;
+    }
+  }
+
+  // EDIT GROUP
+
+  editGroup(group: Group) {
+    group.isEditing = true;
+  }
+
+  saveGroupChanges(group: Group) {
+    const commands = [];
+
+    if (group.name !== this.groups.find(g => g.gid === group.gid)?.name) {
+      commands.push(`sudo groupmod -n ${group.name} ${this.groups.find(g => g.gid === group.gid)?.name}`);
+    }
+
+    const newUsers = group.users.join(',');
+    const oldUsers = this.groups.find(g => g.gid === group.gid)?.users.join(',');
+
+    if (newUsers !== oldUsers) {
+      const oldUsersArray = oldUsers?.split(',') || [];
+      const newUsersArray = newUsers.split(',');
+
+      const usersToRemove = oldUsersArray.filter(user => !newUsersArray.includes(user));
+      const usersToAdd = newUsersArray.filter(user => !oldUsersArray.includes(user));
+
+      usersToRemove.forEach(user => {
+        commands.push(`sudo gpasswd -d ${user} ${group.name}`);
+      });
+
+      usersToAdd.forEach(user => {
+        commands.push(`sudo usermod -aG ${group.name} ${user}`);
+      });
+    }
+
+    if (commands.length > 0) {
+      this.sshService.executeCommand(this.systemId, commands, this.sudoPassword)
+        .subscribe(
+          () => {
+            group.isEditing = false;
+            this.fetchGroupInfo();
+            this.sudoPassword = '';
+          },
+          (error) => {
+            console.error('Error al editar el grupo:', error);
+          }
+        );
+    } else {
+      group.isEditing = false;
+    }
+  }
+
+  // DELETE GROUP
+
+  deleteGroup(group: Group) {
     this.deleteGroupForm = { ...group };
     this.showDeleteGroupModal = true;
   }
 
-  closeDeleteGroupModal() {
+  confirmDeleteGroup() {
+    const commands = [`sudo groupdel ${this.deleteGroupForm.name}`];
+
+    this.sshService.executeCommand(this.systemId, commands, this.sudoPassword)
+      .subscribe(
+        () => {
+          this.fetchGroupInfo();
+          this.showDeleteGroupModal = false;
+          this.sudoPassword = '';
+        },
+        (error) => {
+          console.error('Error al eliminar el grupo:', error);
+        }
+      );
+  }
+
+  cancelDeleteGroup() {
     this.showDeleteGroupModal = false;
-    this.deleteGroupForm = { name: '', gid: 0, users: [], isEditing: false };
+    this.sudoPassword = '';
   }
 
-  deleteGroup() {
-    // Lógica para eliminar el grupo
-    console.log(`Eliminando grupo: ${this.deleteGroupForm.name}`);
-    this.closeDeleteGroupModal();
-  }
 
-  saveUser(user: User) {
-    // Lógica para guardar los cambios del usuario
-    console.log(`Guardando cambios del usuario: ${user.name}`);
-    user.isEditing = false;
-  }
-
-  saveGroup(group: Group) {
-    // Lógica para guardar los cambios del grupo
-    console.log(`Guardando cambios del grupo: ${group.name}`);
-    group.isEditing = false;
-  }
 }
