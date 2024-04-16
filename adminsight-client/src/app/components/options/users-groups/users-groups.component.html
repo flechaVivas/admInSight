@@ -129,7 +129,8 @@
     </div>
   </div>
 
-  <app-password-modal *ngIf="showDeleteGroupModal" (confirm)="confirmDeleteGroup()"
-    (cancel)="cancelDeleteGroup()"></app-password-modal>
+  <!-- Password Modal -->
+  <app-password-modal *ngIf="showPasswordModal" title="Enter sudo password" (confirm)="onPasswordConfirm($event)"
+    (cancel)="onPasswordCancel()"></app-password-modal>
 
 </div>

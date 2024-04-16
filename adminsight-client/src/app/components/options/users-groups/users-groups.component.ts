@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { SshService } from '../../../services/ssh.service';
 import { Router } from '@angular/router';
 import { PasswordModalComponent } from '../../modals/password-modal/password-modal.component';
+import { UsersGroupsService } from '../../../services/users-groups.service';
 
 export interface User {
   name: string;
@@ -44,11 +45,17 @@ export class UsersGroupsComponent implements OnInit {
   showDeleteGroupModal: boolean = false;
   deleteGroupForm: Group = { name: '', gid: 0, users: [], isEditing: false };
 
-  sudoPassword: string = '';
 
-  constructor(private sshService: SshService, private router: Router) { }
+  constructor(private sshService: SshService,
+    private router: Router,
+    private usersGroupsService: UsersGroupsService,
+  ) { }
 
   private systemId: number = Number(this.router.url.split('/')[2]);
+
+  sudoPassword: string = '';
+  @ViewChild(PasswordModalComponent) passwordModal!: PasswordModalComponent;
+  showPasswordModal: boolean = false;
 
   ngOnInit() {
     if (this.systemId) {
@@ -141,141 +148,105 @@ export class UsersGroupsComponent implements OnInit {
     }
   }
 
-  // DELETE USER
-  deleteUser(usuarioActual: User) {
-    this.deleteUserForm = { ...usuarioActual };
-    this.showDeleteUserModal = true;
-  }
-
-  confirmDeleteUser() {
-    const commands = [`sudo userdel ${this.deleteUserForm.name}`];
-
-    this.sshService.executeCommand(this.systemId, commands, this.sudoPassword)
+  commandsToExecute: string[] = [];
+  private executeCommands(commands: string[], sudoPassword?: string) {
+    const sudoCommands = commands.map(command => `echo '${sudoPassword}' | sudo -S ${command}`);
+    this.sshService.executeCommand(this.systemId, sudoCommands)
       .subscribe(
-        () => {
+        (response: any) => {
+          console.log(response);
           this.fetchUserInfo();
-          this.showDeleteUserModal = false;
-          this.sudoPassword = '';
+          this.fetchGroupInfo();
         },
         (error) => {
-          console.error('Error al eliminar el usuario:', error);
+          console.error('Error al ejecutar los comandos:', error);
         }
       );
   }
 
+  onPasswordConfirm(sudoPassword: string) {
+    const sudoCommands = this.commandsToExecute.map(command => `echo '${sudoPassword}' | sudo -S ${command}`);
+    this.executeCommands(sudoCommands, sudoPassword);
+    this.showPasswordModal = false;
+    this.commandsToExecute = [];
+    this.sudoPassword = '';
+  }
+
+  onPasswordCancel() {
+    this.showPasswordModal = false;
+    this.commandsToExecute = [];
+    this.sudoPassword = '';
+  }
+
+  // DELETE USER
+  deleteUser(user: User) {
+    this.deleteUserForm = { ...user };
+    this.showPasswordModal = true;
+    this.commandsToExecute = [`userdel ${user.name}`];
+  }
+
+  confirmDeleteUser() {
+    this.commandsToExecute = [`userdel ${this.deleteUserForm.name}`];
+    this.showPasswordModal = true;
+  }
+
   cancelDeleteUser() {
-    this.showDeleteUserModal = false;
+    this.showPasswordModal = false;
     this.sudoPassword = '';
   }
 
   // EDIT USER
-
   editUser(user: User) {
     user.isEditing = true;
   }
 
   saveUserChanges(user: User) {
-    const commands = [];
+    const originalUser = this.users.find(u => u.uid === user.uid);
 
-    if (user.name !== this.users.find(u => u.uid === user.uid)?.name) {
-      commands.push(`sudo usermod -l ${user.name} ${this.users.find(u => u.uid === user.uid)?.name}`);
-    }
+    if (originalUser) {
+      const commands = this.usersGroupsService.generateUserUpdateCommands(user, originalUser);
 
-    if (user.homeDir !== this.users.find(u => u.uid === user.uid)?.homeDir) {
-      commands.push(`sudo usermod -d ${user.homeDir} ${user.name}`);
-    }
-
-    if (user.shell !== this.users.find(u => u.uid === user.uid)?.shell) {
-      commands.push(`sudo usermod -s ${user.shell} ${user.name}`);
-    }
-
-    if (commands.length > 0) {
-      this.sshService.executeCommand(this.systemId, commands, this.sudoPassword)
-        .subscribe(
-          () => {
-            user.isEditing = false;
-            this.fetchUserInfo();
-            this.sudoPassword = '';
-          },
-          (error) => {
-            console.error('Error al editar el usuario:', error);
-          }
-        );
-    } else {
-      user.isEditing = false;
+      if (commands.length > 0) {
+        this.commandsToExecute = commands;
+        this.passwordModal.title = 'Enter sudo password to update user';
+        this.showPasswordModal = true;
+      } else {
+        user.isEditing = false;
+      }
     }
   }
 
   // EDIT GROUP
-
   editGroup(group: Group) {
     group.isEditing = true;
   }
 
   saveGroupChanges(group: Group) {
-    const commands = [];
+    const originalGroup = this.groups.find(g => g.gid === group.gid);
 
-    if (group.name !== this.groups.find(g => g.gid === group.gid)?.name) {
-      commands.push(`sudo groupmod -n ${group.name} ${this.groups.find(g => g.gid === group.gid)?.name}`);
-    }
+    if (originalGroup) {
+      const commands = this.usersGroupsService.generateGroupUpdateCommands(group, originalGroup);
 
-    const newUsers = group.users.join(',');
-    const oldUsers = this.groups.find(g => g.gid === group.gid)?.users.join(',');
-
-    if (newUsers !== oldUsers) {
-      const oldUsersArray = oldUsers?.split(',') || [];
-      const newUsersArray = newUsers.split(',');
-
-      const usersToRemove = oldUsersArray.filter(user => !newUsersArray.includes(user));
-      const usersToAdd = newUsersArray.filter(user => !oldUsersArray.includes(user));
-
-      usersToRemove.forEach(user => {
-        commands.push(`sudo gpasswd -d ${user} ${group.name}`);
-      });
-
-      usersToAdd.forEach(user => {
-        commands.push(`sudo usermod -aG ${group.name} ${user}`);
-      });
-    }
-
-    if (commands.length > 0) {
-      this.sshService.executeCommand(this.systemId, commands, this.sudoPassword)
-        .subscribe(
-          () => {
-            group.isEditing = false;
-            this.fetchGroupInfo();
-            this.sudoPassword = '';
-          },
-          (error) => {
-            console.error('Error al editar el grupo:', error);
-          }
-        );
-    } else {
-      group.isEditing = false;
+      if (commands.length > 0) {
+        this.commandsToExecute = commands;
+        this.passwordModal.title = 'Enter sudo password to update group';
+        this.showPasswordModal = true;
+      } else {
+        group.isEditing = false;
+      }
     }
   }
 
   // DELETE GROUP
-
   deleteGroup(group: Group) {
     this.deleteGroupForm = { ...group };
-    this.showDeleteGroupModal = true;
+    this.showPasswordModal = true;
+    this.commandsToExecute = [`groupdel ${group.name}`];
   }
 
   confirmDeleteGroup() {
-    const commands = [`sudo groupdel ${this.deleteGroupForm.name}`];
-
-    this.sshService.executeCommand(this.systemId, commands, this.sudoPassword)
-      .subscribe(
-        () => {
-          this.fetchGroupInfo();
-          this.showDeleteGroupModal = false;
-          this.sudoPassword = '';
-        },
-        (error) => {
-          console.error('Error al eliminar el grupo:', error);
-        }
-      );
+    this.commandsToExecute = [`groupdel ${this.deleteGroupForm.name}`];
+    this.showPasswordModal = true;
   }
 
   cancelDeleteGroup() {

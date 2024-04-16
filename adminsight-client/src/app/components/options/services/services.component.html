@@ -70,6 +70,5 @@
     </table>
   </div>
 </div>
-<app-password-modal *ngIf="showPasswordModal" [serviceName]="currentServiceName" [action]="currentAction"
-  (confirm)="onPasswordConfirm($event.password, $event.serviceName, $event.action)"
+<app-password-modal *ngIf="showPasswordModal" title="Enter sudo password" (confirm)="onPasswordConfirm($event)"
   (cancel)="onPasswordCancel()"></app-password-modal>

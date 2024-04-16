@@ -118,8 +118,8 @@ export class ServicesComponent implements OnInit {
     this.currentAction = 'start';
   }
 
-  onPasswordConfirm(sudoPassword: string, serviceName: string, action: 'start' | 'stop' | 'restart') {
-    this.executeCommand(serviceName, action, sudoPassword);
+  onPasswordConfirm(sudoPassword: string) {
+    this.executeCommand(this.currentServiceName, this.currentAction, sudoPassword);
     this.showPasswordModal = false;
   }
 
