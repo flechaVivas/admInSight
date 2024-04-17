@@ -3,6 +3,7 @@ import { SshService } from '../../../services/ssh.service';
 import { Router } from '@angular/router';
 import { PasswordModalComponent } from '../../modals/password-modal/password-modal.component';
 import { UsersGroupsService } from '../../../services/users-groups.service';
+import { AddUserGroupModalComponent } from '../../modals/add-user-group-modal/add-user-group-modal.component';
 
 export interface User {
   name: string;
@@ -61,6 +62,10 @@ export class UsersGroupsComponent implements OnInit {
   sudoPassword: string = '';
   @ViewChild(PasswordModalComponent) passwordModal!: PasswordModalComponent;
   showPasswordModal: boolean = false;
+
+  showAddModal: boolean = false;
+  addModalType: 'user' | 'group' = 'user';
+  @ViewChild(AddUserGroupModalComponent) addModal!: AddUserGroupModalComponent;
 
   ngOnInit() {
     if (this.systemId) {
@@ -154,11 +159,10 @@ export class UsersGroupsComponent implements OnInit {
   }
 
   commandsToExecute: string[] = [];
-  private executeCommands(commands: string[], sudoPassword?: string) {
-    const sudoCommands = commands.map(command => `echo '${sudoPassword}' | sudo -S ${command}`);
-    this.sshService.executeCommand(this.systemId, sudoCommands)
+  executeCommands(commands: string[], sudoPassword?: string) {
+    this.sshService.executeCommand(this.systemId, commands, sudoPassword)
       .subscribe(
-        (response: any) => {
+        (response) => {
           console.log(response);
           this.fetchUserInfo();
           this.fetchGroupInfo();
@@ -181,6 +185,28 @@ export class UsersGroupsComponent implements OnInit {
     this.showPasswordModal = false;
     this.commandsToExecute = [];
     this.sudoPassword = '';
+  }
+
+  onAddConfirm(form: any) {
+    if (this.addModalType === 'user') {
+      const { username, password, homeDir, shell } = form;
+      const commands = [
+        `useradd -m -d ${homeDir} -s ${shell} ${username}`,
+        `echo "${username}:${password}" | chpasswd`
+      ];
+      this.commandsToExecute = commands;
+      this.showPasswordModal = true;
+    } else {
+      const { name } = form;
+      const commands = [`groupadd ${name}`];
+      this.commandsToExecute = commands;
+      this.showPasswordModal = true;
+    }
+    this.showAddModal = false;
+  }
+
+  onAddCancel() {
+    this.showAddModal = false;
   }
 
   // DELETE USER

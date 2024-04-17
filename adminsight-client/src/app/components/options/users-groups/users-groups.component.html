@@ -1,7 +1,7 @@
 <div class="h-full">
   <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
     <h2 class="text-2xl font-semibold">Users & Groups<i class="fa-solid fa-arrows-rotate cursor-pointer ml-2"
-        (click)=" refresh()"></i></h2>
+        (click)="refresh()"></i></h2>
     <div class="flex items-center">
       <div class="flex bg-gray-700 rounded-md">
         <button class="py-2 px-4 rounded-l-md"
@@ -15,6 +15,10 @@
           Groups
         </button>
       </div>
+      <button class="bg-green-500 text-white py-2 px-4 rounded-md ml-4"
+        (click)="showAddModal = true; addModalType = activeTab === 'users' ? 'user' : 'group'">
+        <i class="fas fa-plus mr-2"></i>{{ activeTab === 'users' ? 'Add User' : 'Add Group' }}
+      </button>
       <input type="text" placeholder="{{ activeTab === 'users' ? 'Search users...' : 'Search groups...' }}"
         class="bg-gray-700 text-white py-2 px-4 rounded-md ml-4" [(ngModel)]="searchTerm" />
     </div>
@@ -129,5 +133,9 @@
   <!-- Password Modal -->
   <app-password-modal *ngIf="showPasswordModal" title="Enter sudo password" (confirm)="onPasswordConfirm($event)"
     (cancel)="onPasswordCancel()"></app-password-modal>
+
+  <!-- Add Modal -->
+  <app-add-user-group-modal *ngIf="showAddModal" [title]="addModalType === 'user' ? 'Add User' : 'Add Group'"
+    [type]="addModalType" (confirm)="onAddConfirm($event)" (cancel)="onAddCancel()"></app-add-user-group-modal>
 
 </div>

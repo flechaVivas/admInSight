@@ -28,6 +28,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { DeleteAccountModalComponent } from './components/modals/delete-account-modal/delete-account-modal.component';
 import { UsersGroupsComponent } from './components/options/users-groups/users-groups.component';
 import { FilterGroupsPipe, FilterUsersPipe } from './pipes/filter-users-groups.pipe';
+import { AddUserGroupModalComponent } from './components/modals/add-user-group-modal/add-user-group-modal.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -62,6 +63,7 @@ function initializeApp(platformId: Object): () => void {
     UserProfileComponent,
     DeleteAccountModalComponent,
     UsersGroupsComponent,
+    AddUserGroupModalComponent,
   ],
   imports: [
     BrowserModule,

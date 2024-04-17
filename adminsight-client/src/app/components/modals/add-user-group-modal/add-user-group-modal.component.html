@@ -1,0 +1,44 @@
+<div class="fixed inset-0 flex items-center justify-center z-50">
+  <div class="bg-gray-700 rounded-lg shadow-lg p-6">
+    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+      <i class="fas fa-user-plus text-green-600"></i>
+    </div>
+    <h2 class="text-xl text-white font-bold mb-4 text-center">{{ title }}</h2>
+    <form (ngSubmit)="onConfirm()">
+      <div *ngIf="type === 'user'">
+        <div class="mb-4">
+          <label for="username" class="block text-white font-bold mb-2">Username:</label>
+          <input type="text" id="username" name="username" [(ngModel)]="form.username"
+            class="bg-gray-800 text-white py-2 px-5 rounded-md w-full" required>
+        </div>
+        <div class="mb-4">
+          <label for="password" class="block text-white font-bold mb-2">Password:</label>
+          <input type="password" id="password" name="password" [(ngModel)]="form.password"
+            class="bg-gray-800 text-white py-2 px-5 rounded-md w-full" required>
+        </div>
+        <div class="mb-4">
+          <label for="homeDir" class="block text-white font-bold mb-2">Home Directory:</label>
+          <input type="text" id="homeDir" name="homeDir" [(ngModel)]="form.homeDir"
+            class="bg-gray-800 text-white py-2 px-5 rounded-md w-full" required>
+        </div>
+        <div class="mb-4">
+          <label for="shell" class="block text-white font-bold mb-2">Shell:</label>
+          <input type="text" id="shell" name="shell" [(ngModel)]="form.shell"
+            class="bg-gray-800 text-white py-2 px-5 rounded-md w-full" required>
+        </div>
+      </div>
+      <div *ngIf="type === 'group'">
+        <div class="mb-4">
+          <label for="groupName" class="block text-white font-bold mb-2">Group Name:</label>
+          <input type="text" id="groupName" name="groupName" [(ngModel)]="form.name"
+            class="bg-gray-800 text-white py-2 px-5 rounded-md w-full" required>
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button type="button" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md mr-2"
+          (click)="onCancel()">Cancel</button>
+        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md">Confirm</button>
+      </div>
+    </form>
+  </div>
+</div>
