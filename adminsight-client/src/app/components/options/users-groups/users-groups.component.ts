@@ -296,5 +296,10 @@ export class UsersGroupsComponent implements OnInit {
     }
   }
 
+  refresh() {
+    this.fetchUserInfo();
+    this.fetchGroupInfo();
+  }
+
 
 }
