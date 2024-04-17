@@ -106,7 +106,8 @@
             <td class="py-4 px-6">{{ group.gid }}</td>
             <td class="py-4 px-6">
               <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="group.users"
-                [disabled]="!group.isEditing" />
+                (ngModelChange)="onGroupUsersChange(group)" [disabled]="!group.isEditing" />
+              <span *ngIf="group === editingGroup">{{ group.users }}</span>
             </td>
             <td class="py-4 px-6">
               <div class="flex items-center justify-center space-x-2">

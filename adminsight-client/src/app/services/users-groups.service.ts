@@ -32,25 +32,38 @@ export class UsersGroupsService {
       commands.push(`groupmod -n ${originalGroup.name} ${updatedGroup.name}`);
     }
 
-    const newUsers = updatedGroup.users.join(',');
-    const oldUsers = (originalGroup.users || []).join(',');
+    // Asegurándonos de que updatedGroup.users y originalGroup.users sean tratados como strings o arrays de strings
+    const newUsers = typeof updatedGroup.users === 'string'
+      ? (updatedGroup.users as string).split(',').map((u: string) => u.trim())
+      : Array.isArray(updatedGroup.users) ? updatedGroup.users : [];
 
-    if (newUsers !== oldUsers) {
-      const oldUsersArray = oldUsers.split(',').filter(Boolean);
-      const newUsersArray = newUsers.split(',');
+    const oldUsers = typeof originalGroup.users === 'string'
+      ? (originalGroup.users as string).split(',').filter(Boolean)
+      : Array.isArray(originalGroup.users) ? originalGroup.users : [];
 
-      const usersToRemove = oldUsersArray.filter(user => !newUsersArray.includes(user));
-      const usersToAdd = newUsersArray.filter(user => !oldUsersArray.includes(user));
+    if (
+      (Array.isArray(newUsers) && Array.isArray(oldUsers) && (newUsers.length !== oldUsers.length || newUsers.some((user, index) => user !== oldUsers[index]))) ||
+      (!Array.isArray(newUsers) && !Array.isArray(oldUsers) && newUsers !== oldUsers)
+    ) {
+      const oldUsersArray = Array.isArray(oldUsers) ? oldUsers : [];
+      const newUsersArray = Array.isArray(newUsers) ? newUsers : [];
 
-      usersToRemove.forEach(user => {
-        commands.push(`gpasswd -d ${updatedGroup.name} ${user}`);
+      const usersToRemove = oldUsersArray.filter((user: string) => !newUsersArray.includes(user));
+      const usersToAdd = newUsersArray.filter((user: string) => !oldUsersArray.includes(user));
+
+      usersToAdd.forEach((user: string) => {
+        commands.push(`gpasswd -d ${user} ${updatedGroup.name}`);
       });
 
-      usersToAdd.forEach(user => {
-        commands.push(`usermod -aG ${user} ${updatedGroup.name}`);
+      usersToRemove.forEach((user: string) => {
+        commands.push(`gpasswd -a ${user} ${updatedGroup.name}`);
       });
+
     }
 
     return commands;
   }
+
+
+
 }
