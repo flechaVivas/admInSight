@@ -45,6 +45,11 @@ export class UsersGroupsComponent implements OnInit {
   showDeleteGroupModal: boolean = false;
   deleteGroupForm: Group = { name: '', gid: 0, users: [], isEditing: false };
 
+  editingUser: User | null = null;
+  originalUser: User | null = null;
+  editingGroup: Group | null = null;
+  originalGroup: Group | null = null;
+
 
   constructor(private sshService: SshService,
     private router: Router,
@@ -197,42 +202,49 @@ export class UsersGroupsComponent implements OnInit {
 
   // EDIT USER
   editUser(user: User) {
+    this.editingUser = { ...user };
+    this.users.forEach(u => u.isEditing = false);
     user.isEditing = true;
   }
 
   saveUserChanges(user: User) {
-    const originalUser = this.users.find(u => u.uid === user.uid);
+    if (this.editingUser) {
+      const originalUser = this.users.find(u => u.uid === this.editingUser!.uid);
 
-    if (originalUser) {
-      const commands = this.usersGroupsService.generateUserUpdateCommands(user, originalUser);
+      if (originalUser) {
+        const commands = this.usersGroupsService.generateUserUpdateCommands(this.editingUser, originalUser);
 
-      if (commands.length > 0) {
-        this.commandsToExecute = commands;
-        this.passwordModal.title = 'Enter sudo password to update user';
-        this.showPasswordModal = true;
-      } else {
-        user.isEditing = false;
+        if (commands.length > 0) {
+          this.commandsToExecute = commands;
+          this.showPasswordModal = true;
+        } else {
+          user.isEditing = false;
+          this.editingUser = null;
+        }
       }
     }
   }
 
   // EDIT GROUP
   editGroup(group: Group) {
+    this.editingGroup = { ...group };
+    this.groups.forEach(g => g.isEditing = false);
     group.isEditing = true;
   }
-
   saveGroupChanges(group: Group) {
-    const originalGroup = this.groups.find(g => g.gid === group.gid);
+    if (this.editingGroup) {
+      const originalGroup = this.groups.find(g => g.gid === this.editingGroup!.gid);
 
-    if (originalGroup) {
-      const commands = this.usersGroupsService.generateGroupUpdateCommands(group, originalGroup);
+      if (originalGroup) {
+        const commands = this.usersGroupsService.generateGroupUpdateCommands(this.editingGroup, originalGroup);
 
-      if (commands.length > 0) {
-        this.commandsToExecute = commands;
-        this.passwordModal.title = 'Enter sudo password to update group';
-        this.showPasswordModal = true;
-      } else {
-        group.isEditing = false;
+        if (commands.length > 0) {
+          this.commandsToExecute = commands;
+          this.showPasswordModal = true;
+        } else {
+          group.isEditing = false;
+          this.editingGroup = null;
+        }
       }
     }
   }
@@ -252,6 +264,36 @@ export class UsersGroupsComponent implements OnInit {
   cancelDeleteGroup() {
     this.showDeleteGroupModal = false;
     this.sudoPassword = '';
+  }
+
+  onUserNameChange(user: User) {
+    if (this.editingUser && this.originalUser) {
+      this.editingUser.name = user.name;
+    }
+  }
+
+  onUserHomeDirChange(user: User) {
+    if (this.editingUser && this.originalUser) {
+      this.editingUser.homeDir = user.homeDir;
+    }
+  }
+
+  onUserShellChange(user: User) {
+    if (this.editingUser && this.originalUser) {
+      this.editingUser.shell = user.shell;
+    }
+  }
+
+  onGroupNameChange(group: Group) {
+    if (this.editingGroup && this.originalGroup) {
+      this.editingGroup.name = group.name;
+    }
+  }
+
+  onGroupUsersChange(group: Group) {
+    if (this.editingGroup && this.originalGroup) {
+      this.editingGroup.users = group.users;
+    }
   }
 
 

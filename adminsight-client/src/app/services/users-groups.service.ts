@@ -11,15 +11,15 @@ export class UsersGroupsService {
     const commands: string[] = [];
 
     if (updatedUser.name !== originalUser.name) {
-      commands.push(`usermod -l ${updatedUser.name} ${originalUser.name}`);
+      commands.push(`usermod -l ${originalUser.name} ${updatedUser.name}`);
     }
 
     if (updatedUser.homeDir !== originalUser.homeDir) {
-      commands.push(`usermod -d ${updatedUser.homeDir} ${updatedUser.name}`);
+      commands.push(`usermod -d ${originalUser.homeDir} ${updatedUser.name}`);
     }
 
     if (updatedUser.shell !== originalUser.shell) {
-      commands.push(`usermod -s ${updatedUser.shell} ${updatedUser.name}`);
+      commands.push(`usermod -s ${originalUser.shell} ${updatedUser.name}`);
     }
 
     return commands;
@@ -29,7 +29,7 @@ export class UsersGroupsService {
     const commands: string[] = [];
 
     if (updatedGroup.name !== originalGroup.name) {
-      commands.push(`groupmod -n ${updatedGroup.name} ${originalGroup.name}`);
+      commands.push(`groupmod -n ${originalGroup.name} ${updatedGroup.name}`);
     }
 
     const newUsers = updatedGroup.users.join(',');
@@ -43,11 +43,11 @@ export class UsersGroupsService {
       const usersToAdd = newUsersArray.filter(user => !oldUsersArray.includes(user));
 
       usersToRemove.forEach(user => {
-        commands.push(`gpasswd -d ${user} ${updatedGroup.name}`);
+        commands.push(`gpasswd -d ${updatedGroup.name} ${user}`);
       });
 
       usersToAdd.forEach(user => {
-        commands.push(`usermod -aG ${updatedGroup.name} ${user}`);
+        commands.push(`usermod -aG ${user} ${updatedGroup.name}`);
       });
     }
 

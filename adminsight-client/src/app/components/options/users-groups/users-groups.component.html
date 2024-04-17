@@ -46,20 +46,17 @@
           <tr *ngFor="let user of filteredUsers | filterUsers: searchTerm | orderBy: sortUserColumn:sortUserDirection"
             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
             <td class="py-4 px-6">
-              <input *ngIf="user.isEditing; else displayName" type="text"
-                class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="user.name" />
-              <ng-template #displayName>{{ user.name }}</ng-template>
+              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="user.name"
+                [disabled]="!user.isEditing" />
             </td>
             <td class="py-4 px-6">{{ user.uid }}</td>
             <td class="py-4 px-6">
-              <input *ngIf="user.isEditing" type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md"
-                [(ngModel)]="user.homeDir" />
-              <span *ngIf="!user.isEditing">{{ user.homeDir }}</span>
+              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="user.homeDir"
+                [disabled]="!user.isEditing" />
             </td>
             <td class="py-4 px-6">
-              <input *ngIf="user.isEditing" type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md"
-                [(ngModel)]="user.shell" />
-              <span *ngIf="!user.isEditing">{{ user.shell }}</span>
+              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="user.shell"
+                [disabled]="!user.isEditing" />
             </td>
             <td class="py-4 px-6">
               <div class="flex items-center justify-center space-x-2">
@@ -103,15 +100,13 @@
             *ngFor="let group of filteredGroups | filterGroups: searchTerm | orderBy: sortGroupColumn:sortGroupDirection"
             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
             <td class="py-4 px-6">
-              <input *ngIf="group.isEditing; else displayName" type="text"
-                class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="group.name" />
-              <ng-template #displayName>{{ group.name }}</ng-template>
+              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="group.name"
+                [disabled]="!group.isEditing" />
             </td>
             <td class="py-4 px-6">{{ group.gid }}</td>
             <td class="py-4 px-6">
-              <input *ngIf="group.isEditing" type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md"
-                [(ngModel)]="group.users" />
-              <span *ngIf="!group.isEditing">{{ group.users.join(', ') }}</span>
+              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="group.users"
+                [disabled]="!group.isEditing" />
             </td>
             <td class="py-4 px-6">
               <div class="flex items-center justify-center space-x-2">
