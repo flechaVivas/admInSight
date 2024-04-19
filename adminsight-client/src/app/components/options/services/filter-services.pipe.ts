@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Service } from '../components/options/services/services.component';
+import { Service } from './services.component';
 
 @Pipe({
   name: 'filterServices'

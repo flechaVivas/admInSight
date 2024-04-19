@@ -20,18 +20,18 @@ import { OsInfoComponent } from './components/options/os-info/os-info.component'
 import { HardwareComponent } from './components/options/hardware/hardware.component';
 import { ProcessesComponent } from './components/options/processes/processes.component';
 import { ServicesComponent } from './components/options/services/services.component';
-import { FilterServicesPipe } from './pipes/filter-services.pipe';
+import { FilterServicesPipe } from './components/options/services/filter-services.pipe';
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { PasswordModalComponent } from './components/modals/password-modal/password-modal.component';
 import { DeleteConfirmationModalComponent } from './components/modals/delete-confirmation-modal/delete-confirmation-modal.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { DeleteAccountModalComponent } from './components/modals/delete-account-modal/delete-account-modal.component';
 import { UsersGroupsComponent } from './components/options/users-groups/users-groups.component';
-import { FilterGroupsPipe, FilterUsersPipe } from './pipes/filter-users-groups.pipe';
+import { FilterGroupsPipe, FilterUsersPipe } from './components/options/users-groups/filter-users-groups.pipe';
 import { AddUserGroupModalComponent } from './components/modals/add-user-group-modal/add-user-group-modal.component';
 import { PackagesComponent } from './components/options/packages/packages.component';
 import { InstallPackageModalComponent } from './components/modals/install-package-modal/install-package-modal.component';
-import { FilterPackagesPipe } from './pipes/filter-packages.pipe';
+import { FilterPackagesPipe } from './components/options/packages/filter-packages.pipe';
 
 function initializeApp(platformId: Object): () => void {
   return () => {

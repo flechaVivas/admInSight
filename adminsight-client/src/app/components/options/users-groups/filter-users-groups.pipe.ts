@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { User, Group } from '../components/options/users-groups/users-groups.component';
+import { User, Group } from './users-groups.component';
 
 @Pipe({
   name: 'filterUsers'
