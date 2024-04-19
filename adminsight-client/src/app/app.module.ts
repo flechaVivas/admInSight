@@ -29,6 +29,9 @@ import { DeleteAccountModalComponent } from './components/modals/delete-account-
 import { UsersGroupsComponent } from './components/options/users-groups/users-groups.component';
 import { FilterGroupsPipe, FilterUsersPipe } from './pipes/filter-users-groups.pipe';
 import { AddUserGroupModalComponent } from './components/modals/add-user-group-modal/add-user-group-modal.component';
+import { PackagesComponent } from './components/options/packages/packages.component';
+import { InstallPackageModalComponent } from './components/modals/install-package-modal/install-package-modal.component';
+import { FilterPackagesPipe } from './pipes/filter-packages.pipe';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -64,6 +67,9 @@ function initializeApp(platformId: Object): () => void {
     DeleteAccountModalComponent,
     UsersGroupsComponent,
     AddUserGroupModalComponent,
+    PackagesComponent,
+    InstallPackageModalComponent,
+    FilterPackagesPipe
   ],
   imports: [
     BrowserModule,

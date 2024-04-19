@@ -1,0 +1,64 @@
+<div class="h-full">
+  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+    <h2 class="text-2xl font-semibold">Packages</h2>
+    <div class="flex items-center">
+      <button class="bg-green-500 text-white py-2 px-4 rounded-md" (click)="showInstallModal = true">
+        <i class="fas fa-plus mr-2"></i>Install Package
+      </button>
+      <input type="text" placeholder="Search packages..." class="bg-gray-700 text-white py-2 px-4 rounded-md"
+        [(ngModel)]="searchTerm" />
+    </div>
+  </div>
+  <div class="flex-1 overflow-auto">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('name')">
+            Package Name
+            <i class="fas fa-sort ml-2" [ngClass]="{
+                'fas fa-sort-up': sortColumn === 'name' && sortDirection === 'asc',
+                'fas fa-sort-down': sortColumn === 'name' && sortDirection === 'desc'
+              }"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('version')">
+            Version
+            <i class="fas fa-sort ml-2" [ngClass]="{
+                'fas fa-sort-up': sortColumn === 'version' && sortDirection === 'asc',
+                'fas fa-sort-down': sortColumn === 'version' && sortDirection === 'desc'
+              }"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('size')">
+            Size
+            <i class="fas fa-sort ml-2" [ngClass]="{
+                'fas fa-sort-up': sortColumn === 'size' && sortDirection === 'asc',
+                'fas fa-sort-down': sortColumn === 'size' && sortDirection === 'desc'
+              }"></i>
+          </th>
+          <th scope="col" class="py-3 px-6">Description</th>
+          <th scope="col" class="py-3 px-6">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let package of filteredPackages | filterPackages: searchTerm | orderBy: sortColumn:sortDirection"
+          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+          <td class="py-4 px-6">{{ package.name }}</td>
+          <td class="py-4 px-6">{{ package.version }}</td>
+          <td class="py -4 px-6">{{ package.size }}</td>
+          <td class="py-4 px-6">{{ package.description }}</td>
+          <td class="py-4 px-6">
+            <div class="flex items-center justify-center space-x-2">
+              <i class="fas fa-sync-alt cursor-pointer" (click)="updatePackage(package)"></i>
+              <i class="fas fa-trash cursor-pointer" (click)="removePackage(package)"></i>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-password-modal *ngIf="showPasswordModal" title="Enter sudo password" (confirm)="onPasswordConfirm($event)"
+    (cancel)="onPasswordCancel()"></app-password-modal>
+
+  <app-install-package-modal *ngIf="showInstallModal" (confirm)="onInstallConfirm($event)"
+    (cancel)="onInstallCancel()"></app-install-package-modal>
+</div>
