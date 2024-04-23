@@ -3,14 +3,16 @@ import { SshService } from '../../../services/ssh.service';
 import { Router } from '@angular/router';
 import { PasswordModalComponent } from '../../modals/password-modal/password-modal.component';
 import { InstallPackageModalComponent } from '../../modals/install-package-modal/install-package-modal.component';
-import { Observable, map } from 'rxjs';
+import { Observable, forkJoin, map } from 'rxjs';
 
 
 export interface PackageInfo {
   name: string;
   version: string;
   size: string;
+  architecture: string;
   description: string;
+  status?: string;
 }
 
 @Component({
@@ -24,9 +26,12 @@ export class PackagesComponent implements OnInit {
   searchTerm: string = '';
   sortColumn: string = 'name';
   sortDirection: string = 'asc';
+  showPackageDetails: { [key: string]: boolean } = {};
 
   showPasswordModal: boolean = false;
   showInstallModal: boolean = false;
+
+  sizeFilter: 'installed' | 'uninstalled' | 'all' = 'all';
 
   sudoPassword: string = '';
   @ViewChild(PasswordModalComponent) passwordModal!: PasswordModalComponent;
@@ -77,111 +82,151 @@ export class PackagesComponent implements OnInit {
   }
 
   fetchInstalledPackages() {
-    let commands: string[] = [];
+    const listCommand: string[] = [];
+    const sizeCommand: string[] = [];
 
     switch (this.packageManager) {
       case 'apt':
-        commands = ['dpkg --list'];
+        listCommand.push('dpkg --list');
+        sizeCommand.push("dpkg-query -Wf '${db:Status-Status} ${Installed-Size}\\t${Package}\\n' | sed -ne 's/^installed //p' | sort -n");
         break;
       case 'yum':
-        commands = ['yum list installed'];
+        listCommand.push('yum list installed');
+        // Agrega el comando correspondiente para obtener los tamaños de los paquetes en yum
         break;
       case 'dnf':
-        commands = ['dnf list installed'];
+        listCommand.push('dnf list installed');
+        // Agrega el comando correspondiente para obtener los tamaños de los paquetes en dnf
         break;
       default:
         console.error('No se pudo identificar el package manager');
         return;
     }
 
+    const listObservable = this.sshService.executeCommand(this.systemId, listCommand);
+    const sizeObservable = this.sshService.executeCommand(this.systemId, sizeCommand);
+
+    forkJoin([listObservable, sizeObservable]).subscribe(
+      ([listResponse, sizeResponse]) => {
+        const output = listResponse[listCommand[0]]?.stdout || '';
+        const sizeOutput = sizeResponse[sizeCommand[0]]?.stdout || '';
+
+        const lines = output.trim().split('\n');
+        const sizeLines = sizeOutput.trim().split('\n');
+
+        const sizeMap = new Map<string, string>();
+
+        for (const line of sizeLines) {
+          const [size, name] = line.split('\t');
+          sizeMap.set(name, size);
+        }
+
+        switch (this.packageManager) {
+          case 'apt':
+            this.packages = lines.slice(5).map((line: string) => {
+              const parts = line.split(/\s+/);
+              const name = parts[1];
+              const version = parts[2];
+              const description = parts.slice(4).join(' ');
+              const sizeInBytes = parseInt(sizeMap.get(name) || '0', 10); // Convertir el tamaño a número
+              const formattedSize = this.formatPackageSize(sizeInBytes);
+
+              return {
+                name,
+                version,
+                size: formattedSize,
+                description,
+                architecture: ''
+              };
+            });
+            break;
+          case 'yum':
+          case 'dnf':
+            this.packages = lines.slice(1).map((line: string) => {
+              const parts = line.trim().split(/\s+/);
+              const name = parts[0];
+              const version = parts[1];
+              const description = parts.slice(3).join(' ');
+              const size = sizeMap.get(name) || 'N/A';
+
+              return {
+                name,
+                version,
+                size,
+                description,
+                architecture: ''
+              };
+            });
+            break;
+          default:
+            console.error('No se pudo identificar el package manager');
+            return;
+        }
+
+        this.filteredPackages = [...this.packages];
+      },
+      (error) => {
+        console.error('Error al obtener la lista de paquetes:', error);
+      }
+    );
+  }
+
+  togglePackageDetails(packageName: string) {
+    if (this.showPackageDetails[packageName]) {
+      this.showPackageDetails[packageName] = false;
+    } else {
+      this.getPackageDetails(packageName);
+    }
+  }
+
+  getPackageDetails(packageName: string) {
+    const commands = [`dpkg -s ${packageName}`];
+
     this.sshService.executeCommand(this.systemId, commands)
       .subscribe(
         (response: any) => {
           const output = response[commands[0]]?.stdout || '';
           const lines = output.trim().split('\n');
+          const architectureLine = lines.find((line: string) => line.includes('Architecture'));
+          const statusLine = lines.find((line: string) => line.includes('Status'));
 
-          switch (this.packageManager) {
-            case 'apt':
-              this.packages = lines.map((line: string) => {
-                const parts = line.split(/\s+/);
-                const name = parts[1];
-                const version = parts[2];
-                const size = parts[3];
-                const description = parts.slice(4).join(' ');
+          if (architectureLine && statusLine) {
+            const architecture = architectureLine.split(':')[1].trim();
+            const status = statusLine.split(':')[1].trim();
 
-                return {
-                  name,
-                  version,
-                  size,
-                  description
-                };
-              });
-
-              this.packages.forEach(pkg => {
-                this.getPackageSize(pkg.name).subscribe(size => pkg.size = size);
-              });
-              break;
-            case 'yum':
-              // Omitir la línea de encabezado
-              const yumPackagesLines = lines.slice(1);
-
-              this.packages = yumPackagesLines.map((line: string) => {
-                const parts = line.trim().split(/\s+/);
-                const name = parts[0];
-                const version = parts[1];
-                const size = parts[2];
-                const description = parts.slice(3).join(' ');
-
-                return {
-                  name,
-                  version,
-                  size,
-                  description
-                };
-              });
-              break;
-            case 'dnf':
-              // Omitir la línea de encabezado
-              const packagesLines = lines.slice(1);
-
-              this.packages = packagesLines.map((line: string) => {
-                const parts = line.trim().split(/\s+/);
-                const name = parts[0];
-                const version = parts[1];
-                const size = parts[2];
-                const description = parts.slice(3).join(' ');
-
-                return {
-                  name,
-                  version,
-                  size,
-                  description
-                };
-              });
-              break;
-            default:
-              console.error('No se pudo identificar el package manager');
-              return;
+            const packageIndex = this.packages.findIndex(pkg => pkg.name === packageName);
+            if (packageIndex !== -1) {
+              this.packages[packageIndex].architecture = architecture;
+              this.packages[packageIndex].status = status;
+              this.filteredPackages = [...this.packages];
+              this.showPackageDetails[packageName] = true;
+            }
           }
-
-          this.filteredPackages = [...this.packages];
         },
         (error) => {
-          console.error('Error al obtener la lista de paquetes:', error);
+          console.error(`Error al obtener los detalles del paquete ${packageName}:`, error);
         }
       );
   }
 
+
+
+  trackByName(index: number, package_info: PackageInfo): string {
+    return package_info.name;
+  }
+
   getPackageSize(packageName: string): Observable<string> {
-    const commands = [`dpkg -s ${packageName}`];
+    const commands = [
+      "dpkg-query -Wf '${db:Status-Status} ${Installed-Size}\\t${Package}\\n' | sed -ne 's/^installed //p' | sort -n"
+    ];
 
     return this.sshService.executeCommand(this.systemId, commands).pipe(
       map((response: any) => {
         const output = response[commands[0]]?.stdout || '';
         const lines = output.trim().split('\n');
-        const sizeLine = lines.find((line: string) => line.includes('Installed-Size'));
+        const sizeLine = lines.find((line: string) => line.includes(packageName));
         if (sizeLine) {
-          const size = sizeLine.split(':')[1].trim();
+          const [size] = sizeLine.split('\t');
           return size;
         } else {
           return 'N/A';
@@ -190,6 +235,21 @@ export class PackagesComponent implements OnInit {
     );
   }
 
+  formatPackageSize(sizeInKB: number): string {
+
+    let unitIndex = 0;
+    let size = sizeInKB;
+
+    if (sizeInKB >= 1000000) {
+      size /= 1024;
+      unitIndex = 3;
+    } else if (sizeInKB >= 1000) {
+      size /= 1024;
+      unitIndex = 2;
+    }
+
+    return `${size.toFixed(2)} ${['Bytes', 'KB', 'MB', 'GB', 'TB'][unitIndex]}`;
+  }
 
   updatePackage(package_info: PackageInfo) {
     let commands: string[] = [];
@@ -300,4 +360,4 @@ export class PackagesComponent implements OnInit {
       this.sortDirection = 'asc';
     }
   }
-} 
+}  

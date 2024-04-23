@@ -2,11 +2,20 @@
   <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
     <h2 class="text-2xl font-semibold">Packages</h2>
     <div class="flex items-center">
-      <button class="bg-green-500 text-white py-2 px-4 rounded-md" (click)="showInstallModal = true">
+      <button class="bg-green-500 text-white py-2 px-4 rounded-md mr-4" (click)="showInstallModal = true">
         <i class="fas fa-plus mr-2"></i>Install Package
       </button>
-      <input type="text" placeholder="Search packages..." class="bg-gray-700 text-white py-2 px-4 rounded-md"
+      <input type="text" placeholder="Search packages..." class="bg-gray-700 text-white py-2 px-4 rounded-md mr-4"
         [(ngModel)]="searchTerm" />
+      <div class="flex items-center">
+        <div class="mr-4">
+          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="sizeFilter">
+            <option value="all">All</option>
+            <option value="installed">Installed</option>
+            <option value="uninstalled">Uninstalled</option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
   <div class="flex-1 overflow-auto">
@@ -20,6 +29,7 @@
                 'fas fa-sort-down': sortColumn === 'name' && sortDirection === 'desc'
               }"></i>
           </th>
+          <th scope="col" class="py-3 px-6">Description</th>
           <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('version')">
             Version
             <i class="fas fa-sort ml-2" [ngClass]="{
@@ -34,24 +44,25 @@
                 'fas fa-sort-down': sortColumn === 'size' && sortDirection === 'desc'
               }"></i>
           </th>
-          <th scope="col" class="py-3 px-6">Description</th>
-          <th scope="col" class="py-3 px-6">Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let package of filteredPackages | filterPackages: searchTerm | orderBy: sortColumn:sortDirection"
-          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-          <td class="py-4 px-6">{{ package.name }}</td>
-          <td class="py-4 px-6">{{ package.version }}</td>
-          <td class="py -4 px-6">{{ package.size }}</td>
-          <td class="py-4 px-6">{{ package.description }}</td>
-          <td class="py-4 px-6">
-            <div class="flex items-center justify-center space-x-2">
-              <i class="fas fa-sync-alt cursor-pointer" (click)="updatePackage(package)"></i>
-              <i class="fas fa-trash cursor-pointer" (click)="removePackage(package)"></i>
-            </div>
-          </td>
-        </tr>
+        <ng-container
+          *ngFor="let package of filteredPackages | filterPackages: searchTerm:sizeFilter | orderBy: sortColumn:sortDirection">
+          <tr (click)="togglePackageDetails(package.name)"
+            class="border-b dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
+            <td class="py-4 px-6">{{ package.name }}</td>
+            <td class="py-4 px-6">{{ package.description }}</td>
+            <td class="py-4 px-6">{{ package.version }}</td>
+            <td class="py-4 px-6">{{ package.size }}</td>
+          </tr>
+          <tr *ngIf="showPackageDetails[package.name]"
+            class="bg-gray-200 border-b dark:bg-gray-700 dark:border-gray-600">
+            <td colspan="4" class="py-2 px-6">
+              Architecture: {{ package.architecture }} | Status: {{ package.status }}
+            </td>
+          </tr>
+        </ng-container>
       </tbody>
     </table>
   </div>
