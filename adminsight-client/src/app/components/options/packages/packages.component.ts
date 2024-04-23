@@ -27,12 +27,11 @@ export class PackagesComponent implements OnInit {
   sortColumn: string = 'name';
   sortDirection: string = 'asc';
   showPackageDetails: { [key: string]: boolean } = {};
-
-  showPasswordModal: boolean = false;
   showInstallModal: boolean = false;
 
   sizeFilter: 'installed' | 'uninstalled' | 'all' = 'all';
 
+  showPasswordModal: boolean = false;
   sudoPassword: string = '';
   @ViewChild(PasswordModalComponent) passwordModal!: PasswordModalComponent;
   @ViewChild(InstallPackageModalComponent) installModal!: InstallPackageModalComponent;
@@ -323,34 +322,49 @@ export class PackagesComponent implements OnInit {
       );
   }
 
+  onInstallPackage(packageName: string) {
+    this.showPasswordModal = true;
+    this.showInstallModal = false;
+    this.packageToInstall = packageName;
+  }
+
   onPasswordConfirm(sudoPassword: string) {
-    const sudoCommands = this.commandsToExecute.map(command => `echo '${sudoPassword}' | sudo -S ${command}`);
-    this.executeCommands(sudoCommands, sudoPassword);
+    this.sudoPassword = sudoPassword;
+    this.installPackage(this.packageToInstall, sudoPassword);
     this.showPasswordModal = false;
-    this.commandsToExecute = [];
-    this.sudoPassword = '';
+    this.packageToInstall = '';
   }
 
   onPasswordCancel() {
     this.showPasswordModal = false;
-    this.commandsToExecute = [];
-    this.sudoPassword = '';
+    this.packageToInstall = '';
   }
 
-  onInstallConfirm(packageName: string) {
-    const commands = [
-      // Comandos para instalar el paquete según el package manager
-      // Ejemplo para APT:
-      `apt-get install ${packageName}`
-    ];
 
-    this.commandsToExecute = commands;
-    this.showPasswordModal = true;
+  onInstallConfirm($event: string) {
+    this.showInstallModal = true;
   }
 
   onInstallCancel() {
     this.showInstallModal = false;
   }
+
+  installPackage(packageName: string, sudoPassword: string) {
+    const commands = [`sudo apt install ${packageName}`];
+
+    this.sshService.executeCommand(this.systemId, commands, sudoPassword)
+      .subscribe(
+        (response) => {
+          this.fetchInstalledPackages();
+        },
+        (error) => {
+          console.error('Error al instalar el paquete:', error);
+        }
+      );
+  }
+
+  private packageToInstall: string = '';
+
 
   sortPackages(column: string) {
     if (this.sortColumn === column) {

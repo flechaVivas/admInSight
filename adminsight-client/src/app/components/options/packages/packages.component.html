@@ -70,6 +70,6 @@
   <app-password-modal *ngIf="showPasswordModal" title="Enter sudo password" (confirm)="onPasswordConfirm($event)"
     (cancel)="onPasswordCancel()"></app-password-modal>
 
-  <app-install-package-modal *ngIf="showInstallModal" (confirm)="onInstallConfirm($event)"
+  <app-install-package-modal *ngIf="showInstallModal" (install)="onInstallPackage($event)"
     (cancel)="onInstallCancel()"></app-install-package-modal>
 </div>
