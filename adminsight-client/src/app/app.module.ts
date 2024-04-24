@@ -32,6 +32,7 @@ import { AddUserGroupModalComponent } from './components/modals/add-user-group-m
 import { PackagesComponent } from './components/options/packages/packages.component';
 import { InstallPackageModalComponent } from './components/modals/install-package-modal/install-package-modal.component';
 import { FilterPackagesPipe } from './components/options/packages/filter-packages.pipe';
+import { StringOrderPipe } from './pipes/string-order.pipe';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -59,6 +60,7 @@ function initializeApp(platformId: Object): () => void {
     ServicesComponent,
     FilterServicesPipe,
     OrderByPipe,
+    StringOrderPipe,
     FilterUsersPipe,
     FilterGroupsPipe,
     PasswordModalComponent,

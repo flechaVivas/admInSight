@@ -52,7 +52,7 @@
     </thead>
     <tbody>
       <ng-container
-        *ngFor="let package of filteredPackages | filterPackages: searchTerm:sizeFilter | orderBy: sortColumn:sortDirection">
+        *ngFor="let package of filteredPackages | filterPackages: searchTerm:sizeFilter | stringOrder: sortColumn:sortDirection | orderBySize: sortColumn:sortDirection">
         <tr (click)="togglePackageDetails(package.name)"
           class="border-b dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
           <td class="py-4 px-6">{{ package.name }}</td>
@@ -79,6 +79,6 @@
   <app-password-modal *ngIf="showPasswordModal" title="Enter sudo password" (confirm)="onPasswordConfirm($event)"
     (cancel)="onPasswordCancel()"></app-password-modal>
 
-  <app-install-package-modal *ngIf="showInstallModal" (install)="onInstallPackage($event)"
-    (cancel)="onInstallCancel()"></app-install-package-modal>
+  <app-install-package-modal *ngIf="showInstallModal" (install)="onInstallPackage($event)" (cancel)="onInstallCancel()"
+    [packageManager]="packageManager"></app-install-package-modal>
 </div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PackageInfo } from '../../options/packages/packages.component';
 import { SshService } from '../../../services/ssh.service';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ export class InstallPackageModalComponent {
   searchTerm: string = '';
   searchResults: PackageInfo[] = [];
 
+  @Input() packageManager: 'apt' | 'yum' | 'dnf' | 'unknown' = 'unknown';
 
   @Output() install = new EventEmitter<string>();
   @Output() cancel = new EventEmitter();
@@ -25,7 +26,22 @@ export class InstallPackageModalComponent {
   private systemId: number = Number(this.router.url.split('/')[2]);
 
   searchPackages(searchTerm: string) {
-    const commands = [`apt search ${searchTerm}`];
+    const commands: string[] = [];
+
+    switch (this.packageManager) {
+      case 'apt':
+        commands.push(`apt search ${searchTerm}`);
+        break;
+      case 'yum':
+        commands.push(`yum search ${searchTerm}`);
+        break;
+      case 'dnf':
+        commands.push(`dnf search ${searchTerm}`);
+        break;
+      default:
+        console.error('No se pudo identificar el package manager');
+        return;
+    }
 
     this.sshService.executeCommand(this.systemId, commands)
       .subscribe(
@@ -57,6 +73,21 @@ export class InstallPackageModalComponent {
   }
 
   installPackage(packageName: string) {
+    const commands: string[] = [];
+    switch (this.packageManager) {
+      case 'apt':
+        commands.push(`sudo apt install ${packageName}`);
+        break;
+      case 'yum':
+        commands.push(`sudo yum install ${packageName}`);
+        break;
+      case 'dnf':
+        commands.push(`sudo dnf install ${packageName}`);
+        break;
+      default:
+        console.error('No se pudo identificar el package manager');
+        return;
+    }
     this.install.emit(packageName);
   }
 

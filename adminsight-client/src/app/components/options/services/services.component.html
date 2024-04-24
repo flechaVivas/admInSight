@@ -47,7 +47,7 @@
         <tr *ngFor="
             let service of filteredServices
               | filterServices: searchTerm:activeFilter:enabledFilter
-              | orderBy: sortColumn:sortDirection
+              | stringOrder: sortColumn:sortDirection
           " class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
           <td class="py-4 px-6">{{ service.name }}</td>
           <td class="py-4 px-6">{{ service.description }}</td>

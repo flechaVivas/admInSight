@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { PasswordModalComponent } from '../../modals/password-modal/password-modal.component';
 import { InstallPackageModalComponent } from '../../modals/install-package-modal/install-package-modal.component';
 import { Observable, forkJoin, map } from 'rxjs';
+import { StringOrderPipe } from '../../../pipes/string-order.pipe';
 
 
 export interface PackageInfo {
@@ -38,7 +39,7 @@ export class PackagesComponent implements OnInit {
   @ViewChild(PasswordModalComponent) passwordModal!: PasswordModalComponent;
   @ViewChild(InstallPackageModalComponent) installModal!: InstallPackageModalComponent;
 
-  private packageManager: 'apt' | 'yum' | 'dnf' | 'unknown' = 'unknown';
+  packageManager: 'apt' | 'yum' | 'dnf' | 'unknown' = 'unknown';
   private packageToInstall: string = '';
 
   constructor(private sshService: SshService, private router: Router) { }
@@ -93,12 +94,10 @@ export class PackagesComponent implements OnInit {
         sizeCommand.push("dpkg-query -Wf '${db:Status-Status} ${Installed-Size}\\t${Package}\\n' | sed -ne 's/^installed //p' | sort -n");
         break;
       case 'yum':
-        listCommand.push('yum list installed');
-        // Agrega el comando correspondiente para obtener los tamaños de los paquetes en yum
+        listCommand.push('yum info installed');
         break;
       case 'dnf':
-        listCommand.push('dnf list installed');
-        // Agrega el comando correspondiente para obtener los tamaños de los paquetes en dnf
+        listCommand.push('dnf info installed');
         break;
       default:
         console.error('No se pudo identificar el package manager');
@@ -123,6 +122,9 @@ export class PackagesComponent implements OnInit {
           sizeMap.set(name, size);
         }
 
+        const packages = [];
+        let currentPackage = null;
+
         switch (this.packageManager) {
           case 'apt':
             this.packages = lines.slice(5).map((line: string) => {
@@ -143,22 +145,110 @@ export class PackagesComponent implements OnInit {
             });
             break;
           case 'yum':
-          case 'dnf':
-            this.packages = lines.slice(1).map((line: string) => {
-              const parts = line.trim().split(/\s+/);
-              const name = parts[0];
-              const version = parts[1];
-              const description = parts.slice(3).join(' ');
-              const size = sizeMap.get(name) || 'N/A';
 
-              return {
-                name,
-                version,
-                size,
-                description,
-                architecture: ''
-              };
-            });
+            for (const line of lines) {
+              if (line.trim() === '') {
+                if (currentPackage) {
+                  packages.push(currentPackage);
+                }
+                currentPackage = null;
+              } else if (line.startsWith('Name')) {
+                currentPackage = {
+                  name: line.split(':')[1].trim(),
+                  version: '',
+                  size: '',
+                  description: '',
+                  architecture: '',
+                  status: ''
+                };
+              } else if (currentPackage) {
+                const [key, value] = line.split(':', 2);
+                switch (key.trim()) {
+                  case 'Version':
+                    currentPackage.version = value.trim();
+                    break;
+                  case 'Size':
+                    const sizeMatch = value.trim().match(/(\d+(\.\d+)?)\s*(\w+)/);
+                    if (sizeMatch) {
+                      const sizeValue = parseFloat(sizeMatch[1]);
+                      const sizeUnit = sizeMatch[3].toUpperCase();
+                      currentPackage.size = `${sizeValue} ${sizeUnit}`;
+                    } else {
+                      currentPackage.size = value.trim();
+                    }
+                    break;
+                  case 'Summary':
+                    currentPackage.description = value.trim();
+                    break;
+                  case 'Architecture':
+                    currentPackage.architecture = value.trim();
+                    break;
+                  case 'Status':
+                    currentPackage.status = value.trim();
+                    break;
+                }
+              }
+            }
+
+            if (currentPackage) {
+              packages.push(currentPackage);
+            }
+
+            this.packages = packages;
+            this.filteredPackages = [...this.packages];
+            break;
+          case 'dnf':
+
+            for (const line of lines) {
+              if (line.trim() === '') {
+                if (currentPackage) {
+                  packages.push(currentPackage);
+                }
+                currentPackage = null;
+              } else if (line.startsWith('Name')) {
+                currentPackage = {
+                  name: line.split(':')[1].trim(),
+                  version: '',
+                  size: '',
+                  description: '',
+                  architecture: '',
+                  status: ''
+                };
+              } else if (currentPackage) {
+                const [key, value] = line.split(':', 2);
+                switch (key.trim()) {
+                  case 'Version':
+                    currentPackage.version = value.trim();
+                    break;
+                  case 'Size':
+                    const sizeMatch = value.trim().match(/(\d+(\.\d+)?)\s*(\w+)/);
+                    if (sizeMatch) {
+                      const sizeValue = parseFloat(sizeMatch[1]);
+                      const sizeUnit = sizeMatch[3].toUpperCase();
+                      currentPackage.size = `${sizeValue} ${sizeUnit}`;
+                    } else {
+                      currentPackage.size = value.trim();
+                    }
+                    break;
+                  case 'Summary':
+                    currentPackage.description = value.trim();
+                    break;
+                  case 'Architecture':
+                    currentPackage.architecture = value.trim();
+                    break;
+                  case 'Status':
+                    currentPackage.status = value.trim();
+                    break;
+                }
+              }
+            }
+
+            if (currentPackage) {
+              packages.push(currentPackage);
+            }
+
+            this.packages = packages;
+            this.filteredPackages = [...this.packages];
             break;
           default:
             console.error('No se pudo identificar el package manager');
@@ -177,12 +267,24 @@ export class PackagesComponent implements OnInit {
     if (this.showPackageDetails[packageName]) {
       this.showPackageDetails[packageName] = false;
     } else {
-      this.getPackageDetails(packageName);
+      if (this.packageManager === 'apt') {
+        this.getPackageDetails(packageName);
+      } else {
+        this.showPackageDetails[packageName] = true;
+      }
     }
   }
 
   getPackageDetails(packageName: string) {
-    const commands = [`dpkg -s ${packageName}`];
+    const commands: string[] = [];
+    switch (this.packageManager) {
+      case 'apt':
+        commands.push(`dpkg -s ${packageName}`);
+        break;
+      default:
+        console.error('No se pudo identificar el package manager');
+        return;
+    }
 
     this.sshService.executeCommand(this.systemId, commands)
       .subscribe(
@@ -212,30 +314,10 @@ export class PackagesComponent implements OnInit {
   }
 
 
-
   trackByName(index: number, package_info: PackageInfo): string {
     return package_info.name;
   }
 
-  getPackageSize(packageName: string): Observable<string> {
-    const commands = [
-      "dpkg-query -Wf '${db:Status-Status} ${Installed-Size}\\t${Package}\\n' | sed -ne 's/^installed //p' | sort -n"
-    ];
-
-    return this.sshService.executeCommand(this.systemId, commands).pipe(
-      map((response: any) => {
-        const output = response[commands[0]]?.stdout || '';
-        const lines = output.trim().split('\n');
-        const sizeLine = lines.find((line: string) => line.includes(packageName));
-        if (sizeLine) {
-          const [size] = sizeLine.split('\t');
-          return size;
-        } else {
-          return 'N/A';
-        }
-      })
-    );
-  }
 
   formatPackageSize(sizeInKB: number): string {
 
@@ -262,12 +344,12 @@ export class PackagesComponent implements OnInit {
         break;
       case 'yum':
         commands = [
-          `yum update ${package_info.name}`
+          `sudo yum update ${package_info.name}`
         ];
         break;
       case 'dnf':
         commands = [
-          `dnf update ${package_info.name}`
+          `sudo dnf update ${package_info.name}`
         ];
         break;
       default:
@@ -302,7 +384,27 @@ export class PackagesComponent implements OnInit {
   }
 
   reinstallPackage(package_info: PackageInfo) {
-    const commands = [`sudo dpkg-reconfigure ${package_info.name}`];
+
+    let commands: string[] = [];
+    switch (this.packageManager) {
+      case 'apt':
+        commands = [`sudo dpkg-reconfigure ${package_info.name}`];
+        break;
+      case 'yum':
+        commands = [
+          `sudo yum reinstall ${package_info.name}`
+        ];
+        break;
+      case 'dnf':
+        commands = [
+          `sudo dnf reinstall ${package_info.name}`
+        ];
+        break;
+      default:
+        console.error('No se pudo identificar el package manager');
+        return;
+    }
+
     this.commandsToExecute = commands;
     this.showPasswordModal = true;
   }
@@ -318,12 +420,12 @@ export class PackagesComponent implements OnInit {
         break;
       case 'yum':
         commands = [
-          `yum remove ${package_info.name}`
+          `sudo yum remove ${package_info.name}`
         ];
         break;
       case 'dnf':
         commands = [
-          `dnf remove ${package_info.name}`
+          `sudo dnf remove ${package_info.name}`
         ];
         break;
       default:
