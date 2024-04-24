@@ -29,6 +29,8 @@ export class PackagesComponent implements OnInit {
   showPackageDetails: { [key: string]: boolean } = {};
   showInstallModal: boolean = false;
 
+  commandsToExecute: string[] = [];
+
   sizeFilter: 'installed' | 'uninstalled' | 'all' = 'all';
 
   showPasswordModal: boolean = false;
@@ -37,6 +39,7 @@ export class PackagesComponent implements OnInit {
   @ViewChild(InstallPackageModalComponent) installModal!: InstallPackageModalComponent;
 
   private packageManager: 'apt' | 'yum' | 'dnf' | 'unknown' = 'unknown';
+  private packageToInstall: string = '';
 
   constructor(private sshService: SshService, private router: Router) { }
 
@@ -255,10 +258,7 @@ export class PackagesComponent implements OnInit {
 
     switch (this.packageManager) {
       case 'apt':
-        commands = [
-          'apt-get update',
-          `apt-get install --only-upgrade ${package_info.name}`
-        ];
+        commands = [`sudo apt-get update && sudo apt-get install --only-upgrade ${package_info.name}`];
         break;
       case 'yum':
         commands = [
@@ -279,13 +279,41 @@ export class PackagesComponent implements OnInit {
     this.showPasswordModal = true;
   }
 
+  updateAllPackages() {
+    let commands: string[] = [];
+
+    switch (this.packageManager) {
+      case 'apt':
+        commands = ['sudo apt-get update && sudo apt-get upgrade'];
+        break;
+      case 'yum':
+        commands = ['sudo yum update'];
+        break;
+      case 'dnf':
+        commands = ['sudo dnf upgrade'];
+        break;
+      default:
+        console.error('No se pudo identificar el package manager');
+        return;
+    }
+
+    this.commandsToExecute = commands;
+    this.showPasswordModal = true;
+  }
+
+  reinstallPackage(package_info: PackageInfo) {
+    const commands = [`sudo dpkg-reconfigure ${package_info.name}`];
+    this.commandsToExecute = commands;
+    this.showPasswordModal = true;
+  }
+
   removePackage(package_info: PackageInfo) {
     let commands: string[] = [];
 
     switch (this.packageManager) {
       case 'apt':
         commands = [
-          `apt-get remove --purge ${package_info.name}`
+          `sudo dpkg -P ${package_info.name}`
         ];
         break;
       case 'yum':
@@ -306,8 +334,6 @@ export class PackagesComponent implements OnInit {
     this.commandsToExecute = commands;
     this.showPasswordModal = true;
   }
-
-  commandsToExecute: string[] = [];
 
   executeCommands(commands: string[], sudoPassword?: string) {
     this.sshService.executeCommand(this.systemId, commands, sudoPassword)
@@ -330,16 +356,21 @@ export class PackagesComponent implements OnInit {
 
   onPasswordConfirm(sudoPassword: string) {
     this.sudoPassword = sudoPassword;
-    this.installPackage(this.packageToInstall, sudoPassword);
+    if (this.commandsToExecute.length > 0) {
+      this.executeCommands(this.commandsToExecute, sudoPassword);
+      this.commandsToExecute = [];
+    } else if (this.packageToInstall) {
+      this.installPackage(this.packageToInstall, sudoPassword);
+      this.packageToInstall = '';
+    }
     this.showPasswordModal = false;
-    this.packageToInstall = '';
   }
 
   onPasswordCancel() {
     this.showPasswordModal = false;
     this.packageToInstall = '';
+    this.commandsToExecute = [];
   }
-
 
   onInstallConfirm($event: string) {
     this.showInstallModal = true;
@@ -362,9 +393,6 @@ export class PackagesComponent implements OnInit {
         }
       );
   }
-
-  private packageToInstall: string = '';
-
 
   sortPackages(column: string) {
     if (this.sortColumn === column) {

@@ -1,72 +1,81 @@
-<div class="h-full">
-  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
-    <h2 class="text-2xl font-semibold">Packages</h2>
+<div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+  <div class="flex items-center">
+    <h2 class="text-2xl font-semibold mr-4">Packages</h2>
+  </div>
+  <div class="flex items-center">
+    <button class="bg-green-500 text-white py-2 px-4 rounded-md mr-4" (click)="showInstallModal = true">
+      <i class="fas fa-plus mr-2"></i>Install
+    </button>
+    <button class="bg-green-500 text-white py-2 px-4 rounded-md mr-4" (click)="updateAllPackages()">
+      <i class="fas fa-sync-alt text-white-500 mr-4"></i>Update & Upgrade
+    </button>
+    <input type="text" placeholder="Search packages..." class="bg-gray-700 text-white py-2 px-4 rounded-md mr-4"
+      [(ngModel)]="searchTerm" />
     <div class="flex items-center">
-      <button class="bg-green-500 text-white py-2 px-4 rounded-md mr-4" (click)="showInstallModal = true">
-        <i class="fas fa-plus mr-2"></i>Install Package
-      </button>
-      <input type="text" placeholder="Search packages..." class="bg-gray-700 text-white py-2 px-4 rounded-md mr-4"
-        [(ngModel)]="searchTerm" />
-      <div class="flex items-center">
-        <div class="mr-4">
-          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="sizeFilter">
-            <option value="all">All</option>
-            <option value="installed">Installed</option>
-            <option value="uninstalled">Uninstalled</option>
-          </select>
-        </div>
+      <div class="mr-4">
+        <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="sizeFilter">
+          <option value="all">All</option>
+          <option value="installed">Installed</option>
+          <option value="uninstalled">Uninstalled</option>
+        </select>
       </div>
     </div>
   </div>
-  <div class="flex-1 overflow-auto">
-    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-      <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
-        <tr>
-          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('name')">
-            Package Name
-            <i class="fas fa-sort ml-2" [ngClass]="{
+</div>
+<div class="flex-1 overflow-auto">
+  <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('name')">
+          Package Name
+          <i class="fas fa-sort ml-2" [ngClass]="{
                 'fas fa-sort-up': sortColumn === 'name' && sortDirection === 'asc',
                 'fas fa-sort-down': sortColumn === 'name' && sortDirection === 'desc'
               }"></i>
-          </th>
-          <th scope="col" class="py-3 px-6">Description</th>
-          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('version')">
-            Version
-            <i class="fas fa-sort ml-2" [ngClass]="{
+        </th>
+        <th scope="col" class="py-3 px-6">Description</th>
+        <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('version')">
+          Version
+          <i class="fas fa-sort ml-2" [ngClass]="{
                 'fas fa-sort-up': sortColumn === 'version' && sortDirection === 'asc',
                 'fas fa-sort-down': sortColumn === 'version' && sortDirection === 'desc'
               }"></i>
-          </th>
-          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('size')">
-            Size
-            <i class="fas fa-sort ml-2" [ngClass]="{
+        </th>
+        <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('size')">
+          Size
+          <i class="fas fa-sort ml-2" [ngClass]="{
                 'fas fa-sort-up': sortColumn === 'size' && sortDirection === 'asc',
                 'fas fa-sort-down': sortColumn === 'size' && sortDirection === 'desc'
               }"></i>
-          </th>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container
+        *ngFor="let package of filteredPackages | filterPackages: searchTerm:sizeFilter | orderBy: sortColumn:sortDirection">
+        <tr (click)="togglePackageDetails(package.name)"
+          class="border-b dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
+          <td class="py-4 px-6">{{ package.name }}</td>
+          <td class="py-4 px-6">{{ package.description }}</td>
+          <td class="py-4 px-6">{{ package.version }}</td>
+          <td class="py-4 px-6">{{ package.size }}</td>
         </tr>
-      </thead>
-      <tbody>
-        <ng-container
-          *ngFor="let package of filteredPackages | filterPackages: searchTerm:sizeFilter | orderBy: sortColumn:sortDirection">
-          <tr (click)="togglePackageDetails(package.name)"
-            class="border-b dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
-            <td class="py-4 px-6">{{ package.name }}</td>
-            <td class="py-4 px-6">{{ package.description }}</td>
-            <td class="py-4 px-6">{{ package.version }}</td>
-            <td class="py-4 px-6">{{ package.size }}</td>
-          </tr>
-          <tr *ngIf="showPackageDetails[package.name]"
-            class="bg-gray-200 border-b dark:bg-gray-700 dark:border-gray-600">
-            <td colspan="4" class="py-2 px-6">
-              Architecture: {{ package.architecture }} | Status: {{ package.status }}
-            </td>
-          </tr>
-        </ng-container>
-      </tbody>
-    </table>
-  </div>
+        <tr *ngIf="showPackageDetails[package.name]" class="bg-gray-200 border-b dark:bg-gray-700 dark:border-gray-600">
+          <td colspan="4" class="py-2 px-6">
+            Architecture: {{ package.architecture }} | Status: {{ package.status }}
+            <div class="float-right">
+              <i class="fa-solid fa-rotate text-green-500 cursor-pointer mr-2" (click)="updatePackage(package)"></i>
+              <i class="fa-solid fa-wrench text-blue-500 cursor-pointer mr-2" (click)="reinstallPackage(package)"></i>
+              <i class="fas fa-trash-alt text-red-500 cursor-pointer" (click)="removePackage(package)"></i>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>
 
+<div>
   <app-password-modal *ngIf="showPasswordModal" title="Enter sudo password" (confirm)="onPasswordConfirm($event)"
     (cancel)="onPasswordCancel()"></app-password-modal>
 
