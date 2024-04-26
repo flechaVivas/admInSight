@@ -25,7 +25,12 @@ export class SshService {
       username: username,
       password: password
     };
-    return this.http.post<any>(this.apiLoginUrl, body);
+    return this.http.post<any>(this.apiLoginUrl, body).pipe(
+      catchError((error: HttpErrorResponse) => {
+        this.httpErrorService.handleError(error);
+        return throwError(error);
+      })
+    );
   }
 
   executeCommand(systemId: number, commands: string[], sudoPassword?: string): Observable<any> {
