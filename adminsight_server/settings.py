@@ -74,7 +74,8 @@ CORS_ALLOW_HEADERS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ],
+    'EXCEPTION_HANDLER': 'project.exception_handlers.custom_exception_handler',
 }
 
 ROOT_URLCONF = 'adminsight_server.urls'

@@ -26,17 +26,19 @@ from datetime import timedelta
 from .ssh_utils import ssh_connect, register_server, ssh_execute_command
 from django.contrib.auth import logout
 from django.contrib.auth import logout as django_logout
+from .exceptions import *
+from django.db import IntegrityError
 
 
 @api_view(["POST"])
 def login(request):
-
-    user = get_object_or_404(User, email=request.data["email"])
+    try:
+        user = get_object_or_404(User, email=request.data["email"])
+    except User.DoesNotExist:
+        raise InvalidCredentialsException()
 
     if not user.check_password(request.data["password"]):
-        return Response(
-            {"error": "Invalid password"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        raise InvalidCredentialsException()
 
     token, created = Token.objects.get_or_create(user=user)
 
@@ -49,18 +51,19 @@ def login(request):
 
 @api_view(["POST"])
 def register(request):
-
     serializer = UserSerializer(data=request.data)
 
     if serializer.is_valid():
-
         username = serializer.validated_data['username']
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
 
-        user = User(username=username, email=email)
-        user.set_password(password)
-        user.save()
+        try:
+            user = User(username=username, email=email)
+            user.set_password(password)
+            user.save()
+        except IntegrityError:
+            raise EmailAlreadyExistsException()
 
         token = Token.objects.create(user=user)
 
@@ -85,7 +88,10 @@ def update_profile(request):
     user = request.user
     serializer = UserSerializer(user, data=request.data, partial=True)
     if serializer.is_valid():
-        serializer.save()
+        try:
+            serializer.save()
+        except IntegrityError:
+            raise UsernameAlreadyExistsException()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -102,12 +108,12 @@ def delete_account(request):
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     try:
-        token = request.auth  # Obtener el token de autenticación
-        token.delete()  # Eliminar el token
+        token = request.auth
+        token.delete()
     except Exception as e:
         print(f"Error al eliminar el token: {e}")
 
-    django_logout(request)  # Cerrar la sesión del usuario
+    django_logout(request)
 
     return Response({"message": "Sesión cerrada exitosamente."}, status=status.HTTP_200_OK)
 
@@ -121,7 +127,7 @@ def change_password(request):
     new_password = request.data.get('newPassword')
 
     if not user.check_password(current_password):
-        return Response({'error': 'La contraseña actual es incorrecta.'}, status=status.HTTP_400_BAD_REQUEST)
+        raise InvalidCredentialsException()
 
     user.set_password(new_password)
     user.save()
@@ -178,8 +184,11 @@ class RegisterServerView(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
 
-        system, sys_user = register_server(
-            name, hostname, port, username, password)
+        try:
+            system, sys_user = register_server(
+                name, hostname, port, username, password)
+        except (InvalidCredentialsException, SSHConnectionException) as e:
+            raise e
 
         if system and sys_user:
             app_user_system = AppUserSystem.objects.create(
@@ -188,7 +197,7 @@ class RegisterServerView(APIView):
             )
             return Response({'message': 'Server registered successfully'}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'error': 'Failed to register server'}, status=status.HTTP_400_BAD_REQUEST)
+            raise ServerNotFoundException()
 
 
 class LoginServerView(APIView):
@@ -199,18 +208,27 @@ class LoginServerView(APIView):
 
         try:
             system = System.objects.get(id=system_id)
+        except System.DoesNotExist:
+            raise ServerNotFoundException()
+
+        try:
             sys_user = SysUser.objects.get(
                 system=system, username=linux_username)
             app_user_system = AppUserSystem.objects.get(
                 system=system, app_user=request.user)
-        except (System.DoesNotExist, SysUser.DoesNotExist, AppUserSystem.DoesNotExist):
-            return Response({'error': 'Sistema o usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        except SysUser.DoesNotExist:
+            raise UserNotFoundException()
+        except AppUserSystem.DoesNotExist:
+            raise UserNotFoundException()
 
         if not sys_user.password:
-            return Response({'error': 'Contraseña incorrecta'}, status=status.HTTP_400_BAD_REQUEST)
+            raise InvalidCredentialsException()
 
-        client = ssh_connect(system.ip_address, system.ssh_port,
-                             linux_username, linux_password)
+        try:
+            client = ssh_connect(
+                system.ip_address, system.ssh_port, linux_username, linux_password)
+        except (InvalidCredentialsException, SSHConnectionException) as e:
+            raise e
 
         if client:
             # Generar token de autenticación SSH
@@ -226,7 +244,7 @@ class LoginServerView(APIView):
             client.close()
             return Response({'message': 'Conexión SSH exitosa', 'ssh_token': ssh_token}, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'Error al conectar al servidor'}, status=status.HTTP_400_BAD_REQUEST)
+            raise SSHConnectionException()
 
 
 class ServerCommandView(APIView):
@@ -247,22 +265,34 @@ class ServerCommandView(APIView):
                 system=system, app_user=request.user)
             ssh_auth_token = SSHAuthToken.objects.get(
                 token=ssh_token, system=system, user=request.user)
-        except (System.DoesNotExist, SysUser.DoesNotExist, AppUserSystem.DoesNotExist, SSHAuthToken.DoesNotExist):
-            return Response({'error': 'Sistema, usuario o token no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        except System.DoesNotExist:
+            raise ServerNotFoundException()
+        except SysUser.DoesNotExist:
+            raise UserNotFoundException()
+        except AppUserSystem.DoesNotExist:
+            raise UserNotFoundException()
+        except SSHAuthToken.DoesNotExist:
+            raise InvalidSSHTokenException()
 
-        if not ssh_token or ssh_auth_token.is_expired():
-            return Response({'error': 'Token SSH inválido o expirado'}, status=status.HTTP_401_UNAUTHORIZED)
+        if ssh_auth_token.is_expired():
+            raise InvalidSSHTokenException()
 
-        client = ssh_connect(system.ip_address, system.ssh_port,
-                             sys_user.username, sys_user.password)
+        try:
+            client = ssh_connect(
+                system.ip_address, system.ssh_port, sys_user.username, sys_user.password)
+        except (InvalidCredentialsException, SSHConnectionException) as e:
+            raise e
 
         if client:
             output = {}
             for command in commands:
-                stdout, stderr = ssh_execute_command(
-                    client, command, sudo_password)
+                try:
+                    stdout, stderr = ssh_execute_command(
+                        client, command, sudo_password)
+                except SSHConnectionException as e:
+                    raise e
                 output[command] = {'stdout': stdout, 'stderr': stderr}
             client.close()
             return Response(output, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'Error al conectar al servidor'}, status=status.HTTP_400_BAD_REQUEST)
+            raise SSHConnectionException()

@@ -1,6 +1,8 @@
 
 import paramiko
 from .models import System, SysUser
+from .exceptions import SSHConnectionException, InvalidCredentialsException, InvalidSudoPasswordException
+from paramiko import AuthenticationException
 
 
 def ssh_connect(hostname, port, username, password):
@@ -11,29 +13,31 @@ def ssh_connect(hostname, port, username, password):
                        username=username, password=password)
         return client
     except paramiko.AuthenticationException:
-        print("Error de autenticación: Credenciales inválidas")
+        raise InvalidCredentialsException()
     except Exception as e:
-        print(f"Error al conectar: {e}")
-    return None
+        raise SSHConnectionException(detail=str(e))
 
 
 def register_server(name, hostname, port, username, password):
-    client = ssh_connect(hostname, port, username, password)
-    if client:
-        system = System.objects.create(
-            name=name,
-            ip_address=hostname,
-            ssh_port=port
-        )
-        sys_user = SysUser.objects.create(
-            username=username,
-            system=system,
-            password=password
-        )
-        sys_user.save()
-        client.close()
-        return system, sys_user
-    return None, None
+    try:
+        client = ssh_connect(hostname, port, username, password)
+        if client:
+            system = System.objects.create(
+                name=name,
+                ip_address=hostname,
+                ssh_port=port
+            )
+            sys_user = SysUser.objects.create(
+                username=username,
+                system=system,
+                password=password
+            )
+            sys_user.save()
+            client.close()
+            return system, sys_user
+        return None, None
+    except (InvalidCredentialsException, SSHConnectionException) as e:
+        raise e
 
 
 def ssh_execute_command(client, command, sudo_password=None):
@@ -42,7 +46,10 @@ def ssh_execute_command(client, command, sudo_password=None):
             if sudo_password is None:
                 return None, "Se requiere la contraseña de sudo"
 
-            command = f"echo '{sudo_password}' | sudo -S {command[4:].strip()}"
+            try:
+                command = f"echo '{sudo_password}' | sudo -S {command[4:].strip()}"
+            except AuthenticationException:
+                raise InvalidSudoPasswordException()
 
         stdin, stdout, stderr = client.exec_command(command)
         stdout_output = stdout.read().decode()
