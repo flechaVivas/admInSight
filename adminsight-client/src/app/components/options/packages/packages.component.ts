@@ -366,7 +366,7 @@ export class PackagesComponent implements OnInit {
 
     switch (this.packageManager) {
       case 'apt':
-        commands = ['sudo apt-get update && sudo apt-get upgrade'];
+        commands = ['sudo apt-get update', 'sudo apt-get upgrade -y'];
         break;
       case 'yum':
         commands = ['sudo yum update'];
