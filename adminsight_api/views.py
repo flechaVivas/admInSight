@@ -35,7 +35,7 @@ def login(request):
     try:
         user = get_object_or_404(User, email=request.data["email"])
     except User.DoesNotExist:
-        raise InvalidCredentialsException()
+        raise UserNotFoundException()
 
     if not user.check_password(request.data["password"]):
         raise InvalidCredentialsException()

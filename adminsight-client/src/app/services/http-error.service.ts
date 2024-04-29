@@ -1,54 +1,72 @@
 import { Injectable } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+
+export enum ErrorType {
+  InvalidCredentials,
+  EmailAlreadyExists,
+  UsernameAlreadyExists,
+  InvalidSSHToken,
+  InvalidSudoPassword,
+  UserNotFound,
+  ServerNotFound,
+  Other
+}
 
 @Injectable({
   providedIn: 'root'
 })
-export class HttpErrorService {
-  constructor(private router: Router) { }
+export class HttpErrorService implements HttpInterceptor {
 
-  handleError(error: HttpErrorResponse): { isInvalidCredentials: boolean } | null {
-    if (error.status === 401) {
-      if (error.error.error_code === 'invalid_sudo_password') {
-        alert('La contraseña de sudo es incorrecta.');
-      } else if (error.error.error_code === 'invalid_ssh_token') {
-        alert('El token SSH es inválido o ha expirado.');
-      } else {
-        alert('Su sesión ha caducado. Inicie sesión nuevamente.');
-        this.router.navigate(['/login-server']);
-      }
-      return null;
-    } else if (error.status === 403) {
-      alert('No tiene permiso para acceder a este recurso.');
-      this.router.navigate(['/login-server']);
-      return null;
-    } else if (error.status === 404) {
-      if (error.error.error_code === 'server_not_found') {
-        alert('Servidor no encontrado.');
-      } else if (error.error.error_code === 'user_not_found') {
-        alert('Usuario no encontrado.');
-      } else if (error.error.error_code === 'sys_user_not_found') {
-        alert('Usuario del sistema no encontrado.');
-      } else if (error.error.error_code === 'ssh_auth_token_not_found') {
-        alert('Token de autenticación SSH no encontrado.');
-      } else {
-        this.router.navigate(['/not-found']);
-      }
-      return null;
-    } else if (error.status === 400) {
-      if (error.error.error_code === 'invalid_credentials') {
-        alert('Credenciales inválidas.');
-        return { isInvalidCredentials: true };
-      } else if (error.error.error_code === 'email_already_exists') {
-        alert('El correo electrónico ya está registrado.');
-      } else if (error.error.error_code === 'username_already_exists') {
-        alert('El nombre de usuario ya está registrado.');
-      }
+  constructor() { }
+
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    return next.handle(request)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          const errorType = this.handleError(error);
+          return throwError({ error: error, errorType: errorType });
+        })
+      );
+  }
+
+  handleError(error: HttpErrorResponse): ErrorType {
+    if (error.error instanceof ErrorEvent) {
+      // Error de cliente
+      return ErrorType.Other;
     } else {
-      console.error('Un error ha ocurrido:', error);
-      return null;
+      // Error de servidor
+      switch (error.status) {
+        case 400:
+          if (error.error.error_code === 'invalid_credentials') {
+            return ErrorType.InvalidCredentials;
+          } else if (error.error.error_code === 'email_already_exists') {
+            return ErrorType.EmailAlreadyExists;
+          } else if (error.error.error_code === 'username_already_exists') {
+            return ErrorType.UsernameAlreadyExists;
+          } else {
+            return ErrorType.Other;
+          }
+        case 401:
+          if (error.error.error_code === 'invalid_ssh_token') {
+            return ErrorType.InvalidSSHToken;
+          } else if (error.error.error_code === 'invalid_sudo_password') {
+            return ErrorType.InvalidSudoPassword;
+          } else {
+            return ErrorType.Other;
+          }
+        case 404:
+          if (error.error.error_code === 'user_not_found') {
+            return ErrorType.UserNotFound;
+          } else if (error.error.error_code === 'server_not_found') {
+            return ErrorType.ServerNotFound;
+          } else {
+            return ErrorType.Other;
+          }
+        default:
+          return ErrorType.Other;
+      }
     }
-    return null;
   }
 }

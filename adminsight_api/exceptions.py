@@ -7,16 +7,16 @@ class InvalidCredentialsException(APIException):
     default_code = 'invalid_credentials'
 
 
-class ServerNotFoundException(APIException):
-    status_code = 404
-    default_detail = 'Servidor no encontrado.'
-    default_code = 'server_not_found'
-
-
 class UserNotFoundException(APIException):
     status_code = 404
     default_detail = 'Usuario no encontrado.'
     default_code = 'user_not_found'
+
+
+class ServerNotFoundException(APIException):
+    status_code = 404
+    default_detail = 'Servidor no encontrado.'
+    default_code = 'server_not_found'
 
 
 class SSHConnectionException(APIException):

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { HttpErrorService } from '../../services/http-error.service'; // Asegúrate de importar el servicio correctamente
+import { HttpErrorService, ErrorType } from '../../services/http-error.service';
 
 @Component({
   selector: 'app-register',
@@ -21,7 +21,7 @@ export class RegisterComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private httpErrorService: HttpErrorService // Inyecta el servicio aquí
+    private httpErrorService: HttpErrorService
   ) { }
 
   registerUser() {
@@ -60,14 +60,19 @@ export class RegisterComponent {
         },
         error: (error) => {
           this.isLoading = false;
-          const errorHandlingResult = this.httpErrorService.handleError(error);
-          if (errorHandlingResult && errorHandlingResult.isInvalidCredentials) {
-            this.emailError = 'Email already registered';
-          }
+          this.handleError(error);
         }
       });
     } else {
       this.isLoading = false;
+    }
+  }
+
+  handleError(error: any): void {
+    if (error.errorType === ErrorType.EmailAlreadyExists) {
+      this.emailError = 'Email already registered';
+    } else {
+      this.emailError = 'Ha ocurrido un error inesperado.';
     }
   }
 }

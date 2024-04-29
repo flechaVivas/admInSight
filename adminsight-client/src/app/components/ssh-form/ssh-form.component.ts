@@ -4,7 +4,7 @@ import { SshService } from '../../services/ssh.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { FormGroup, FormControl } from '@angular/forms';
-import { HttpErrorService } from '../../services/http-error.service';
+import { HttpErrorService, ErrorType } from '../../services/http-error.service';
 
 @Component({
   selector: 'app-ssh-form',
@@ -16,7 +16,6 @@ export class SshFormComponent implements OnInit {
   sshForm: FormGroup;
   isLoading = false;
   isSuccess = false;
-  isInvalidCredentials = false;
   errorMessage = '';
 
   constructor(
@@ -44,7 +43,7 @@ export class SshFormComponent implements OnInit {
 
     this.isLoading = true;
     this.isSuccess = false;
-    this.isInvalidCredentials = false;
+    this.errorMessage = '';
 
     this.sshService.login(this.selectedSystem.id, username, password).subscribe(
       (response) => {
@@ -60,16 +59,27 @@ export class SshFormComponent implements OnInit {
         }, 1500);
       },
       (error) => {
-        const errorHandled = this.httpErrorService.handleError(error);
-        if (errorHandled?.isInvalidCredentials) {
-          this.isLoading = false;
-          this.errorMessage = 'The username or password is incorrect'; // Actualizar el mensaje de error
-        } else {
-          console.error('Login failed', error);
-          this.isLoading = false;
-          this.errorMessage = ''; // Limpiar el mensaje de error
-        }
+        this.isLoading = false;
+        this.handleError(error);
       }
     );
+  }
+
+  handleError(error: any): void {
+    console.log('Error:', error.error.error_code);
+    switch (error.error.error_code) {
+      case 'user_not_found':
+        this.errorMessage = 'El nombre de usuario o contraseña es incorrecto';
+        break;
+      case 'not_found':
+        this.errorMessage = 'El nombre de usuario o contraseña es incorrecto';
+        break;
+      case 'ssh_connection_error':
+        this.errorMessage = 'Error al conectar al servidor';
+        break;
+      default:
+        this.errorMessage = 'Ha ocurrido un error inesperado';
+        break;
+    }
   }
 }

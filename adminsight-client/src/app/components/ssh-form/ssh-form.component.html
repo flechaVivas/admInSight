@@ -18,9 +18,9 @@
         class="w-full py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold flex items-center justify-center"
         type="submit">
         <i *ngIf="isLoading" class="fa-solid fa-spinner fa-spin-pulse mr-2"></i>
-        <span *ngIf="!isLoading && !isSuccess && !isInvalidCredentials">Connect</span>
+        <span *ngIf="!isLoading && !isSuccess">Connect</span>
         <i *ngIf="isSuccess" class="fa-solid fa-check mr-2"></i>
-        <i *ngIf="isInvalidCredentials" class="fa-solid fa-xmark mr-2"></i>
+        <i *ngIf="errorMessage" class="fa-solid fa-xmark mr-2"></i>
       </button>
     </div>
     <div class="flex justify-center mt-4">

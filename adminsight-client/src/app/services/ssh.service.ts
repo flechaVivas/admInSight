@@ -52,6 +52,11 @@ export class SshService {
     );
   }
 
+  handleError(error: HttpErrorResponse): Observable<never> {
+    const errorType = this.httpErrorService.handleError(error);
+    return throwError({ error: error, errorType: errorType });
+  }
+
   logoutServer(): void {
     this.localStorage.remove('sshToken');
   }
