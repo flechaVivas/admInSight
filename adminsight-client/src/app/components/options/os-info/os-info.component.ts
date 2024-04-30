@@ -91,7 +91,8 @@ export class OsInfoComponent implements OnInit {
 
   handleError(error: any): void {
     if (error.error.error_code === 'invalid_ssh_token') {
-      console.error('Token SSH inválido');
+      alert('El token SSH ha expirado. Por favor, vuelva a iniciar sesión.');
+      this.router.navigateByUrl('/login-server');
     }
   }
 

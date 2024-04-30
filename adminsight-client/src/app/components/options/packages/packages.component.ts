@@ -78,10 +78,17 @@ export class PackagesComponent implements OnInit {
           this.fetchInstalledPackages();
         },
         (error) => {
-          console.error('Error al identificar el package manager:', error);
+          this.handleError(error);
           // Aquí puedes mostrar un mensaje de error al usuario o tomar alguna acción alternativa
         }
       );
+  }
+
+  handleError(error: any): void {
+    if (error.error.error_code === 'invalid_ssh_token') {
+      alert('El token SSH ha expirado. Por favor, vuelva a iniciar sesión.');
+      this.router.navigateByUrl('/login-server');
+    }
   }
 
   fetchInstalledPackages() {

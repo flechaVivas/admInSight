@@ -82,9 +82,16 @@ export class ServicesComponent implements OnInit {
           this.filteredServices = [...this.services];
         },
         (error) => {
-          console.error('Error al obtener la información de los servicios:', error);
+          this.handleError(error);
         }
       );
+  }
+
+  handleError(error: any): void {
+    if (error.error.error_code === 'invalid_ssh_token') {
+      alert('El token SSH ha expirado. Por favor, vuelva a iniciar sesión.');
+      this.router.navigateByUrl('/login-server');
+    }
   }
 
   sort(column: string) {

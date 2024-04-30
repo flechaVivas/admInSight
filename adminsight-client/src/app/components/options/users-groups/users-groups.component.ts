@@ -101,7 +101,7 @@ export class UsersGroupsComponent implements OnInit {
           this.filteredUsers = [...this.users];
         },
         (error) => {
-          console.error('Error al obtener la información de los usuarios:', error);
+          this.handleError(error);
         }
       );
   }
@@ -135,7 +135,7 @@ export class UsersGroupsComponent implements OnInit {
           this.filteredGroups = [...this.groups];
         },
         (error) => {
-          console.error('Error al obtener la información de los grupos:', error);
+          this.handleError(error);
         }
       );
   }
@@ -168,7 +168,7 @@ export class UsersGroupsComponent implements OnInit {
           this.fetchGroupInfo();
         },
         (error) => {
-          console.error('Error al ejecutar los comandos:', error);
+          this.handleError(error);
         }
       );
   }
@@ -325,6 +325,13 @@ export class UsersGroupsComponent implements OnInit {
   refresh() {
     this.fetchUserInfo();
     this.fetchGroupInfo();
+  }
+
+  handleError(error: any): void {
+    if (error.error.error_code === 'invalid_ssh_token') {
+      alert('El token SSH ha expirado. Por favor, vuelva a iniciar sesión.');
+      this.router.navigateByUrl('/login-server');
+    }
   }
 
 

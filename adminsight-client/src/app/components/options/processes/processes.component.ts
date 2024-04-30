@@ -55,8 +55,16 @@ export class ProcessesComponent implements OnInit {
           this.processesByCpu = response['ps aux --sort=-pcpu']?.stdout || '';
         },
         (error) => {
-          console.error('Error al obtener la información de los procesos:', error);
+          this.handleError(error);
         }
       );
   }
+
+  handleError(error: any): void {
+    if (error.error.error_code === 'invalid_ssh_token') {
+      alert('El token SSH ha expirado. Por favor, vuelva a iniciar sesión.');
+      this.router.navigateByUrl('/login-server');
+    }
+  }
+
 }
