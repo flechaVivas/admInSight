@@ -66,7 +66,6 @@ export class SshFormComponent implements OnInit {
   }
 
   handleError(error: any): void {
-    console.log('Error:', error.error.error_code);
     switch (error.error.error_code) {
       case 'user_not_found':
         this.errorMessage = 'El nombre de usuario o contraseña es incorrecto';

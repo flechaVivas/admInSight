@@ -26,6 +26,7 @@ export class AuthGuard implements CanActivate {
       } else {
         // El usuario está autenticado pero el token SSH no es válido
         this.router.navigateByUrl('/login-server');
+        return false;
       }
       return false;
     } else {

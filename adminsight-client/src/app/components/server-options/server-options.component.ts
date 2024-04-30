@@ -14,7 +14,7 @@ export class ServerOptionsComponent {
   @Output() optionSelected = new EventEmitter<string>();
 
   serverOptions: string[] = [
-    'OS Information',
+    'System Information',
     'Hardware',
     'Processes',
     'Services',

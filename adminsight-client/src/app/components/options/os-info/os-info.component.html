@@ -1,31 +1,92 @@
-<!-- os-info.component.html -->
-<div class="h-full bg-gray-800 p-4 rounded-lg">
-  <h2 class="text-xl font-semibold text-white mb-4">Operating System</h2>
-  <ul class="space-y-2">
-    <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
-      <span class="text-gray-300">Kernel:</span>
-      <span class="text-white" *ngIf="kernelInfo; else noKernelInfo">{{ kernelInfo }}</span>
-      <ng-template #noKernelInfo><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
-    </li>
-    <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
-      <span class="text-gray-300">Hostname:</span>
-      <span class="text-white" *ngIf="hostname; else noHostname">{{ hostname }}</span>
-      <ng-template #noHostname><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
-    </li>
-    <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
-      <span class="text-gray-300">Uptime:</span>
-      <span class="text-white" *ngIf="uptime; else noUptime">{{ uptime }}</span>
-      <ng-template #noUptime><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
-    </li>
-    <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
-      <span class="text-gray-300">Distribution:</span>
-      <span class="text-white" *ngIf="distribution; else noDistribution">{{ distribution }}</span>
-      <ng-template #noDistribution><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
-    </li>
-    <li class="bg-gray-700 rounded-lg p-2 flex items-center justify-between">
-      <span class="text-gray-300">Version:</span>
-      <span class="text-white" *ngIf="version; else noVersion">{{ version }}</span>
-      <ng-template #noVersion><i class="fa-solid fa-spinner fa-spin-pulse text-white"></i></ng-template>
-    </li>
-  </ul>
+<div class="h-full">
+  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+    <h2 class="text-2xl font-semibold">System Information</h2>
+  </div>
+  <div class="flex-1 overflow-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">System Hostname</h3>
+        <p>Hostname: {{ systemInfo.hostname }}</p>
+        <p>IP Address: {{ systemInfo.ipAddress }}</p>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Operating System</h3>
+        <p>{{ systemInfo.operatingSystem }}</p>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Kernel</h3>
+        <p>{{ systemInfo.kernel }}</p>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Processor Information</h3>
+        <p>{{ systemInfo.processor }}</p>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Time on System</h3>
+        <p>{{ systemInfo.timeOnSystem }}</p>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Uptime</h3>
+        <p>{{ systemInfo.uptime }}</p>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Package Manager</h3>
+        <p>{{ systemInfo.packageManager }}</p>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Service Manager</h3>
+        <p>{{ systemInfo.serviceManager }}</p>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Running Processes Number</h3>
+        <p>{{ systemInfo.runningProcesses }}</p>
+      </div>
+    </div>
+    <div class="bg-gray-700 text-white p-4 rounded-md shadow-md mx-4 my-2">
+      <h3 class="text-lg font-semibold mb-2">Who is Logged In</h3>
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-800 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="py-3 px-6">Name</th>
+            <th scope="col" class="py-3 px-6">Connection</th>
+            <th scope="col" class="py-3 px-6">Datetime</th>
+            <th scope="col" class="py-3 px-6">IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of systemInfo.loggedInUsers"
+            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <td class="py-4 px-6">{{ user.name }}</td>
+            <td class="py-4 px-6">{{ user.connection }}</td>
+            <td class="py-4 px-6">{{ user.datetime }}</td>
+            <td class="py-4 px-6 whitespace-pre-wrap">{{ user.ip }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="bg-gray-700 text-white p-4 rounded-md shadow-md mx-4 my-2">
+      <h3 class="text-lg font-semibold mb-2">Recent Server Logins</h3>
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-800 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="py-3 px-6">Name</th>
+            <th scope="col" class="py-3 px-6">Connection</th>
+            <th scope="col" class="py-3 px-6">IP</th>
+            <th scope="col" class="py-3 px-6">Datetime</th>
+            <th scope="col" class="py-3 px-6">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let login of systemInfo.recentLogins"
+            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <td class="py-4 px-6">{{ login.name }}</td>
+            <td class="py-4 px-6">{{ login.connection }}</td>
+            <td class="py-4 px-6">{{ login.ip }}</td>
+            <td class="py-4 px-6">{{ login.datetime }}</td>
+            <td class="py-4 px-6">{{ login.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

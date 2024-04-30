@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class DashboardComponent implements OnInit {
   selectedSystem: System | null = null;
-  selectedOption: string | null = 'OS Information';
+  selectedOption: string | null = 'System Information';
   isLoggedIntoServer: boolean = false;
   sudoPassword: string | null = null;
 
