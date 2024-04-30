@@ -6,40 +6,69 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
       <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">System Hostname</h3>
-        <p>Hostname: {{ systemInfo.hostname }}</p>
-        <p>IP Address: {{ systemInfo.ipAddress }}</p>
+        <p *ngIf="!systemInfo.hostname && !systemInfo.ipAddress; else hostnameContent">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </p>
+        <ng-template #hostnameContent>
+          <p>Hostname: {{ systemInfo.hostname }}</p>
+          <p>IP Address: {{ systemInfo.ipAddress }}</p>
+        </ng-template>
       </div>
       <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">Operating System</h3>
-        <p>{{ systemInfo.operatingSystem }}</p>
+        <p *ngIf="!systemInfo.operatingSystem; else osContent">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </p>
+        <ng-template #osContent>{{ systemInfo.operatingSystem }}</ng-template>
       </div>
       <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">Kernel</h3>
-        <p>{{ systemInfo.kernel }}</p>
+        <p *ngIf="!systemInfo.kernel; else kernelContent">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </p>
+        <ng-template #kernelContent>{{ systemInfo.kernel }}</ng-template>
       </div>
       <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">Processor Information</h3>
-        <p>{{ systemInfo.processor }}</p>
+        <p *ngIf="!systemInfo.processor; else processorContent">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </p>
+        <ng-template #processorContent>{{ systemInfo.processor }}</ng-template>
       </div>
       <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">Time on System</h3>
-        <p>{{ systemInfo.timeOnSystem }}</p>
+        <p *ngIf="!systemInfo.timeOnSystem; else timeOnSystemContent">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </p>
+        <ng-template #timeOnSystemContent>{{ systemInfo.timeOnSystem }}</ng-template>
       </div>
       <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">Uptime</h3>
-        <p>{{ systemInfo.uptime }}</p>
+        <p *ngIf="!systemInfo.uptime; else uptimeContent">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </p>
+        <ng-template #uptimeContent>{{ systemInfo.uptime }}</ng-template>
       </div>
       <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">Package Manager</h3>
-        <p>{{ systemInfo.packageManager }}</p>
+        <p *ngIf="!systemInfo.packageManager; else packageManagerContent">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </p>
+        <ng-template #packageManagerContent>{{ systemInfo.packageManager }}</ng-template>
       </div>
       <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">Service Manager</h3>
-        <p>{{ systemInfo.serviceManager }}</p>
+        <p *ngIf="!systemInfo.serviceManager; else serviceManagerContent">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </p>
+        <ng-template #serviceManagerContent>{{ systemInfo.serviceManager }}</ng-template>
       </div>
       <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
         <h3 class="text-lg font-semibold mb-2">Running Processes Number</h3>
-        <p>{{ systemInfo.runningProcesses }}</p>
+        <p *ngIf="!systemInfo.runningProcesses; else runningProcessesContent">
+          <i class="fas fa-spinner fa-spin"></i> Loading...
+        </p>
+        <ng-template #runningProcessesContent>{{ systemInfo.runningProcesses }}</ng-template>
       </div>
     </div>
     <div class="bg-gray-700 text-white p-4 rounded-md shadow-md mx-4 my-2">
@@ -54,6 +83,11 @@
           </tr>
         </thead>
         <tbody>
+          <tr *ngIf="systemInfo.loggedInUsers.length === 0">
+            <td colspan="4" class="py-4 px-6 text-center bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <i class="fas fa-spinner fa-spin"></i> Loading...
+            </td>
+          </tr>
           <tr *ngFor="let user of systemInfo.loggedInUsers"
             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
             <td class="py-4 px-6">{{ user.name }}</td>
@@ -77,6 +111,11 @@
           </tr>
         </thead>
         <tbody>
+          <tr *ngIf="systemInfo.recentLogins.length === 0">
+            <td colspan="5" class="py-4 px-6 text-center bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <i class="fas fa-spinner fa-spin"></i> Loading...
+            </td>
+          </tr>
           <tr *ngFor="let login of systemInfo.recentLogins"
             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
             <td class="py-4 px-6">{{ login.name }}</td>
