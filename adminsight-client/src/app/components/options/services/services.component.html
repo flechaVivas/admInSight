@@ -44,6 +44,11 @@
         </tr>
       </thead>
       <tbody>
+        <tr *ngIf="filteredServices.length === 0">
+          <td colspan="4" class="py-4 px-6 text-center text-3xl">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+          </td>
+        </tr>
         <tr *ngFor="
             let service of filteredServices
               | filterServices: searchTerm:activeFilter:enabledFilter
