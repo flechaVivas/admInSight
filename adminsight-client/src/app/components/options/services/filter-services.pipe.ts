@@ -10,7 +10,8 @@ export class FilterServicesPipe implements PipeTransform {
 
     if (searchTerm) {
       filteredServices = filteredServices.filter(service =>
-        service.name.toLowerCase().includes(searchTerm.toLowerCase())
+        service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 

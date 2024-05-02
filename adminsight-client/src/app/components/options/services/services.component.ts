@@ -40,13 +40,13 @@ export class ServicesComponent implements OnInit {
 
   fetchServiceInfo() {
     const commands = [
-      'systemctl list-units --type=service --all --no-pager'
+      'systemctl list-units --type=service --all --no-pager --no-legend | sed "s/● / /"'
     ];
 
     this.sshService.executeCommand(this.systemId, commands)
       .subscribe(
         (response: any) => {
-          const output = response['systemctl list-units --type=service --all --no-pager']?.stdout || '';
+          const output = response['systemctl list-units --type=service --all --no-pager --no-legend | sed "s/● / /"']?.stdout || '';
           const lines = output.trim().split('\n');
           const headers = lines.shift()?.trim().split(/\s+/);
 
@@ -65,11 +65,11 @@ export class ServicesComponent implements OnInit {
             .filter((line: string) => !line.includes('LOAD') && !line.includes('ACTIVE') && !line.includes('SUB') && !line.includes('listed') && !line.includes('To'))
             .map((line: string) => {
               const parts = line.trim().split(/\s+/);
-              const serviceName = parts[serviceNameIndex]?.replace(/^●\s?/, '') || '';
-              const loadState = parts[loadStateIndex] || '';
-              const activeState = parts[activeStateIndex] || '';
-              const subState = parts[subStateIndex] || '';
-              const description = parts.slice(descriptionIndex).join(' ') || '';
+              const serviceName = parts[0];
+              const loadState = parts[1] || '';
+              const activeState = parts[2] || '';
+              const subState = parts[3] || '';
+              const description = parts.slice(4).join(' ') || '';
               const status = `${activeState} ${subState}`.trim();
 
               return {
