@@ -17,9 +17,12 @@ export class InstallPackageModalComponent {
   @Output() install = new EventEmitter<string>();
   @Output() cancel = new EventEmitter();
 
+  isLoading: boolean = false;
+
   constructor(private sshService: SshService, private router: Router) { }
 
   onSearch() {
+    this.isLoading = true;
     this.searchPackages(this.searchTerm);
   }
 
@@ -43,17 +46,18 @@ export class InstallPackageModalComponent {
         return;
     }
 
+
     this.sshService.executeCommand(this.systemId, commands)
       .subscribe(
         (response: any) => {
           const output = response[commands[0]]?.stdout || '';
-          const lines = output.trim().split('\n\n'); // Separar por líneas vacías
+          const lines = output.trim().split('\n\n');
 
           this.searchResults = [];
 
-          for (const line of lines.slice(2)) { // Omitir las dos primeras líneas
-            const [nameAndVersion, description] = line.split('\n', 2); // Separar nombre/versión y descripción
-            const [name] = nameAndVersion.split(' '); // Obtener solo el nombre del paquete
+          for (const line of lines.slice(1)) {
+            const [nameAndVersion, description] = line.split('\n', 2);
+            const [name] = nameAndVersion.split(' ');
 
             if (name) {
               this.searchResults.push({

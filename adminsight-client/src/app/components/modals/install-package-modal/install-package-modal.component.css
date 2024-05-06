@@ -1,16 +1,17 @@
-::-webkit-scrollbar {
+/* Estilo del scrollbar */
+.table-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
 
-::-webkit-scrollbar-track {
+.table-scrollbar::-webkit-scrollbar-track {
   background-color: #2d3748;
 }
 
-::-webkit-scrollbar-thumb {
+.table-scrollbar::-webkit-scrollbar-thumb {
   background-color: #4a5568;
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.table-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #718096;
 }
