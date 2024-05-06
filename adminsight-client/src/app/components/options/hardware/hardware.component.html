@@ -1,26 +1,147 @@
-<!-- hardware-info.component.html -->
-<div class="h-full bg-gray-800 p-4 rounded-lg">
-  <h2 class="text-xl font-semibold text-white mb-4">Hardware Information</h2>
-  <div class="space-y-4">
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">CPU</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ cpuInfo }}</pre>
+<div class="h-full">
+  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+    <h2 class="text-2xl font-semibold">Hardware Information</h2>
+  </div>
+  <div class="flex-1 overflow-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">CPU</h3>
+        <table class="w-full text-sm">
+          <tr>
+            <th class="py-1 px-2 font-semibold">Model</th>
+            <td class="py-1 px-2">{{ cpuModel }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Architecture</th>
+            <td class="py-1 px-2">{{ cpuArchitecture }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Cores</th>
+            <td class="py-1 px-2">{{ cpuCores }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Threads</th>
+            <td class="py-1 px-2">{{ cpuThreads }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Frequency</th>
+            <td class="py-1 px-2">{{ cpuFrequency }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">GPU</h3>
+        <p class="py-1 px-2">{{ gpuDescription }}</p>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">RAM Memory</h3>
+        <table class="w-full text-sm">
+          <tr>
+            <th class="py-1 px-2 font-semibold">Total</th>
+            <td class="py-1 px-2">{{ memoryTotal }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Used</th>
+            <td class="py-1 px-2">{{ memoryUsed }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Free</th>
+            <td class="py-1 px-2">{{ memoryFree }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">BIOS</h3>
+        <table class="w-full text-sm">
+          <tr>
+            <th class="py-1 px-2 font-semibold">Vendor</th>
+            <td class="py-1 px-2">{{ biosVendor }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Version</th>
+            <td class="py-1 px-2">{{ biosVersion }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Release Date</th>
+            <td class="py-1 px-2">{{ biosReleaseDate }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Motherboard</h3>
+        <table class="w-full text-sm">
+          <tr>
+            <th class="py-1 px-2 font-semibold">Manufacturer</th>
+            <td class="py-1 px-2">{{ motherboardManufacturer }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Model</th>
+            <td class="py-1 px-2">{{ motherboardModel }}</td>
+          </tr>
+          <tr>
+            <th class="py-1 px-2 font-semibold">Version</th>
+            <td class="py-1 px-2">{{ motherboardVersion }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="bg-gray-700 text-white p-4 rounded-md shadow-md">
+        <h3 class="text-lg font-semibold mb-2">Network Interfaces</h3>
+        <table class="w-full text-sm">
+          <tr *ngFor="let nic of networkInterfaces">
+            <th class="py-1 px-2 font-semibold">{{ nic.name }}</th>
+            <td class="py-1 px-2">{{ nic.description }}</td>
+          </tr>
+        </table>
+      </div>
     </div>
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">Memory</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ memoryInfo }}</pre>
+    <div class="bg-gray-700 text-white p-4 rounded-md shadow-md mx-4 my-2">
+      <h3 class=" text-lg font-semibold mb-2">Disk Drives</h3>
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-800 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th class="py-1 px-2 font-semibold">Name</th>
+            <th class="py-1 px-2 font-semibold">Model</th>
+            <th class="py-1 px-2 font-semibold">Size</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="diskDrives.length === 0">
+            <td colspan="5" class="py-4 px-6 text-center bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <i class="fas fa-spinner fa-spin"></i> Loading...
+            </td>
+          </tr>
+          <tr *ngFor="let drive of diskDrives" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <td class="py-1 px-2">{{ drive.name }}</td>
+            <td class="py-1 px-2">{{ drive.model }}</td>
+            <td class="py-1 px-2">{{ drive.capacity }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">Storage Devices</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ storageInfo }}</pre>
-    </div>
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">PCI Devices</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ pciInfo }}</pre>
-    </div>
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">USB Devices</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ usbInfo }}</pre>
+    <div class="bg-gray-700 text-white p-4 rounded-md shadow-md mx-4 my-2 mt-6">
+      <h3 class="text-lg font-semibold mb-2">USB Devices</h3>
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-800 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th class="py-1 px-2 font-semibold">Bus</th>
+            <th class="py-1 px-2 font-semibold">Device</th>
+            <th class="py-1 px-2 font-semibold">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="usbDevices.length === 0">
+            <td colspan="5" class="py-4 px-6 text-center bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <i class="fas fa-spinner fa-spin"></i> Loading...
+            </td>
+          </tr>
+          <tr *ngFor="let usb of usbDevices" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <td class="py-4 px-6">{{ usb.bus }}</td>
+            <td class="py-4 px-6">{{ usb.device }}</td>
+            <td class="py-4 px-6">{{ usb.description }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
-</div>
+  <app-password-modal *ngIf="showPasswordModal" (confirm)="handlePasswordModalConfirm($event)"
+    (cancel)="handlePasswordModalCancel()"></app-password-modal>

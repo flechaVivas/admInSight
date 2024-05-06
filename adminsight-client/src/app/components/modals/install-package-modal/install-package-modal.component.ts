@@ -55,7 +55,7 @@ export class InstallPackageModalComponent {
 
           this.searchResults = [];
 
-          for (const line of lines.slice(1)) {
+          for (const line of lines.slice(0)) {
             const [nameAndVersion, description] = line.split('\n', 2);
             const [name] = nameAndVersion.split(' ');
 
