@@ -1,26 +1,113 @@
-<!-- processes.component.html -->
-<div class="h-full bg-gray-800 p-4 rounded-lg">
-  <h2 class="text-xl font-semibold text-white mb-4">Running Processes</h2>
-  <div class="space-y-4">
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">All Processes</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ allProcesses }}</pre>
-    </div>
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">Running Processes</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ runningProcesses }}</pre>
-    </div>
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">Processes by User</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ processesByUser }}</pre>
-    </div>
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">Processes by Memory Usage</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ processesByMemory }}</pre>
-    </div>
-    <div>
-      <h3 class="text-lg font-semibold text-gray-300 mb-2">Processes by CPU Usage</h3>
-      <pre class="bg-gray-700 rounded-lg p-2 text-white">{{ processesByCpu }}</pre>
+<div class="h-full">
+  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+    <h2 class="text-2xl font-semibold mr-2">Processes</h2>
+    <div class="flex items-center">
+      <input type="text" placeholder="Search processes..." class="bg-gray-700 text-white py-2 px-4 rounded-md mr-4"
+        [(ngModel)]="searchTerm" />
+      <div class="flex items-center">
+        <div class="mr-4">
+          <label class="mr-2">Filter:</label>
+          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="statusFilter">
+            <option value="">All</option>
+            <option value="running">Running</option>
+            <option value="stopped">Stopped</option>
+            <option value="interruptible sleep">Interruptible Sleep</option>
+            <option value="uninterruptible sleep">Uninterruptible Sleep</option>
+            <option value="zombie">Zombie</option>
+          </select>
+        </div>
+        <div>
+          <label class="mr-2">User:</label>
+          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="userFilter">
+            <option value="">All</option>
+            <option *ngFor="let user of distinctUsers" [value]="user">{{ user }}</option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
+  <div class="flex-1 overflow-auto">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortProcesses('pid')">
+            PID
+            <i class="fas fa-sort ml-2" [ngClass]="{
+                'fas fa-sort-up': sortColumn === 'pid' && sortDirection === 'asc',
+                'fas fa-sort-down': sortColumn === 'pid' && sortDirection === 'desc'
+              }"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortProcesses('user')">
+            User
+            <i class="fas fa-sort ml-2" [ngClass]="{
+                'fas fa-sort-up': sortColumn === 'user' && sortDirection === 'asc',
+                'fas fa-sort-down': sortColumn === 'user' && sortDirection === 'desc'
+              }"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortProcesses('cpu')">
+            CPU
+            <i class="fas fa-sort ml-2" [ngClass]="{
+                'fas fa-sort-up': sortColumn === 'cpu' && sortDirection === 'asc',
+                'fas fa-sort-down': sortColumn === 'cpu' && sortDirection === 'desc'
+              }"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortProcesses('memory')">
+            Memory
+            <i class="fas fa-sort ml-2" [ngClass]="{
+                'fas fa-sort-up': sortColumn === 'memory' && sortDirection === 'asc',
+                'fas fa-sort-down': sortColumn === 'memory' && sortDirection === 'desc'
+              }"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortProcesses('status')">
+            Status
+            <i class="fas fa-sort ml-2" [ngClass]="{
+                'fas fa-sort-up': sortColumn === 'status' && sortDirection === 'asc',
+                'fas fa-sort-down': sortColumn === 'status' && sortDirection === 'desc'
+              }"></i>
+          </th>
+          <th scope="col" class="py-3 px-6">Description</th>
+          <th scope="col" class="py-3 px-6">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="filteredProcesses.length === 0">
+          <td colspan="7" class="py-4 px-6 text-center text-3xl">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+          </td>
+        </tr>
+        <tr
+          *ngFor="let process of filteredProcesses | filterProcesses: searchTerm:statusFilter:userFilter | stringOrder: sortColumn:sortDirection"
+          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+          <td class="py-4 px-6">{{ process.pid }}</td>
+          <td class="py-4 px-6">{{ process.user }}</td>
+          <td class="py-4 px-6">{{ process.cpu }}%</td>
+          <td class="py-4 px-6">{{ process.memory }}</td>
+          <td class="py-4 px-6">
+            <span [ngClass]="{
+              'text-green-500 py-1 px-3': process.status === 'running',
+              'text-red-500 py-1 px-3': process.status === 'stopped',
+              'text-yellow-500 py-1 px-3': process.status.includes('sleep'),
+              'text-blue-500 py-1 px-3': process.status === 'zombie',
+            }">{{ process.status }}</span>
+          </td>
+          <td class="py-4 px-6">{{ process.description }}</td>
+          <td class="py-4 px-6">
+            <div class="flex items-center space-x-3 justify-center">
+              <i *ngIf="process.status === 'running'" class="fa-solid fa-pause fa-lg cursor-pointer"
+                (click)="stopProcess(process.pid)"></i>
+              <i *ngIf="process.status === 'stopped' || process.status === 'zombie'"
+                class="fa-solid fa-play fa-lg cursor-pointer" (click)="startProcess(process.pid)"></i>
+              <i *ngIf="process.status !== 'zombie'" class="fa-solid fa-trash fa-lg cursor-pointer"
+                (click)="killProcess(process.pid)"></i>
+              <i *ngIf="process.status === 'uninterruptible sleep'"
+                class="fa-solid fa-exclamation-circle fa-lg cursor-pointer text-yellow-500"
+                title="Cannot interact with uninterruptible sleep processes"></i>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
+<app-password-modal *ngIf="showPasswordModal" title="Enter sudo password" (confirm)="onPasswordConfirm($event)"
+  (cancel)="onPasswordCancel()"></app-password-modal>

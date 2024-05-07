@@ -33,6 +33,7 @@ import { PackagesComponent } from './components/options/packages/packages.compon
 import { InstallPackageModalComponent } from './components/modals/install-package-modal/install-package-modal.component';
 import { FilterPackagesPipe } from './components/options/packages/filter-packages.pipe';
 import { StringOrderPipe } from './pipes/string-order.pipe';
+import { FilterProcessesPipe } from './components/options/processes/filter-processes.pipe';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -63,6 +64,7 @@ function initializeApp(platformId: Object): () => void {
     StringOrderPipe,
     FilterUsersPipe,
     FilterGroupsPipe,
+    FilterProcessesPipe,
     PasswordModalComponent,
     DeleteConfirmationModalComponent,
     UserProfileComponent,
