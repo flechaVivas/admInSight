@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { PasswordModalComponent } from '../../modals/password-modal/password-modal.component';
 import { InstallPackageModalComponent } from '../../modals/install-package-modal/install-package-modal.component';
 import { Observable, forkJoin, map } from 'rxjs';
-import { StringOrderPipe } from '../../../pipes/string-order.pipe';
+import { StringOrderPipe } from '../../../pipes/order-by-string.pipe';
 
 
 export interface PackageInfo {

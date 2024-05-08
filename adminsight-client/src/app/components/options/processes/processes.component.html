@@ -65,7 +65,12 @@
                 'fas fa-sort-down': sortColumn === 'status' && sortDirection === 'desc'
               }"></i>
           </th>
-          <th scope="col" class="py-3 px-6">Description</th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortProcesses('description')">Description
+            <i class="fas fa-sort ml-2" [ngClass]="{
+                'fas fa-sort-up': sortColumn === 'description' && sortDirection === 'asc',
+                'fas fa-sort-down': sortColumn === 'description' && sortDirection === 'desc'
+              }"></i>
+          </th>
           <th scope="col" class="py-3 px-6">Actions</th>
         </tr>
       </thead>
@@ -76,7 +81,7 @@
           </td>
         </tr>
         <tr
-          *ngFor="let process of filteredProcesses | filterProcesses: searchTerm:statusFilter:userFilter | stringOrder: sortColumn:sortDirection"
+          *ngFor="let process of filteredProcesses | filterProcesses: searchTerm:statusFilter:userFilter | orderByNumber: sortColumn:sortDirection | stringOrder: sortColumn:sortDirection"
           class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
           <td class="py-4 px-6">{{ process.pid }}</td>
           <td class="py-4 px-6">{{ process.user }}</td>

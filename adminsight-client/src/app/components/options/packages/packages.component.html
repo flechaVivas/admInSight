@@ -34,12 +34,8 @@
               }"></i>
         </th>
         <th scope="col" class="py-3 px-6">Description</th>
-        <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('version')">
+        <th scope="col" class="py-3 px-6">
           Version
-          <i class="fas fa-sort ml-2" [ngClass]="{
-                'fas fa-sort-up': sortColumn === 'version' && sortDirection === 'asc',
-                'fas fa-sort-down': sortColumn === 'version' && sortDirection === 'desc'
-              }"></i>
         </th>
         <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortPackages('size')">
           Size

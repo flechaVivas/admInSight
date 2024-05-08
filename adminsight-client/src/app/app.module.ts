@@ -21,7 +21,6 @@ import { HardwareComponent } from './components/options/hardware/hardware.compon
 import { ProcessesComponent } from './components/options/processes/processes.component';
 import { ServicesComponent } from './components/options/services/services.component';
 import { FilterServicesPipe } from './components/options/services/filter-services.pipe';
-import { OrderByPipe } from './pipes/order-by.pipe';
 import { PasswordModalComponent } from './components/modals/password-modal/password-modal.component';
 import { DeleteConfirmationModalComponent } from './components/modals/delete-confirmation-modal/delete-confirmation-modal.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
@@ -32,8 +31,11 @@ import { AddUserGroupModalComponent } from './components/modals/add-user-group-m
 import { PackagesComponent } from './components/options/packages/packages.component';
 import { InstallPackageModalComponent } from './components/modals/install-package-modal/install-package-modal.component';
 import { FilterPackagesPipe } from './components/options/packages/filter-packages.pipe';
-import { StringOrderPipe } from './pipes/string-order.pipe';
+import { StringOrderPipe } from './pipes/order-by-string.pipe';
 import { FilterProcessesPipe } from './components/options/processes/filter-processes.pipe';
+import { OrderByNumberPipe } from './pipes/order-by-number.pipe';
+import { OrderBySizePipe } from './pipes/order-by-size.pipe';
+import { PercentageOrderPipe } from './pipes/order-by-percentage.pipe';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -60,8 +62,10 @@ function initializeApp(platformId: Object): () => void {
     ProcessesComponent,
     ServicesComponent,
     FilterServicesPipe,
-    OrderByPipe,
     StringOrderPipe,
+    OrderBySizePipe,
+    PercentageOrderPipe,
+    OrderByNumberPipe,
     FilterUsersPipe,
     FilterGroupsPipe,
     FilterProcessesPipe,
