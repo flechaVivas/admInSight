@@ -21,6 +21,7 @@
     "@angular/platform-server": "^17.3.1",
     "@angular/router": "^17.3.1",
     "@angular/ssr": "^17.3.1",
+    "chart.js": "^4.4.2",
     "express": "^4.19.2",
     "lodash": "^4.17.21",
     "ngx-webstorage-service": "^5.0.0",

@@ -36,6 +36,8 @@ import { FilterProcessesPipe } from './components/options/processes/filter-proce
 import { OrderByNumberPipe } from './pipes/order-by-number.pipe';
 import { OrderBySizePipe } from './pipes/order-by-size.pipe';
 import { PercentageOrderPipe } from './pipes/order-by-percentage.pipe';
+import { FileExplorerComponent } from './components/options/file-explorer/file-explorer.component';
+import { UploadModalComponent } from './components/options/file-explorer/modals/upload-modal/upload-modal.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -77,7 +79,9 @@ function initializeApp(platformId: Object): () => void {
     AddUserGroupModalComponent,
     PackagesComponent,
     InstallPackageModalComponent,
-    FilterPackagesPipe
+    FilterPackagesPipe,
+    FileExplorerComponent,
+    UploadModalComponent
   ],
   imports: [
     BrowserModule,
