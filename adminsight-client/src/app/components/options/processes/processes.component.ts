@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { SshService } from '../../../services/ssh.service';
 import { Router } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 export interface Process {
   pid: number;
@@ -37,7 +39,7 @@ export class ProcessesComponent implements OnInit {
 
   autoRefreshSubscription: Subscription | null = null;
   startAutoRefresh() {
-    this.autoRefreshSubscription = interval(5000)
+    this.autoRefreshSubscription = interval(2500)
       .subscribe(() => {
         this.fetchProcessInfo();
       });
@@ -58,9 +60,12 @@ export class ProcessesComponent implements OnInit {
     }
   }
 
+
   fetchProcessInfo() {
     const commands = [
-      'ps -eo pid,user,pcpu,pmem,stat,comm --no-headers'
+      'ps -eo pid,user,pcpu,pmem,stat,comm --no-headers',
+      'top -bn1 | grep "^%Cpu" | awk \'{print $2}\'', // CPU usage
+      'free -m | awk \'/Mem:/ {print $3/$2*100.0}\'', // Memory usage
     ];
 
     this.sshService.executeCommand(this.systemId, commands)
@@ -83,11 +88,26 @@ export class ProcessesComponent implements OnInit {
 
           this.distinctUsers = [...new Set(this.processes.map(process => process.user))];
           this.filteredProcesses = [...this.processes];
+
+          const cpuUsage = parseFloat(response['top -bn1 | grep "^%Cpu" | awk \'{print $2}\'']?.stdout.trim());
+          this.renderCpuLoadChart(cpuUsage);
+
+          const memoryUsage = parseFloat(response['free -m | awk \'/Mem:/ {print $3/$2*100.0}\'']?.stdout.trim());
+          this.renderMemoryUsageChart(memoryUsage);
         },
         (error) => {
           this.handleError(error);
         }
       );
+  }
+
+  private destroyCharts() {
+    const charts = Object.values(Chart.instances);
+    charts.forEach((chart) => {
+      if (chart instanceof Chart) {
+        chart.destroy();
+      }
+    });
   }
 
   formatMemoryUsage(memoryString: string): string {
@@ -140,6 +160,108 @@ export class ProcessesComponent implements OnInit {
     this.showPasswordModal = true;
     this.currentProcessPID = pid;
     this.currentAction = 'kill';
+  }
+
+  cpuUsageHistory: number[] = [];
+  renderCpuLoadChart(cpuUsage: number | undefined) {
+    const canvas = document.getElementById('cpuLoadChart') as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+
+    if (ctx && cpuUsage !== undefined) {
+      const chart = Chart.getChart(canvas);
+
+      if (!chart) {
+        // Crear un nuevo gráfico si no existe
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: [], // Las etiquetas se actualizarán dinámicamente
+            datasets: [
+              {
+                label: 'CPU Usage (%)',
+                data: [],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 1,
+                tension: 0.4, // Ajusta la curva de la línea
+              }
+            ]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                  stepSize: 25
+                }
+              },
+              x: {
+                display: false
+              }
+            },
+            animation: false, // Deshabilitar la animación
+            elements: {
+              line: {
+                tension: 0.4 // Ajusta la curva de la línea
+              }
+            }
+          }
+        });
+      } else {
+        // Actualizar los datos del gráfico existente
+        this.cpuUsageHistory.push(cpuUsage);
+        chart.data.labels = Array.from({ length: this.cpuUsageHistory.length }, (_, i) => `${i + 1}`);
+        chart.data.datasets[0].data = this.cpuUsageHistory;
+        chart.update();
+      }
+    } else {
+      console.error('No se pudo obtener el contexto de renderizado del canvas o los datos de CPU Usage son inválidos');
+    }
+  }
+
+  memoryUsageHistory: number[] = [];
+  renderMemoryUsageChart(memoryUsage: number) {
+    const canvas = document.getElementById('memoryUsageChart') as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+
+    if (ctx) {
+      const chart = Chart.getChart(canvas);
+
+      if (!chart) {
+        // Create a new chart if it doesn't exist
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Used', 'Available'],
+            datasets: [
+              {
+                data: [memoryUsage, 100 - memoryUsage],
+                backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                borderWidth: 1
+              }
+            ]
+          },
+          options: {
+            plugins: {
+              title: {
+                display: true,
+                text: 'Memory Usage (%)'
+              }
+            },
+            animation: false
+          }
+        });
+      } else {
+        // Update the data of the existing chart
+        this.memoryUsageHistory.push(memoryUsage);
+        chart.data.datasets[0].data = [memoryUsage, 100 - memoryUsage];
+        chart.update();
+      }
+    } else {
+      console.error('Failed to get canvas context');
+    }
   }
 
   onPasswordConfirm(sudoPassword: string) {
