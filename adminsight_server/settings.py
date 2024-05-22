@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'adminsight_api',
     'corsheaders',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -77,6 +78,8 @@ REST_FRAMEWORK = {
     ],
     'EXCEPTION_HANDLER': 'adminsight_api.exception_handlers.custom_exception_handler',
 }
+
+ASGI_APPLICATION = 'adminsight_server.asgi.application'
 
 ROOT_URLCONF = 'adminsight_server.urls'
 
