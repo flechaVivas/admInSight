@@ -1,21 +1,19 @@
-<div class="h-full">
-  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+<!-- terminal.component.html -->
+<div class="h-full bg-gray-800 text-white">
+  <div class="py-4 px-6 flex justify-between items-center border-b border-gray-700">
     <h2 class="text-2xl font-semibold">Terminal</h2>
   </div>
-  <div class="flex-1 overflow-auto">
-    <div *ngIf="isConnecting" class="p-4 text-center">
-      <div class="spinner animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-      <p class="mt-2">Conectando...</p>
+  <div class="flex-1 overflow-auto terminal-output">
+    <div *ngFor="let item of terminalHistory; let i = index">
+      <p *ngIf="item.type === 'command'" class="prompt">
+        <span class="text-green-500">{{ item.value }}</span>
+      </p>
+      <pre *ngIf="item.type === 'output'">{{ item.value }}</pre>
     </div>
-    <div *ngIf="!isConnecting && !isConnected" class="p-4 text-center text-red-500">
-      Error al conectar al servidor.
-    </div>
-    <div *ngIf="isConnected" class="terminal-output p-4">
-      <pre *ngFor="let line of output">{{ line }}</pre>
-    </div>
-    <div *ngIf="isConnected" class="terminal-input p-4">
-      <input class="w-full bg-gray-700 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        type="text" [(ngModel)]="command" (keydown.enter)="sendCommand()" placeholder="Enter command..." />
-    </div>
+  </div>
+  <div class="terminal-input p-4 border-t border-gray-700 flex items-center">
+    <span class="text-green-500 mr-2">$~ {{ currentDirectory }}</span>
+    <input class="w-full bg-gray-800 text-white focus:outline-none" type="text" [(ngModel)]="command"
+      (keydown.enter)="sendCommand()" placeholder="Enter command..." />
   </div>
 </div>
