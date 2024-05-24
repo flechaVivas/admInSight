@@ -1,4 +1,4 @@
-adminsight-venv/
+venv/
 
 adminsight_api/migrations/
 adminsight_api/__pycache__/
