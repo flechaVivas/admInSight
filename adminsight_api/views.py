@@ -29,6 +29,12 @@ from django.contrib.auth import logout as django_logout
 from .exceptions import *
 from django.db import IntegrityError
 
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseBadRequest, HttpResponse
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 
 @api_view(["POST"])
 def login(request):
@@ -296,3 +302,32 @@ class ServerCommandView(APIView):
             return Response(output, status=status.HTTP_200_OK)
         else:
             raise SSHConnectionException()
+
+
+class TerminalConsumerView(View):
+    def get(self, request, server_id):
+        ssh_token = request.headers.get('ssh-token')
+
+        if not ssh_token:
+            return HttpResponseBadRequest("Token SSH no proporcionado.")
+
+        try:
+            system = System.objects.get(id=server_id)
+            sys_user = SysUser.objects.get(system=system)
+            app_user_system = AppUserSystem.objects.get(
+                system=system, app_user=request.user)
+            ssh_auth_token = SSHAuthToken.objects.get(
+                token=ssh_token, system=system, user=request.user)
+        except (System.DoesNotExist, SysUser.DoesNotExist, AppUserSystem.DoesNotExist, SSHAuthToken.DoesNotExist):
+            return HttpResponseBadRequest("No tienes acceso a este servidor o el token SSH es inválido.")
+
+        if ssh_auth_token.is_expired():
+            return HttpResponseBadRequest("El token SSH ha expirado.")
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_add)(
+            f'terminal_{server_id}',
+            f'terminal_{request.user.id}'
+        )
+
+        return HttpResponse("Conexión WebSocket establecida correctamente.")

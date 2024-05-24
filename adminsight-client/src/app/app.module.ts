@@ -38,6 +38,8 @@ import { OrderBySizePipe } from './pipes/order-by-size.pipe';
 import { PercentageOrderPipe } from './pipes/order-by-percentage.pipe';
 import { FileExplorerComponent } from './components/options/file-explorer/file-explorer.component';
 import { UploadModalComponent } from './components/options/file-explorer/modals/upload-modal/upload-modal.component';
+import { TerminalComponent } from './components/options/terminal/terminal.component';
+import { WebSocketService } from './services/websocket.service';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -81,7 +83,8 @@ function initializeApp(platformId: Object): () => void {
     InstallPackageModalComponent,
     FilterPackagesPipe,
     FileExplorerComponent,
-    UploadModalComponent
+    UploadModalComponent,
+    TerminalComponent
   ],
   imports: [
     BrowserModule,
@@ -105,7 +108,8 @@ function initializeApp(platformId: Object): () => void {
         [new Optional(), new Inject(PLATFORM_ID)]
       ],
       multi: true
-    }
+    },
+    WebSocketService
   ],
   bootstrap: [AppComponent]
 })

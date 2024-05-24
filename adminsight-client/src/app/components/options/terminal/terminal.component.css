@@ -1,0 +1,36 @@
+/* src/app/components/terminal/terminal.component.css */
+.h-full {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.bg-gray-800 {
+  background-color: #2d3748;
+}
+
+.text-white {
+  color: #fff;
+}
+
+.terminal-output {
+  flex: 1;
+  background-color: #1a202c;
+  color: #e2e8f0;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.terminal-input {
+  padding: 1rem;
+  background-color: #2d3748;
+}
+
+.terminal-input input {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #2d3748;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 0.25rem;
+}

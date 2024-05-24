@@ -59,6 +59,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
 ]
 
+CSRF_TRUSTED_ORIGINS = ['http://localhost:4200']
+
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -80,6 +82,12 @@ REST_FRAMEWORK = {
 }
 
 ASGI_APPLICATION = 'adminsight_server.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 ROOT_URLCONF = 'adminsight_server.urls'
 
