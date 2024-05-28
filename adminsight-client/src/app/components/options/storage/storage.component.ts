@@ -44,7 +44,7 @@ export class StorageComponent implements OnInit {
   }
 
   fetchDiskInfo() {
-    const diskCommand = `lsblk -d -o NAME,MODEL,SIZE | grep '^sd' | while IFS= read -r line; do
+    const diskCommand = `lsblk -d -o NAME,MODEL,SIZE,TYPE | grep disk | while IFS= read -r line; do
     dev=$(echo "$line" | awk '{print $1}')
     total_size=$(echo "$line" | awk '{print $NF}')
     model=$(echo "$line" | awk '{$1=""; $NF=""; print $0}' | sed 's/^ //; s/ $//')
