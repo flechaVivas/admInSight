@@ -1,0 +1,64 @@
+<div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+  <h2 class="text-2xl font-semibold mr-4">Storage</h2>
+</div>
+
+<div class="flex-1 overflow-auto">
+  <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <th scope="col" class="py-3 px-6">Device</th>
+        <th scope="col" class="py-3 px-6">Model</th>
+        <th scope="col" class="py-3 px-6">Total Size</th>
+        <th scope="col" class="py-3 px-6">Used Size</th>
+        <th scope="col" class="py-3 px-6">Available Size</th>
+        <th scope="col" class="py-3 px-6">Used %</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (disk of disks; track $index) {
+      <tr (click)="togglePartitions(disk)" class="border-b dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
+        <td class="py-4 px-6">{{ disk.device }}</td>
+        <td class="py-4 px-6">{{ disk.model }}</td>
+        <td class="py-4 px-6">{{ disk.totalSize }}</td>
+        <td class="py-4 px-6">{{ disk.usedSize }}</td>
+        <td class="py-4 px-6">{{ disk.availableSize }}</td>
+        <td class="py-4 px-6">
+          <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div class="bg-blue-600 h-2.5 rounded-full" [ngStyle]="{'width.%': disk.usedPercentage.replace('%', '')}">
+            </div>
+          </div>
+        </td>
+      </tr>
+      @if (disk.showPartitions) {
+      <tr>
+        <td colspan="6">
+          <div class="flex">
+            <div class="w-1/2 pr-2">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="py-2 px-6">Partition</th>
+                    <th class="py-2 px-6">Mountpoint</th>
+                    <th class="py-2 px-6">Filesystem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let partition of disk.partitions">
+                    <td class="py-2 px-6">{{ partition.name }}</td>
+                    <td class="py-2 px-6">{{ partition.mountPoint }}</td>
+                    <td class="py-2 px-6">{{ partition.fileSystem }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="w-1/2 pl-2">
+              <canvas [id]="'partitionSizeChart-' + disk.device" class="w-full h-64"></canvas>
+            </div>
+          </div>
+        </td>
+      </tr>
+      }
+      }
+    </tbody>
+  </table>
+</div>

@@ -40,6 +40,7 @@ import { FileExplorerComponent } from './components/options/file-explorer/file-e
 import { UploadModalComponent } from './components/options/file-explorer/modals/upload-modal/upload-modal.component';
 import { TerminalComponent } from './components/options/terminal/terminal.component';
 import { WebSocketService } from './services/websocket.service';
+import { StorageComponent } from './components/options/storage/storage.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -84,7 +85,8 @@ function initializeApp(platformId: Object): () => void {
     FilterPackagesPipe,
     FileExplorerComponent,
     UploadModalComponent,
-    TerminalComponent
+    TerminalComponent,
+    StorageComponent
   ],
   imports: [
     BrowserModule,
