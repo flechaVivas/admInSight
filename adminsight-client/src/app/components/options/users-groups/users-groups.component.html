@@ -55,19 +55,23 @@
           </tr>
           <tr
             *ngFor="let user of filteredUsers | filterUsers: searchTerm | stringOrder: sortUserColumn:sortUserDirection"
-            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            [ngClass]="{'bg-gray-700 text-white': user.isEditing, 'bg-gray-800': !user.isEditing}"
+            class="border-b dark:bg-gray-800 dark:border-gray-700">
             <td class="py-4 px-6">
-              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="user.name"
-                [disabled]="!user.isEditing" />
+              <input type="text"
+                [ngClass]="{'text-white border-2 border-gray-500 bg-gray-600': user.isEditing, 'bg-gray-800': !user.isEditing}"
+                class="py-2 px-4 rounded-md" [(ngModel)]="user.name" [disabled]="!user.isEditing" />
             </td>
-            <td class="py-4 px-6">{{ user.uid }}</td>
+            <td class="py-4 px-6" [ngClass]="{'text-white': user.isEditing}">{{ user.uid }}</td>
             <td class="py-4 px-6">
-              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="user.homeDir"
-                [disabled]="!user.isEditing" />
+              <input type="text"
+                [ngClass]="{'text-white border-2 border-gray-500 bg-gray-600': user.isEditing, 'bg-gray-800': !user.isEditing}"
+                class="py-2 px-4 rounded-md" [(ngModel)]="user.homeDir" [disabled]="!user.isEditing" />
             </td>
             <td class="py-4 px-6">
-              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="user.shell"
-                [disabled]="!user.isEditing" />
+              <input type="text"
+                [ngClass]="{'text-white border-2 border-gray-500 bg-gray-600': user.isEditing, 'bg-gray-800': !user.isEditing}"
+                class="py-2 px-4 rounded-md" [(ngModel)]="user.shell" [disabled]="!user.isEditing" />
             </td>
             <td class="py-4 px-6">
               <div class="flex items-center justify-center space-x-2">
@@ -114,16 +118,19 @@
           </tr>
           <tr
             *ngFor="let group of filteredGroups | filterGroups: searchTerm | stringOrder: sortGroupColumn:sortGroupDirection"
-            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            [ngClass]="{'bg-gray-700 text-white': group.isEditing, 'bg-gray-800': !group.isEditing}"
+            class="border-b dark:bg-gray-800 dark:border-gray-700">
             <td class="py-4 px-6">
-              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="group.name"
-                [disabled]="!group.isEditing" />
+              <input type="text"
+                [ngClass]="{'text-white border-2 border-gray-500 bg-gray-600': group.isEditing, 'bg-gray-800': !group.isEditing}"
+                class="py-2 px-4 rounded-md" [(ngModel)]="group.name" [disabled]="!group.isEditing" />
             </td>
-            <td class="py-4 px-6">{{ group.gid }}</td>
+            <td class="py-4 px-6" [ngClass]="{'text-white': group.isEditing}">{{ group.gid }}</td>
             <td class="py-4 px-6">
-              <input type="text" class="bg-gray-800 text-white py-2 px-4 rounded-md" [(ngModel)]="group.users"
-                (ngModelChange)="onGroupUsersChange(group)" [disabled]="!group.isEditing" />
-              <span *ngIf="group === editingGroup">{{ group.users }}</span>
+              <input type="text"
+                [ngClass]="{'text-white border-2 border-gray-500 bg-gray-600': group.isEditing, 'bg-gray-800': !group.isEditing}"
+                class="py-2 px-4 rounded-md" [(ngModel)]="group.users" (ngModelChange)="onGroupUsersChange(group)"
+                [disabled]="!group.isEditing" />
             </td>
             <td class="py-4 px-6">
               <div class="flex items-center justify-center space-x-2">
