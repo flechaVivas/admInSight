@@ -19,6 +19,7 @@ export interface DiskPartition {
   mountPoint: string;
   fileSystem: string;
   size: string;
+  label: string;
   usedPercentage: number;
   mounted: boolean;
 }
@@ -34,6 +35,11 @@ export class StorageComponent implements OnInit {
   constructor(private sshService: SshService, private router: Router) { }
 
   private systemId: number = Number(this.router.url.split('/')[2]);
+
+  showPasswordModal: boolean = false;
+  currentMountPoint: string = '';
+  currentLabel: string = '';
+  currentAction: 'mount' | 'unmount' = 'mount';
 
   ngOnInit() {
     if (this.systemId) {
@@ -87,7 +93,7 @@ export class StorageComponent implements OnInit {
   }
 
   fetchPartitions(device: string, disk: DiskInfo) {
-    const partitionCommand = `lsblk -nr -o NAME,FSTYPE,MOUNTPOINT ${device}`;
+    const partitionCommand = `lsblk -nr -o NAME,FSTYPE,MOUNTPOINT,LABEL ${device}`;
 
     this.sshService.executeCommand(this.systemId, [partitionCommand])
       .subscribe(
@@ -97,12 +103,13 @@ export class StorageComponent implements OnInit {
 
           for (const line of partitionLines) {
             if (line.trim() !== '') {
-              const [name, fileSystem, mountPoint] = line.trim().split(' ');
+              const [name, fileSystem, mountPoint, label] = line.trim().split(' ');
               const partition: DiskPartition = {
                 name,
                 mountPoint: mountPoint || '',
                 fileSystem: fileSystem || '',
                 size: '',
+                label: label || '',
                 usedPercentage: 0,
                 mounted: true
               };
@@ -229,6 +236,8 @@ export class StorageComponent implements OnInit {
             ],
           },
           options: {
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: {
               title: {
                 display: true,
@@ -255,22 +264,29 @@ export class StorageComponent implements OnInit {
     }
   }
 
-  unmountPartition(partition: DiskPartition) {
-    if (partition.mounted) {
-      const command = `sudo umount ${partition.mountPoint}`;
-      this.executeCommand([command], () => {
-        partition.mounted = false;
-      });
-    }
+  unmountPartition(mountPoint: string) {
+    this.showPasswordModal = true;
+    this.currentMountPoint = mountPoint;
+    this.currentAction = 'unmount';
   }
 
-  mountPartition(partition: DiskPartition) {
-    if (!partition.mounted) {
-      const command = `sudo mount ${partition.mountPoint}`;
-      this.executeCommand([command], () => {
-        partition.mounted = true;
-      });
-    }
+  mountPartition(label: string) {
+    console.log('Mounting partition:', label);
+    this.showPasswordModal = true;
+    this.currentLabel = label;
+    this.currentAction = 'mount';
+  }
+
+  onPasswordConfirm(sudoPassword: string) {
+    const command = this.currentAction === 'mount' ? `echo '${sudoPassword}' | sudo -S mount -L ${this.currentLabel}` : `echo '${sudoPassword}' | sudo -S umount ${this.currentMountPoint}`;
+    this.executeCommand([command]);
+    this.showPasswordModal = false;
+    this.currentMountPoint = '';
+  }
+
+  onPasswordCancel() {
+    this.showPasswordModal = false;
+    this.currentMountPoint = '';
   }
 
   executeCommand(commands: string[], callback?: () => void) {
