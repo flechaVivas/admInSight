@@ -39,7 +39,7 @@ export class ProcessesComponent implements OnInit {
 
   autoRefreshSubscription: Subscription | null = null;
   startAutoRefresh() {
-    this.autoRefreshSubscription = interval(2500)
+    this.autoRefreshSubscription = interval(2000)
       .subscribe(() => {
         this.fetchProcessInfo();
       });
@@ -244,6 +244,8 @@ export class ProcessesComponent implements OnInit {
             ]
           },
           options: {
+            responsive: true,
+            maintainAspectRatio: false,
             plugins: {
               title: {
                 display: true,
