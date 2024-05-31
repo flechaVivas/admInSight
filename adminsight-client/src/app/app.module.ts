@@ -41,6 +41,9 @@ import { UploadModalComponent } from './components/options/file-explorer/modals/
 import { TerminalComponent } from './components/options/terminal/terminal.component';
 import { WebSocketService } from './services/websocket.service';
 import { StorageComponent } from './components/options/storage/storage.component';
+import { ScheduledTasksComponent } from './components/options/scheduled-tasks/scheduled-tasks.component';
+import { ReadableCronPipe } from './components/options/scheduled-tasks/readable-cron.pipe';
+import { ScheduledTaskNewComponent } from './components/options/scheduled-tasks/scheduled-task-new/scheduled-task-new.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -86,7 +89,10 @@ function initializeApp(platformId: Object): () => void {
     FileExplorerComponent,
     UploadModalComponent,
     TerminalComponent,
-    StorageComponent
+    StorageComponent,
+    ScheduledTasksComponent,
+    ReadableCronPipe,
+    ScheduledTaskNewComponent
   ],
   imports: [
     BrowserModule,
