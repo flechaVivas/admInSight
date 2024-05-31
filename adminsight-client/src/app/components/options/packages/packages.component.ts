@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { SshService } from '../../../services/ssh.service';
 import { Router } from '@angular/router';
 import { PasswordModalComponent } from '../../modals/password-modal/password-modal.component';
-import { InstallPackageModalComponent } from '../../modals/install-package-modal/install-package-modal.component';
+import { InstallPackageModalComponent } from './install-package-modal/install-package-modal.component';
 import { Observable, forkJoin, map } from 'rxjs';
 import { StringOrderPipe } from '../../../pipes/order-by-string.pipe';
 

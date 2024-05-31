@@ -3,7 +3,7 @@ import { SshService } from '../../../services/ssh.service';
 import { Router } from '@angular/router';
 import { PasswordModalComponent } from '../../modals/password-modal/password-modal.component';
 import { UsersGroupsService } from './users-groups.service';
-import { AddUserGroupModalComponent } from '../../modals/add-user-group-modal/add-user-group-modal.component';
+import { AddUserGroupModalComponent } from './add-user-group-modal/add-user-group-modal.component';
 
 export interface User {
   name: string;

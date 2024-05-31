@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { PackageInfo } from '../../options/packages/packages.component';
-import { SshService } from '../../../services/ssh.service';
+import { PackageInfo } from '../packages.component';
+import { SshService } from '../../../../services/ssh.service';
 import { Router } from '@angular/router';
 
 @Component({

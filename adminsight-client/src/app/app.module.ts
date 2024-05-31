@@ -27,9 +27,9 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { DeleteAccountModalComponent } from './components/modals/delete-account-modal/delete-account-modal.component';
 import { UsersGroupsComponent } from './components/options/users-groups/users-groups.component';
 import { FilterGroupsPipe, FilterUsersPipe } from './components/options/users-groups/filter-users-groups.pipe';
-import { AddUserGroupModalComponent } from './components/modals/add-user-group-modal/add-user-group-modal.component';
+import { AddUserGroupModalComponent } from './components/options/users-groups/add-user-group-modal/add-user-group-modal.component';
 import { PackagesComponent } from './components/options/packages/packages.component';
-import { InstallPackageModalComponent } from './components/modals/install-package-modal/install-package-modal.component';
+import { InstallPackageModalComponent } from './components/options/packages/install-package-modal/install-package-modal.component';
 import { FilterPackagesPipe } from './components/options/packages/filter-packages.pipe';
 import { StringOrderPipe } from './pipes/order-by-string.pipe';
 import { FilterProcessesPipe } from './components/options/processes/filter-processes.pipe';
