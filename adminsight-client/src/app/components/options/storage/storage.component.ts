@@ -27,7 +27,6 @@ export interface DiskPartition {
 @Component({
   selector: 'app-storage',
   templateUrl: './storage.component.html',
-  styleUrls: ['./storage.component.css']
 })
 export class StorageComponent implements OnInit {
   disks: DiskInfo[] = [];

@@ -11,7 +11,7 @@ export interface Service {
 @Component({
   selector: 'app-services',
   templateUrl: './services.component.html',
-  styleUrls: ['./services.component.css']
+  styleUrl: './services.component.css',
 })
 export class ServicesComponent implements OnInit {
   services: Service[] = [];

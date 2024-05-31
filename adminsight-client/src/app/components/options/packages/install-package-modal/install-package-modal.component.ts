@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-install-package-modal',
   templateUrl: './install-package-modal.component.html',
-  styleUrls: ['./install-package-modal.component.css']
+  styleUrl: './install-package-modal.component.css'
 })
 export class InstallPackageModalComponent {
   searchTerm: string = '';

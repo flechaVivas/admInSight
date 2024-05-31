@@ -12,7 +12,7 @@ interface TerminalItem {
 @Component({
   selector: 'app-terminal',
   templateUrl: './terminal.component.html',
-  styleUrls: ['./terminal.component.css'],
+  styleUrl: './terminal.component.css',
 })
 export class TerminalComponent implements OnInit, OnDestroy {
   terminalHistory: TerminalItem[] = [];

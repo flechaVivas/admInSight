@@ -6,7 +6,6 @@ import { HttpErrorService, ErrorType } from '../../services/http-error.service';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
   email = '';

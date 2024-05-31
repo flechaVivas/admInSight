@@ -4,7 +4,6 @@ import { ScheduledTask } from '../scheduled-tasks.service';
 @Component({
   selector: 'app-scheduled-task-new',
   templateUrl: './scheduled-task-new.component.html',
-  styleUrls: ['./scheduled-task-new.component.css']
 })
 export class ScheduledTaskNewComponent {
   @Input() task: ScheduledTask | null = null;

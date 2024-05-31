@@ -7,7 +7,6 @@ import { HttpErrorService, ErrorType } from '../../services/http-error.service';
 @Component({
   selector: 'app-user-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
 })
 
 export class LoginComponent implements OnInit {

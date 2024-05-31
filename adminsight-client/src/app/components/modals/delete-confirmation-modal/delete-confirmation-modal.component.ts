@@ -4,7 +4,6 @@ import { System } from '../../../models';
 @Component({
   selector: 'app-delete-confirmation-modal',
   templateUrl: './delete-confirmation-modal.component.html',
-  styleUrls: ['./delete-confirmation-modal.component.css']
 })
 export class DeleteConfirmationModalComponent {
   @Input() visible: boolean = false;

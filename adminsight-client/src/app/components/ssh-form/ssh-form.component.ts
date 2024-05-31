@@ -9,7 +9,6 @@ import { HttpErrorService, ErrorType } from '../../services/http-error.service';
 @Component({
   selector: 'app-ssh-form',
   templateUrl: './ssh-form.component.html',
-  styleUrls: ['./ssh-form.component.css']
 })
 export class SshFormComponent implements OnInit {
   @Input() selectedSystem: System | null = null;

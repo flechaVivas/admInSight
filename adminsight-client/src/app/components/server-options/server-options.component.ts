@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-server-options',
   templateUrl: './server-options.component.html',
-  styleUrls: ['./server-options.component.css']
+  styleUrl: './server-options.component.css',
 })
 export class ServerOptionsComponent {
   @Input() selectedSystem: System | null = null;

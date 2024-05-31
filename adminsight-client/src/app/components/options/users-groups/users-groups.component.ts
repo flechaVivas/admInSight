@@ -23,7 +23,6 @@ export interface Group {
 @Component({
   selector: 'app-users-groups',
   templateUrl: './users-groups.component.html',
-  styleUrls: ['./users-groups.component.css']
 })
 export class UsersGroupsComponent implements OnInit {
   users: User[] = [];

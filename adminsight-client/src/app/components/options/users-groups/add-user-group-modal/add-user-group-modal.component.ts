@@ -3,7 +3,6 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
   selector: 'app-add-user-group-modal',
   templateUrl: './add-user-group-modal.component.html',
-  styleUrl: './add-user-group-modal.component.css'
 })
 export class AddUserGroupModalComponent {
 

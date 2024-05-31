@@ -20,7 +20,6 @@ interface SystemInfo {
 @Component({
   selector: 'app-os-info',
   templateUrl: './os-info.component.html',
-  styleUrls: ['./os-info.component.css']
 })
 export class OsInfoComponent implements OnInit {
   systemInfo: SystemInfo = {

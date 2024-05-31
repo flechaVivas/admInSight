@@ -5,7 +5,7 @@ import { SystemService } from '../../services/systems.service';
 @Component({
   selector: 'app-server-list',
   templateUrl: './server-list.component.html',
-  styleUrls: ['./server-list.component.css']
+  styleUrl: './server-list.component.css',
 })
 export class ServerListComponent {
   systems: System[] = [];
