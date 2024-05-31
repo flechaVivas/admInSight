@@ -16,17 +16,19 @@ export class ServerOptionsComponent {
   serverOptions: string[] = [
     'System Information',
     'Hardware',
+    'Network',
     'Processes',
     'Services',
     'Packages',
-    'Network',
     'Users & Groups',
     'Logs',
+    'Scheduled Tasks',
     'Security',
     'Storage',
     'File Explorer',
     'Terminal'
   ];
+
 
   selectedOption: string | null = null; // Variable para almacenar la opción seleccionada
 

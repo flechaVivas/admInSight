@@ -1,0 +1,71 @@
+<div class="fixed inset-0 flex items-center justify-center z-50">
+  <div class="bg-gray-700 rounded-lg shadow-lg p-6 max-w-2xl max-h-[80vh] overflow-auto relative">
+    <h2 class="text-xl text-white font-bold mb-4">{{ task ? 'Editar Tarea Programada' : 'Crear Nueva Tarea Programada'
+      }}</h2>
+    <form>
+      <div class="mb-4">
+        <label for="name" class="block text-gray-300 font-bold mb-2">Nombre de la Tarea</label>
+        <input type="text" id="name" [(ngModel)]="name" name="name"
+          class="bg-gray-800 text-white py-2 px-5 rounded-md w-full" required>
+      </div>
+      <div class="mb-4">
+        <label for="description" class="block text-gray-300 font-bold mb-2">Descripción</label>
+        <input type="text" id="description" [(ngModel)]="description" name="description"
+          class="bg-gray-800 text-white py-2 px-5 rounded-md w-full">
+      </div>
+      <div class="mb-4">
+        <label for="command" class="block text-gray-300 font-bold mb-2">Comando</label>
+        <input type="text" id="command" [(ngModel)]="command" name="command"
+          class="bg-gray-800 text-white py-2 px-5 rounded-md w-full" required>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-300 font-bold mb-2">Frecuencia</label>
+        <div class="grid grid-cols-5 gap-4">
+          <div>
+            <label for="minute" class="block text-gray-300 font-bold mb-2">Minuto</label>
+            <input type="text" id="minute" [(ngModel)]="minute" name="minute"
+              class="bg-gray-800 text-white py-2 px-5 rounded-md w-full">
+          </div>
+          <div>
+            <label for="hour" class="block text-gray-300 font-bold mb-2">Hora</label>
+            <input type="text" id="hour" [(ngModel)]="hour" name="hour"
+              class="bg-gray-800 text-white py-2 px-5 rounded-md w-full">
+          </div>
+          <div>
+            <label for="dayOfMonth" class="block text-gray-300 font-bold mb-2">Día del Mes</label>
+            <input type="text" id="dayOfMonth" [(ngModel)]="dayOfMonth" name="dayOfMonth"
+              class="bg-gray-800 text-white py-2 px-5 rounded-md w-full">
+          </div>
+          <div>
+            <label for="month" class="block text-gray-300 font-bold mb-2">Mes</label>
+            <input type="text" id="month" [(ngModel)]="month" name="month"
+              class="bg-gray-800 text-white py-2 px-5 rounded-md w-full">
+          </div>
+          <div>
+            <label for="dayOfWeek" class="block text-gray-300 font-bold mb-2">Día de la Semana</label>
+            <input type="text" id="dayOfWeek" [(ngModel)]="dayOfWeek" name="dayOfWeek"
+              class="bg-gray-800 text-white py-2 px-5 rounded-md w-full">
+          </div>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="user" class="block text-gray-300 font-bold mb-2">Usuario</label>
+        <input type="text" id="user" [(ngModel)]="user" name="user"
+          class="bg-gray-800 text-white py-2 px-5 rounded-md w-full" required>
+      </div>
+      <div class="mb-4">
+        <div class="flex items-center">
+          <input type="checkbox" id="status" [(ngModel)]="status" name="status"
+            class="form-checkbox h-5 w-5 text-green-500">
+          <label for="status" class="ml-2 text-gray-300">Activa al Crear</label>
+        </div>
+      </div>
+    </form>
+    <div class="flex justify-end">
+      <button (click)="onCancel()"
+        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md mr-2">Cancelar</button>
+      <button (click)="onSubmit()"
+        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md">Guardar</button>
+    </div>
+  </div>
+</div>

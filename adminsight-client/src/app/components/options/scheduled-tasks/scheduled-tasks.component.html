@@ -1,0 +1,59 @@
+<div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+  <h2 class="text-2xl font-semibold">Tareas Programadas</h2>
+  <button class="bg-green-500 text-white py-2 px-4 rounded-md" (click)="openCreateTaskModal()">
+    <i class="fas fa-plus mr-2"></i>Crear Nueva Tarea
+  </button>
+</div>
+
+<div class="flex-1 overflow-auto">
+  <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <th class="py-3 px-6">Nombre de la Tarea</th>
+        <th class="py-3 px-6">Descripción</th>
+        <th class="py-3 px-6">Frecuencia</th>
+        <th class="py-3 px-6">Última Ejecución</th>
+        <th class="py-3 px-6">Próxima Ejecución</th>
+        <th class="py-3 px-6">Estado</th>
+        <th class="py-3 px-6">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="scheduledTasks.length === 0">
+        <td colspan="7" class="py-4 px-6 text-center text-3xl">
+          <i class="fas fa-spinner fa-spin"></i> Cargando...
+        </td>
+      </tr>
+      <tr *ngFor="let task of scheduledTasks" class="border-b dark:bg-gray-800 dark:border-gray-700">
+        <td class="py-4 px-6">{{ task.name }}</td>
+        <td class="py-4 px-6">{{ task.description }}</td>
+        <td class="py-4 px-6">{{ task.cron | readableCron }}</td>
+        <td class="py-4 px-6">{{ task.lastRun | date:'yyyy-MM-dd HH:mm' }}</td>
+        <td class="py-4 px-6">{{ task.nextRun | date:'yyyy-MM-dd HH:mm' }}</td>
+        <td class="py-4 px-6">
+          <span class="px-2 py-1 rounded-full" [ngClass]="{
+            'bg-green-500 text-white': task.status === 'active',
+            'bg-red-500 text-white': task.status === 'inactive'
+          }">
+            {{ task.status }}
+          </span>
+        </td>
+        <td class="py-4 px-6">
+          <button class="text-yellow-500 hover:text-yellow-600 mr-2" (click)="openEditTaskModal(task)">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="text-green-500 hover:text-green-600 mr-2" (click)="toggleScheduledTaskStatus(task)">
+            <i class="fas fa-toggle-on" *ngIf="task.status === 'inactive'"></i>
+            <i class="fas fa-toggle-off" *ngIf="task.status === 'active'"></i>
+          </button>
+          <button class="text-red-500 hover:text-red-600" (click)="deleteScheduledTask(task.name)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<app-scheduled-task-new *ngIf="showModal" [task]="selectedTask" (submit)="onSubmit($event)"
+  (cancel)="onCancel()"></app-scheduled-task-new>
