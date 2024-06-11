@@ -8,8 +8,13 @@ import { ScheduledTasksService, ScheduledTask } from './scheduled-tasks.service'
 })
 export class ScheduledTasksComponent implements OnInit {
   scheduledTasks: ScheduledTask[] = [];
+  filteredTasks: ScheduledTask[] = [];
   showModal: boolean = false;
   selectedTask: ScheduledTask | null = null;
+  searchTerm: string = '';
+  activeFilter: string = '';
+  sortColumn: string = 'nextRun';
+  sortDirection: string = 'asc';
 
   constructor(
     private scheduledTasksService: ScheduledTasksService,
@@ -28,6 +33,15 @@ export class ScheduledTasksComponent implements OnInit {
         console.error('Error al obtener las tareas programadas:', error);
       }
     );
+  }
+
+  sortBy(column: string): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
   }
 
   openCreateTaskModal(): void {

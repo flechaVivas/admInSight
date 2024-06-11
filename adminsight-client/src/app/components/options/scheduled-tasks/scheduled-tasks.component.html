@@ -1,17 +1,40 @@
 <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
   <h2 class="text-2xl font-semibold">Scheduled Tasks</h2>
-  <button class="bg-green-500 text-white py-2 px-4 rounded-md" (click)="openCreateTaskModal()">
-    <i class="fas fa-plus mr-2"></i>Add new task
-  </button>
+  <div class="flex items-center">
+    <input type="text" placeholder="Search tasks..." class="bg-gray-700 text-white py-2 px-4 rounded-md mr-4"
+      [(ngModel)]="searchTerm" />
+    <div class="flex items-center">
+      <div class="mr-4">
+        <label class="mr-2">Filter:</label>
+        <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="activeFilter">
+          <option value="">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <button class="bg-green-500 text-white py-2 px-4 rounded-md" (click)="openCreateTaskModal()">
+      <i class="fas fa-plus mr-2"></i>Add new task
+    </button>
+
+  </div>
 </div>
 
 <div class="flex-1 overflow-auto">
   <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
     <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
       <tr>
-        <th class="py-3 px-6">Name</th>
+        <th class="py-3 px-6 cursor-pointer" (click)="sortBy('name')">
+          Name
+          <i class="fas fa-sort ml-2"
+            [ngClass]="{ 'fas fa-sort-up': sortColumn === 'name' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'name' && sortDirection === 'desc' }"></i>
+        </th>
         <th class="py-3 px-6">Description</th>
-        <th class="py-3 px-6">Next Run</th>
+        <th class="py-3 px-6 cursor-pointer" (click)="sortBy('nextRun')">
+          Next Run
+          <i class="fas fa-sort ml-2"
+            [ngClass]="{ 'fas fa-sort-up': sortColumn === 'nextRun' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'nextRun' && sortDirection === 'desc' }"></i>
+        </th>
         <th class="py-3 px-6">Status</th>
         <th class="py-3 px-6">Actions</th>
       </tr>
@@ -22,7 +45,8 @@
           No tasks found
         </td>
       </tr>
-      <ng-container *ngFor="let task of scheduledTasks">
+      <ng-container
+        *ngFor="let task of scheduledTasks | filterTasks: searchTerm: activeFilter | orderByDate: sortColumn: sortDirection">
         <tr (click)="toggleTaskDetails(task)" class="border-b dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
           <td class="py-4 px-6">{{ task.name }}</td>
           <td class="py-2 px-6">{{ task.description }}</td>

@@ -44,6 +44,8 @@ import { StorageComponent } from './components/options/storage/storage.component
 import { ScheduledTasksComponent } from './components/options/scheduled-tasks/scheduled-tasks.component';
 import { ReadableCronPipe } from './components/options/scheduled-tasks/readable-cron.pipe';
 import { ScheduledTaskNewComponent } from './components/options/scheduled-tasks/scheduled-task-new/scheduled-task-new.component';
+import { OrderByDatePipe } from './pipes/order-by-date.pipe';
+import { FilterTasksPipe } from './components/options/scheduled-tasks/filter-tasks.pipe';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -74,6 +76,8 @@ function initializeApp(platformId: Object): () => void {
     OrderBySizePipe,
     PercentageOrderPipe,
     OrderByNumberPipe,
+    OrderByDatePipe,
+    FilterTasksPipe,
     FilterUsersPipe,
     FilterGroupsPipe,
     FilterProcessesPipe,
