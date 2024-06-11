@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ScheduledTasksService, ScheduledTask } from './scheduled-tasks.service';
-import { ScheduledTaskNewComponent } from './scheduled-task-new/scheduled-task-new.component';
 
 @Component({
   selector: 'app-scheduled-tasks',
   templateUrl: './scheduled-tasks.component.html',
+  styleUrl: './scheduled-tasks.component.css'
 })
 export class ScheduledTasksComponent implements OnInit {
   scheduledTasks: ScheduledTask[] = [];
@@ -84,8 +84,10 @@ export class ScheduledTasksComponent implements OnInit {
   }
 
   toggleScheduledTaskStatus(task: ScheduledTask): void {
-    const newStatus = task.status === 'active' ? 'inactive' : 'active';
-    this.scheduledTasksService.toggleScheduledTaskStatus(task.name, newStatus).subscribe(
+    const newStatus: 'active' | 'inactive' = task.status === 'active' ? 'inactive' : 'active';
+    const updatedTask: ScheduledTask = { ...task, status: newStatus };
+
+    this.scheduledTasksService.toggleScheduledTaskStatus(updatedTask).subscribe(
       () => {
         this.fetchScheduledTasks();
       },
@@ -95,4 +97,7 @@ export class ScheduledTasksComponent implements OnInit {
     );
   }
 
+  toggleTaskDetails(task: ScheduledTask): void {
+    task.showDetails = !task.showDetails;
+  }
 }

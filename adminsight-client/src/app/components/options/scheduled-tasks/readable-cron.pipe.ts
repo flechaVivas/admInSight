@@ -14,51 +14,73 @@ export class ReadableCronPipe implements PipeTransform {
 
     let readableCron = '';
 
-    if (minute === '*') {
-      readableCron += 'Cada minuto';
-    } else {
-      readableCron += `Minuto ${minute}`;
-    }
-
-    if (hour === '*') {
-      readableCron += ' de cada hora';
-    } else {
-      readableCron += ` a las ${hour}:00`;
-    }
-
-    if (dayOfMonth !== '*') {
-      readableCron += ` el día ${dayOfMonth}`;
-    }
-
-    if (month !== '*') {
-      readableCron += ` del mes ${month}`;
-    }
-
-    if (dayOfWeek !== '*') {
-      readableCron += ` los ${this.getDayOfWeekName(dayOfWeek)}`;
-    }
+    readableCron += this.parseMinute(minute);
+    readableCron += this.parseHour(hour);
+    readableCron += this.parseDayOfMonth(dayOfMonth);
+    readableCron += this.parseMonth(month);
+    readableCron += this.parseDayOfWeek(dayOfWeek);
 
     return readableCron.trim();
   }
 
+  private parseMinute(minute: string): string {
+    if (minute === '*') {
+      return 'Every minute';
+    } else if (minute === '0') {
+      return '';
+    } else {
+      return `At minute ${minute}`;
+    }
+  }
+
+  private parseHour(hour: string): string {
+    if (hour === '*') {
+      return ' of every hour';
+    } else {
+      return ` at ${hour.padStart(2, '0')}:00`;
+    }
+  }
+
+  private parseDayOfMonth(dayOfMonth: string): string {
+    if (dayOfMonth === '*') {
+      return '';
+    } else {
+      return ` on day ${dayOfMonth}`;
+    }
+  }
+
+  private parseMonth(month: string): string {
+    if (month === '*') {
+      return '';
+    } else {
+      return ` of month ${month}`;
+    }
+  }
+
+  private parseDayOfWeek(dayOfWeek: string): string {
+    if (dayOfWeek === '*') {
+      return '';
+    } else {
+      return ` on ${this.getDayOfWeekName(dayOfWeek)}`;
+    }
+  }
+
   private getDayOfWeekName(dayOfWeek: string): string {
-    switch (dayOfWeek) {
-      case '0':
-        return 'domingos';
-      case '1':
-        return 'lunes';
-      case '2':
-        return 'martes';
-      case '3':
-        return 'miércoles';
-      case '4':
-        return 'jueves';
-      case '5':
-        return 'viernes';
-      case '6':
-        return 'sábados';
-      default:
-        return '';
+    const daysOfWeek = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday'
+    ];
+
+    if (dayOfWeek.includes(',')) {
+      const days = dayOfWeek.split(',').map(day => daysOfWeek[parseInt(day, 10)]).join(', ');
+      return `these days: ${days}`;
+    } else {
+      return daysOfWeek[parseInt(dayOfWeek, 10)];
     }
   }
 }

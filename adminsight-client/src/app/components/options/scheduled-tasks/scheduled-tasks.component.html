@@ -1,7 +1,7 @@
 <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
-  <h2 class="text-2xl font-semibold">Tareas Programadas</h2>
+  <h2 class="text-2xl font-semibold">Scheduled Tasks</h2>
   <button class="bg-green-500 text-white py-2 px-4 rounded-md" (click)="openCreateTaskModal()">
-    <i class="fas fa-plus mr-2"></i>Crear Nueva Tarea
+    <i class="fas fa-plus mr-2"></i>Add new task
   </button>
 </div>
 
@@ -9,48 +9,64 @@
   <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
     <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
       <tr>
-        <th class="py-3 px-6">Nombre de la Tarea</th>
-        <th class="py-3 px-6">Descripción</th>
-        <th class="py-3 px-6">Frecuencia</th>
-        <th class="py-3 px-6">Última Ejecución</th>
-        <th class="py-3 px-6">Próxima Ejecución</th>
-        <th class="py-3 px-6">Estado</th>
-        <th class="py-3 px-6">Acciones</th>
+        <th class="py-3 px-6">Name</th>
+        <th class="py-3 px-6">Description</th>
+        <th class="py-3 px-6">Next Run</th>
+        <th class="py-3 px-6">Status</th>
+        <th class="py-3 px-6">Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngIf="scheduledTasks.length === 0">
-        <td colspan="7" class="py-4 px-6 text-center text-3xl">
-          <i class="fas fa-spinner fa-spin"></i> Cargando...
+        <td colspan="5" class="py-4 px-6 text-center text-3xl">
+          No tasks found
         </td>
       </tr>
-      <tr *ngFor="let task of scheduledTasks" class="border-b dark:bg-gray-800 dark:border-gray-700">
-        <td class="py-4 px-6">{{ task.name }}</td>
-        <td class="py-4 px-6">{{ task.description }}</td>
-        <td class="py-4 px-6">{{ task.cron | readableCron }}</td>
-        <td class="py-4 px-6">{{ task.lastRun | date:'yyyy-MM-dd HH:mm' }}</td>
-        <td class="py-4 px-6">{{ task.nextRun | date:'yyyy-MM-dd HH:mm' }}</td>
-        <td class="py-4 px-6">
-          <span class="px-2 py-1 rounded-full" [ngClass]="{
-            'bg-green-500 text-white': task.status === 'active',
-            'bg-red-500 text-white': task.status === 'inactive'
-          }">
-            {{ task.status }}
-          </span>
-        </td>
-        <td class="py-4 px-6">
-          <button class="text-yellow-500 hover:text-yellow-600 mr-2" (click)="openEditTaskModal(task)">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="text-green-500 hover:text-green-600 mr-2" (click)="toggleScheduledTaskStatus(task)">
-            <i class="fas fa-toggle-on" *ngIf="task.status === 'inactive'"></i>
-            <i class="fas fa-toggle-off" *ngIf="task.status === 'active'"></i>
-          </button>
-          <button class="text-red-500 hover:text-red-600" (click)="deleteScheduledTask(task.name)">
-            <i class="fas fa-trash"></i>
-          </button>
-        </td>
-      </tr>
+      <ng-container *ngFor="let task of scheduledTasks">
+        <tr (click)="toggleTaskDetails(task)" class="border-b dark:bg-gray-800 dark:border-gray-700 cursor-pointer">
+          <td class="py-4 px-6">{{ task.name }}</td>
+          <td class="py-2 px-6">{{ task.description }}</td>
+          <td class="py-4 px-6">{{ task.nextRun | date:'yyyy-MM-dd HH:mm' }}</td>
+          <td class="py-4 px-6">
+            <span class="px-2 py-1 rounded-full" [ngClass]="{
+              'bg-green-700 text-white': task.status === 'active',
+              'bg-red-500 text-white': task.status === 'inactive'
+            }">
+              {{ task.status }}
+            </span>
+          </td>
+          <td class="py-4 px-6">
+            <div class="flex items-center space-x-3 justify-center">
+              <label class="switch">
+                <input type="checkbox" [checked]="task.status === 'active'" (change)="toggleScheduledTaskStatus(task)">
+                <span class="slider round"></span>
+              </label>
+              <i class="fas fa-edit fa-lg cursor-pointer" (click)="openEditTaskModal(task)"></i>
+              <i class="fas fa-trash fa-lg cursor-pointer" (click)="deleteScheduledTask(task.name)"></i>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="task.showDetails" class="border-b dark:bg-gray-800 dark:border-gray-700">
+          <td colspan="5">
+            <div class="flex flex-col">
+              <div class="pr-2 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-2 px-4">
+                <table class="w-full">
+                  <tr>
+                    <th class="py-2 px-6">Command</th>
+                    <th class="py-2 px-6">Frecuence</th>
+                    <th class="py-2 px-6">Last Run</th>
+                  </tr>
+                  <tr>
+                    <td class="py-4 px-6">{{ task.command }}</td>
+                    <td class="py-2 px-6">{{ task.cron | readableCron }}</td>
+                    <td class="py-2 px-6">{{ task.lastRun | date:'yyyy-MM-dd HH:mm' }}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
     </tbody>
   </table>
 </div>

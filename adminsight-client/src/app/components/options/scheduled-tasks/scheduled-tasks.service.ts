@@ -4,6 +4,7 @@ import { catchError, map } from 'rxjs/operators';
 import { SshService } from '../../../services/ssh.service';
 import { HttpErrorService } from '../../../services/http-error.service';
 import { Router } from '@angular/router';
+import * as cronParser from 'cron-parser';
 
 export interface ScheduledTask {
   name: string;
@@ -14,15 +15,13 @@ export interface ScheduledTask {
   status: 'active' | 'inactive';
   lastRun: Date | null;
   nextRun: Date | null;
+  showDetails?: boolean;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ScheduledTasksService {
-
-
-
   constructor(
     private sshService: SshService,
     private httpErrorService: HttpErrorService,
@@ -43,29 +42,61 @@ export class ScheduledTasksService {
         const lines = output.trim().split('\n');
         const tasks: ScheduledTask[] = [];
 
+        let currentTask: ScheduledTask | null = null;
+
         for (const line of lines) {
-          const parts = line.split(' ', 6);
-          const cron = parts.slice(0, 5).join(' ');
-          const command = parts.slice(5).join(' ');
+          if (line.startsWith('# Name:')) {
+            if (currentTask) {
+              tasks.push(currentTask);
+            }
+            currentTask = {
+              name: line.replace('# Name: ', '').trim(),
+              description: '',
+              command: '',
+              cron: '',
+              user: '',
+              status: 'inactive',
+              lastRun: null,
+              nextRun: null
+            };
+          } else if (line.startsWith('# Description:') && currentTask) {
+            currentTask.description = line.replace('# Description: ', '').trim();
+          } else if (line.trim().length > 0) {
+            const isCommented = line.startsWith('#');
+            const lineContent = isCommented ? line.slice(1).trim() : line.trim();
 
-          // Obtener el usuario de la línea
-          const user = command.split(' ')[0];
-          const commandOnly = command.split(' ').slice(1).join(' ');
+            const cronParts = lineContent.split(' ');
+            const cron = cronParts.slice(0, 5).join(' ');
+            const user = cronParts[5];
+            const command = cronParts.slice(6).join(' ');
 
-          // Parsear la última ejecución y próxima ejecución
-          const lastRun = this.parseLastRun(cron);
-          const nextRun = this.parseNextRun(cron);
+            if (currentTask) {
+              currentTask.cron = cron;
+              currentTask.user = user;
+              currentTask.command = command;
+              currentTask.status = isCommented ? 'inactive' : 'active';
+              currentTask.lastRun = this.calculateLastRun(cron);
+              currentTask.nextRun = this.calculateNextRun(cron);
 
-          tasks.push({
-            name: commandOnly.split(' ')[0], // Asumir que el primer argumento es el nombre de la tarea
-            description: '', // La descripción no se puede obtener de crontab
-            command: commandOnly,
-            cron: cron,
-            user: user,
-            status: line.startsWith('#') ? 'inactive' : 'active',
-            lastRun: lastRun,
-            nextRun: nextRun
-          });
+              tasks.push(currentTask);
+              currentTask = null;
+            } else {
+              tasks.push({
+                name: '',
+                description: '',
+                cron: cron,
+                user: user,
+                command: command,
+                status: isCommented ? 'inactive' : 'active',
+                lastRun: this.calculateLastRun(cron),
+                nextRun: this.calculateNextRun(cron)
+              });
+            }
+          }
+        }
+
+        if (currentTask) {
+          tasks.push(currentTask);
         }
 
         return tasks;
@@ -74,7 +105,14 @@ export class ScheduledTasksService {
   }
 
   createOrUpdateScheduledTask(task: ScheduledTask): Observable<any> {
-    const commands = [`crontab -l > mycron && echo "${task.cron} ${task.user} ${task.command}" >> mycron && crontab mycron && rm mycron`];
+    const commands = [
+      `crontab -l > mycron`,
+      `echo "# Name: ${task.name}" >> mycron`,
+      `echo "# Description: ${task.description}" >> mycron`,
+      `echo "${task.cron} ${task.user} ${task.command}" >> mycron`,
+      `crontab mycron`,
+      `rm mycron`
+    ];
     return this.sshService.executeCommand(this.systemId, commands).pipe(
       catchError((error) => {
         this.httpErrorService.handleError(error);
@@ -84,7 +122,7 @@ export class ScheduledTasksService {
   }
 
   deleteScheduledTask(taskName: string): Observable<any> {
-    const commands = [`crontab -l | grep -v "${taskName}" | crontab -`];
+    const commands = [`crontab -l | sed -e '/# Name: ${taskName}/,/^$/d' | crontab -`];
     return this.sshService.executeCommand(this.systemId, commands).pipe(
       catchError((error) => {
         this.httpErrorService.handleError(error);
@@ -93,8 +131,14 @@ export class ScheduledTasksService {
     );
   }
 
-  toggleScheduledTaskStatus(taskName: string, status: 'active' | 'inactive'): Observable<any> {
-    const commands = [`crontab -l | sed "s/^#\?${taskName}/${status === 'active' ? '' : '#'}${taskName}/" | crontab -`];
+  toggleScheduledTaskStatus(task: ScheduledTask): Observable<any> {
+    const commands = [
+      `crontab -l > mycron`,
+      `sed -i "\\|${task.command}| ${task.status === 'active' ? 's|^#||' : 's|^|#|'}" mycron`,
+      `crontab mycron`,
+      `rm mycron`
+    ];
+
     return this.sshService.executeCommand(this.systemId, commands).pipe(
       catchError((error) => {
         this.httpErrorService.handleError(error);
@@ -103,17 +147,13 @@ export class ScheduledTasksService {
     );
   }
 
-  private parseLastRun(cron: string): Date | null {
-    // Implementa la lógica para parsear la última ejecución de la tarea basada en la expresión cron
-    // Puedes utilizar librerías como 'cron' o 'node-cron' para calcular la última ejecución
-    // Aquí se devuelve null como valor predeterminado
-    return null;
+  calculateLastRun(cronExpression: string): Date {
+    const interval = cronParser.parseExpression(cronExpression);
+    return interval.prev().toDate();
   }
 
-  private parseNextRun(cron: string): Date | null {
-    // Implementa la lógica para parsear la próxima ejecución de la tarea basada en la expresión cron
-    // Puedes utilizar librerías como 'cron' o 'node-cron' para calcular la próxima ejecución
-    // Aquí se devuelve null como valor predeterminado
-    return null;
+  calculateNextRun(cronExpression: string): Date {
+    const interval = cronParser.parseExpression(cronExpression);
+    return interval.next().toDate();
   }
 }
