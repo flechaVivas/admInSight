@@ -35,6 +35,12 @@ from django.http import HttpResponseBadRequest, HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+
 
 @api_view(["POST"])
 def login(request):
@@ -139,6 +145,60 @@ def change_password(request):
     user.save()
 
     return Response({'message': 'Contraseña actualizada exitosamente.'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def forgot_password(request):
+    email = request.data.get('email')
+
+    if not email:
+        return Response({'error': 'Debe proporcionar un email'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response({'error': 'No existe un usuario con ese email'}, status=status.HTTP_404_NOT_FOUND)
+
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+
+    reset_link = f"{request.scheme}://{request.get_host()
+                                       }/reset-password/{uid}/{token}"
+
+    send_mail(
+        'Restablecer contraseña',
+        f'Haga clic en el siguiente enlace para restablecer su contraseña: {
+            reset_link}',
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silently=False,
+    )
+
+    return Response({'message': 'Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def reset_password(request):
+    uid = request.data.get('uid')
+    token = request.data.get('token')
+    new_password = request.data.get('new_password')
+
+    if not uid or not token or not new_password:
+        return Response({'error': 'Debe proporcionar uid, token y nueva contraseña'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        uid = force_str(urlsafe_base64_decode(uid))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is None or not default_token_generator.check_token(user, token):
+        return Response({'error': 'Token inválido'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user.set_password(new_password)
+    user.save()
+
+    return Response({'message': 'Contraseña actualizada correctamente'}, status=status.HTTP_200_OK)
 
 
 class SystemViewSet(viewsets.ModelViewSet):
