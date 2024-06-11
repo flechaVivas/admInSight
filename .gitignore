@@ -4,3 +4,5 @@ adminsight_api/migrations/
 adminsight_api/__pycache__/
 
 adminsight_server/__pycache__/
+
+.env
