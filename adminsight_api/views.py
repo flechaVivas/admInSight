@@ -41,6 +41,9 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
 
 @api_view(["POST"])
 def login(request):
@@ -147,6 +150,15 @@ def change_password(request):
     return Response({'message': 'Contraseña actualizada exitosamente.'}, status=status.HTTP_200_OK)
 
 
+def generate_reset_password_email(reset_link):
+    context = {
+        'reset_link': reset_link
+    }
+    html_message = render_to_string('reset_password_email.html', context)
+    plain_message = strip_tags(html_message)
+    return html_message, plain_message
+
+
 @api_view(['POST'])
 def forgot_password(request):
     email = request.data.get('email')
@@ -163,14 +175,16 @@ def forgot_password(request):
     token = default_token_generator.make_token(user)
 
     reset_link = f"{request.scheme}://{request.get_host()
-                                       }/reset-password/{uid}/{token}"
+                                       }/api/reset-password/{uid}/{token}"
+
+    html_message, plain_message = generate_reset_password_email(reset_link)
 
     send_mail(
         'Restablecer contraseña',
-        f'Haga clic en el siguiente enlace para restablecer su contraseña: {
-            reset_link}',
+        plain_message,
         settings.DEFAULT_FROM_EMAIL,
         [user.email],
+        html_message=html_message,
         fail_silently=False,
     )
 
