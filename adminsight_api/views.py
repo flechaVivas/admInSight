@@ -174,8 +174,7 @@ def forgot_password(request):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
 
-    reset_link = f"{request.scheme}://{request.get_host()
-                                       }/api/reset-password/{uid}/{token}"
+    reset_link = f"http://localhost:4200/reset-password/{uid}/{token}"
 
     html_message, plain_message = generate_reset_password_email(reset_link)
 
@@ -192,9 +191,7 @@ def forgot_password(request):
 
 
 @api_view(['POST'])
-def reset_password(request):
-    uid = request.data.get('uid')
-    token = request.data.get('token')
+def reset_password(request, uid, token):
     new_password = request.data.get('new_password')
 
     if not uid or not token or not new_password:
