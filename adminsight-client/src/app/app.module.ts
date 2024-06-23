@@ -46,6 +46,8 @@ import { ReadableCronPipe } from './components/options/scheduled-tasks/readable-
 import { ScheduledTaskNewComponent } from './components/options/scheduled-tasks/scheduled-task-new/scheduled-task-new.component';
 import { OrderByDatePipe } from './pipes/order-by-date.pipe';
 import { FilterTasksPipe } from './components/options/scheduled-tasks/filter-tasks.pipe';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -96,7 +98,9 @@ function initializeApp(platformId: Object): () => void {
     StorageComponent,
     ScheduledTasksComponent,
     ReadableCronPipe,
-    ScheduledTaskNewComponent
+    ScheduledTaskNewComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent
   ],
   imports: [
     BrowserModule,

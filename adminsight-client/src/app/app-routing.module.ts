@@ -5,6 +5,8 @@ import { RegisterComponent } from './components/register/register.component';
 import { LoginServerComponent } from './components/login-server/login-server.component';
 import { AuthGuard } from './guards/auth.guard';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -12,6 +14,8 @@ const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login-server', component: LoginServerComponent, canActivate: [AuthGuard] },
   { path: 'dashboard/:systemId', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password/:uid/:token', component: ResetPasswordComponent },
 ];
 
 @NgModule({

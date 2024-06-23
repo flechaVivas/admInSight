@@ -24,5 +24,8 @@ urlpatterns = [
     path('change-password/', views.change_password, name='change-password'),
     path('update-profile/', views.update_profile, name='update_profile'),
     path('delete-account/', views.delete_account, name='delete_account'),
+    path('forgot-password/', views.forgot_password, name='forgot-password'),
+    path('reset-password/<uid>/<token>/',
+         views.reset_password, name='reset_password'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

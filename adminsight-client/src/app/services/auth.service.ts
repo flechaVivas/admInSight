@@ -98,8 +98,15 @@ export class AuthService {
 
   isSshTokenValid(): boolean {
     const sshToken = this.getSshToken();
-    // Aquí puedes agregar la lógica para verificar si el token SSH es válido
-    // Por ejemplo, puedes hacer una solicitud al backend para validar el token
     return !!sshToken; // Retorna true si el token SSH no está vacío
   }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`http://127.0.0.1:8000/api/forgot-password/`, { email });
+  }
+
+  resetPassword(uid: string, token: string, newPassword: string): Observable<any> {
+    return this.http.post(`http://127.0.0.1:8000/api/reset-password/${uid}/${token}/`, { new_password: newPassword });
+  }
+
 }
