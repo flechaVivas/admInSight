@@ -20,8 +20,18 @@ export class ForgotPasswordComponent {
         this.isLoading = false;
       },
       error: (error) => {
-        this.message = 'Ha ocurrido un error. Por favor, inténtelo de nuevo más tarde.';
-        this.isLoading = false;
+
+        switch (error.status) {
+          case 404:
+            this.message = 'Error: No se ha encontrado una cuenta con el correo electrónico proporcionado.';
+            this.isLoading = false;
+            break;
+          case 429:
+            this.message = 'Error: Demasiados intentos. Por favor, inténtelo de nuevo más tarde.';
+            this.isLoading = false;
+            break;
+          default:
+        }
       }
     });
   }
