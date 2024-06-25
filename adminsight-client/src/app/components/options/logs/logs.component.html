@@ -1,0 +1,117 @@
+<div class="h-full">
+  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+    <h2 class="text-2xl font-semibold mr-2">Logs <i class="fa-solid fa-arrows-rotate cursor-pointer ml-2"
+        (click)="fetchLogs()"></i></h2>
+    <div class="flex items-center">
+      <input type="text" placeholder="Search logs..." class="bg-gray-700 text-white py-2 px-4 rounded-md mr-4"
+        [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" />
+      <div class="flex items-center">
+        <div class="mr-4">
+          <label class="mr-2">Severity:</label>
+          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="severityFilter"
+            (ngModelChange)="applyFilters()">
+            <option value="">All</option>
+            <option value="info">Info</option>
+            <option value="warning">Warning</option>
+            <option value="error">Error</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+        <div class="mr-4">
+          <label class="mr-2">Category:</label>
+          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="categoryFilter"
+            (ngModelChange)="applyFilters()">
+            <option value="">All</option>
+            <option value="System">System</option>
+            <option value="Security">Security</option>
+            <option value="Application">Application</option>
+            <option value="Network">Network</option>
+          </select>
+        </div>
+        <div>
+          <label class="mr-2">Service:</label>
+          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="serviceFilter"
+            (ngModelChange)="applyFilters()">
+            <option value="">All</option>
+            <option value="apache">Apache</option>
+            <option value="nginx">Nginx</option>
+            <option value="mysql">MySQL</option>
+            <option value="ssh">SSH</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between px-6 py-3 bg-gray-100">
+    <div>
+      <label class="mr-2">Start Date:</label>
+      <input type="date" class="bg-white border border-gray-300 rounded-md py-1 px-2" [(ngModel)]="startDate"
+        (ngModelChange)="applyFilters()">
+    </div>
+    <div>
+      <label class="mr-2">End Date:</label>
+      <input type="date" class="bg-white border border-gray-300 rounded-md py-1 px-2" [(ngModel)]="endDate"
+        (ngModelChange)="applyFilters()">
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-auto">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('timestamp')">
+            Timestamp
+            <i class="fas fa-sort ml-2"
+              [ngClass]="{'fas fa-sort-up': sortColumn === 'timestamp' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'timestamp' && sortDirection === 'desc'}"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('severity')">
+            Severity
+            <i class="fas fa-sort ml-2"
+              [ngClass]="{'fas fa-sort-up': sortColumn === 'severity' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'severity' && sortDirection === 'desc'}"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('category')">
+            Category
+            <i class="fas fa-sort ml-2"
+              [ngClass]="{'fas fa-sort-up': sortColumn === 'category' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'category' && sortDirection === 'desc'}"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('service')">
+            Service
+            <i class="fas fa-sort ml-2"
+              [ngClass]="{'fas fa-sort-up': sortColumn === 'service' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'service' && sortDirection === 'desc'}"></i>
+          </th>
+          <th scope="col" class="py-3 px-6">Message</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="filteredLogs.length === 0">
+          <td colspan="5" class="py-4 px-6 text-center text-3xl">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+          </td>
+        </tr>
+        <ng-container *ngFor="let log of filteredLogs">
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 cursor-pointer"
+            (click)="toggleDetails(log)">
+            <td class="py-4 px-6">{{ log.timestamp }}</td>
+            <td class="py-4 px-6">
+              <span [ngClass]="{
+                'text-green-500': log.severity === 'info',
+                'text-yellow-500': log.severity === 'warning',
+                'text-red-500': log.severity === 'error',
+                'text-purple-500': log.severity === 'critical'
+              }">{{ log.severity }}</span>
+            </td>
+            <td class="py-4 px-6">{{ log.category }}</td>
+            <td class="py-4 px-6">{{ log.service }}</td>
+            <td class="py-4 px-6">{{ log.message }}</td>
+          </tr>
+          <tr *ngIf="log.details" class="bg-gray-100 dark:bg-gray-900">
+            <td colspan="5" class="py-2 px-6">
+              <pre class="whitespace-pre-wrap">{{ log.details }}</pre>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>
