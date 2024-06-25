@@ -48,6 +48,9 @@ import { OrderByDatePipe } from './pipes/order-by-date.pipe';
 import { FilterTasksPipe } from './components/options/scheduled-tasks/filter-tasks.pipe';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { NetworkComponent } from './components/options/network/network.component';
+import { FilterNetworkPipe } from './components/options/network/filter-network.pipe';
+import { LogsComponent } from './components/options/logs/logs.component';
 
 function initializeApp(platformId: Object): () => void {
   return () => {
@@ -100,7 +103,10 @@ function initializeApp(platformId: Object): () => void {
     ReadableCronPipe,
     ScheduledTaskNewComponent,
     ForgotPasswordComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    NetworkComponent,
+    FilterNetworkPipe,
+    LogsComponent
   ],
   imports: [
     BrowserModule,
