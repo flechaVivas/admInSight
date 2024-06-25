@@ -1,0 +1,99 @@
+<div class="h-full">
+  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
+    <h2 class="text-2xl font-semibold mr-2">Network <i class="fa-solid fa-arrows-rotate cursor-pointer ml-2"
+        (click)="fetchNetworkInfo()"></i></h2>
+    <div class="flex items-center">
+      <input type="text" placeholder="Search connections..." class="bg-gray-700 text-white py-2 px-4 rounded-md mr-4"
+        [(ngModel)]="searchTerm" />
+      <div class="flex items-center">
+        <div class="mr-4">
+          <label class="mr-2">Protocol:</label>
+          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="protocolFilter">
+            <option value="">All</option>
+            <option value="tcp">TCP</option>
+            <option value="udp">UDP</option>
+          </select>
+        </div>
+        <div>
+          <label class="mr-2">State:</label>
+          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="stateFilter">
+            <option value="">All</option>
+            <option value="LISTEN">LISTEN</option>
+            <option value="ESTABLISHED">ESTABLISHED</option>
+            <option value="CLOSED">CLOSED</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 p-4">
+    <div>
+      <h3 class="text-lg font-semibold mb-2">Bandwidth Usage</h3>
+      <canvas id="bandwidthChart"></canvas>
+    </div>
+    <div>
+      <h3 class="text-lg font-semibold mb-2">Packets per Second</h3>
+      <canvas id="packetsChart"></canvas>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between px-6 py-3 bg-gray-100">
+    <div>
+      <span class="font-semibold mr-2">Internet Connection:</span>
+      <i class="fas fa-circle"
+        [ngClass]="{'text-green-500': isInternetConnected, 'text-red-500': !isInternetConnected}"></i>
+      {{ isInternetConnected ? 'Connected' : 'Disconnected' }}
+    </div>
+  </div>
+
+  <div class="flex-1 overflow-auto">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('protocol')">
+            Protocol
+            <i class="fas fa-sort ml-2"
+              [ngClass]="{'fas fa-sort-up': sortColumn === 'protocol' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'protocol' && sortDirection === 'desc'}"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('localAddress')">
+            Local Address
+            <i class="fas fa-sort ml-2"
+              [ngClass]="{'fas fa-sort-up': sortColumn === 'localAddress' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'localAddress' && sortDirection === 'desc'}"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('foreignAddress')">
+            Foreign Address
+            <i class="fas fa-sort ml-2"
+              [ngClass]="{'fas fa-sort-up': sortColumn === 'foreignAddress' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'foreignAddress' && sortDirection === 'desc'}"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('state')">
+            State
+            <i class="fas fa-sort ml-2"
+              [ngClass]="{'fas fa-sort-up': sortColumn === 'state' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'state' && sortDirection === 'desc'}"></i>
+          </th>
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('pid')">
+            PID/Program
+            <i class="fas fa-sort ml-2"
+              [ngClass]="{'fas fa-sort-up': sortColumn === 'pid' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'pid' && sortDirection === 'desc'}"></i>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="filteredConnections.length === 0">
+          <td colspan="5" class="py-4 px-6 text-center text-3xl">
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+          </td>
+        </tr>
+        <tr
+          *ngFor="let connection of filteredConnections | filterNetwork: searchTerm:protocolFilter:stateFilter | stringOrder: sortColumn:sortDirection"
+          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+          <td class="py-4 px-6">{{ connection.protocol }}</td>
+          <td class="py-4 px-6">{{ connection.localAddress }}</td>
+          <td class="py-4 px-6">{{ connection.foreignAddress }}</td>
+          <td class="py-4 px-6">{{ connection.state }}</td>
+          <td class="py-4 px-6">{{ connection.pid }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
