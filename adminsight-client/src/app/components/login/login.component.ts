@@ -39,13 +39,13 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
 
     if (!this.email) {
-      this.emailError = 'Por favor, complete el campo de email.';
+      this.emailError = 'Please fill in the email field.';
       this.isLoading = false;
       return;
     }
 
     if (!this.password) {
-      this.passwordError = 'Por favor, complete el campo de contraseña.';
+      this.passwordError = 'Please fill in the password field.';
       this.isLoading = false;
       return;
     }
@@ -70,16 +70,16 @@ export class LoginComponent implements OnInit {
   handleError(error: any): void {
     switch (error.error.error_code) {
       case 'invalid_credentials':
-        this.loginError = 'Usuario y/o contraseña no son correctos.';
+        this.loginError = 'Invalid email or password.';
         break;
       case 'user_not_found':
-        this.loginError = 'Usuario y/o contraseña no son correctos.';
+        this.loginError = 'Invalid email or password.';
         break;
       case 'not_found':
-        this.loginError = 'Usuario y/o contraseña no son correctos.';
+        this.loginError = 'Invalid email or password.';
         break;
       default:
-        this.loginError = 'Ha ocurrido un error inesperado.';
+        this.loginError = 'An error occurred. Please try again later.';
         break;
     }
   }

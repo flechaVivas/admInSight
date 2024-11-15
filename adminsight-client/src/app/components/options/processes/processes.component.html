@@ -26,15 +26,27 @@
       </div>
     </div>
   </div>
-  <div class="flex-1 overflow-auto">
-    <div class="grid grid-cols-2 gap-2 p-4">
-      <div>
+
+  <!-- Gráficos en contenedores estilizados -->
+  <div class="grid grid-cols-2 gap-4 p-4">
+    <!-- CPU Load Chart -->
+    <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+      <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">CPU Usage</h3>
+      <div class="h-64 relative">
         <canvas id="cpuLoadChart"></canvas>
       </div>
-      <div>
+    </div>
+
+    <!-- Memory Usage Chart -->
+    <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+      <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Memory Usage</h3>
+      <div class="h-64 relative">
         <canvas id="memoryUsageChart"></canvas>
       </div>
     </div>
+  </div>
+
+  <div class="flex-1 overflow-auto">
     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
       <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
         <tr>
@@ -73,7 +85,8 @@
                 'fas fa-sort-down': sortColumn === 'status' && sortDirection === 'desc'
               }"></i>
           </th>
-          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortProcesses('description')">Description
+          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sortProcesses('description')">
+            Description
             <i class="fas fa-sort ml-2" [ngClass]="{
                 'fas fa-sort-up': sortColumn === 'description' && sortDirection === 'asc',
                 'fas fa-sort-down': sortColumn === 'description' && sortDirection === 'desc'
@@ -90,27 +103,30 @@
         </tr>
         <tr
           *ngFor="let process of filteredProcesses | filterProcesses: searchTerm:statusFilter:userFilter | orderByNumber: sortColumn:sortDirection | stringOrder: sortColumn:sortDirection"
-          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
           <td class="py-4 px-6">{{ process.pid }}</td>
           <td class="py-4 px-6">{{ process.user }}</td>
           <td class="py-4 px-6">{{ process.cpu }}%</td>
           <td class="py-4 px-6">{{ process.memory }}</td>
           <td class="py-4 px-6">
-            <span [ngClass]="{
-              'text-green-500 py-1 px-3': process.status === 'running',
-              'text-red-500 py-1 px-3': process.status === 'stopped',
-              'text-yellow-500 py-1 px-3': process.status.includes('sleep'),
-              'text-blue-500 py-1 px-3': process.status === 'zombie',
+            <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{
+              'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100': process.status === 'running',
+              'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100': process.status === 'stopped',
+              'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100': process.status.includes('sleep'),
+              'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100': process.status === 'zombie'
             }">{{ process.status }}</span>
           </td>
           <td class="py-4 px-6">{{ process.description }}</td>
           <td class="py-4 px-6">
             <div class="flex items-center space-x-3 justify-center">
-              <i *ngIf="process.status === 'running'" class="fa-solid fa-pause fa-lg cursor-pointer"
+              <i *ngIf="process.status === 'running'"
+                class="fa-solid fa-pause fa-lg cursor-pointer text-yellow-500 hover:text-yellow-600"
                 (click)="stopProcess(process.pid)"></i>
               <i *ngIf="process.status === 'stopped' || process.status === 'zombie'"
-                class="fa-solid fa-play fa-lg cursor-pointer" (click)="startProcess(process.pid)"></i>
-              <i *ngIf="process.status !== 'zombie'" class="fa-solid fa-trash fa-lg cursor-pointer"
+                class="fa-solid fa-play fa-lg cursor-pointer text-green-500 hover:text-green-600"
+                (click)="startProcess(process.pid)"></i>
+              <i *ngIf="process.status !== 'zombie'"
+                class="fa-solid fa-trash fa-lg cursor-pointer text-red-500 hover:text-red-600"
                 (click)="killProcess(process.pid)"></i>
               <i *ngIf="process.status === 'uninterruptible sleep'"
                 class="fa-solid fa-exclamation-circle fa-lg cursor-pointer text-yellow-500"

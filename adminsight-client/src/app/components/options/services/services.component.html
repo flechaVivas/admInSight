@@ -1,71 +1,189 @@
-<div class="h-full">
-  <div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center">
-    <h2 class="text-2xl font-semibold mr-2">Services<i class="fa-solid fa-arrows-rotate cursor-pointer ml-2"
-        (click)=" refreshServices()"></i></h2>
-    <div class="flex items-center">
-      <input type="text" placeholder="Search services..." class="bg-gray-700 text-white py-2 px-4 rounded-md mr-4"
-        [(ngModel)]="searchTerm" />
-      <div class="flex items-center">
-        <div class="mr-4">
-          <label class="mr-2">Filter:</label>
-          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="activeFilter">
-            <option value="">All</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
-        <div>
-          <label class="mr-2">Enabled:</label>
-          <select class="bg-gray-700 text-white py-2 px-4 rounded-md" [(ngModel)]="enabledFilter">
-            <option value="">All</option>
-            <option value="enabled">Enabled</option>
-            <option value="disabled">Disabled</option>
-          </select>
-        </div>
+<div class="bg-gray-800 text-white py-4 px-6 flex justify-between items-center shadow-sm">
+  <h2 class="text-2xl font-semibold flex items-center">
+    Services
+    <i class="fa-solid fa-arrows-rotate cursor-pointer ml-3 text-gray-400 hover:text-blue-400 transition-colors"
+      (click)="refreshServices()"></i>
+  </h2>
+  <div class="flex items-center space-x-4">
+    <!-- Search -->
+    <div class="relative">
+      <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+      <input type="text" placeholder="Search services..."
+        class="bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg w-64 border border-gray-600 focus:border-blue-500 focus:outline-none"
+        [(ngModel)]="searchTerm" (ngModelChange)="filterServices()" />
+    </div>
+
+    <!-- Filters -->
+    <div class="flex items-center space-x-4">
+      <div>
+        <label class="mr-2 text-gray-300">Filter:</label>
+        <select
+          class="bg-gray-700 text-white py-2 px-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+          [(ngModel)]="activeFilter" (ngModelChange)="filterServices()">
+          <option value="">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      <div>
+        <label class="mr-2 text-gray-300">Boot:</label>
+        <select
+          class="bg-gray-700 text-white py-2 px-4 rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+          [(ngModel)]="enabledFilter" (ngModelChange)="filterServices()">
+          <option value="">All</option>
+          <option value="enabled">Enabled</option>
+          <option value="disabled">Disabled</option>
+        </select>
       </div>
     </div>
   </div>
-  <div class="flex-1 overflow-auto">
-    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-      <thead class="text-xs text-gray-700 uppercase bg-gray-700 dark:bg-gray-700 dark:text-gray-400">
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-4 gap-4 p-4">
+  <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Total Services</h3>
+    <div class="flex items-center">
+      <span class="text-2xl font-bold text-gray-800 dark:text-white">{{ getTotalServices() }}</span>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Active Services</h3>
+    <div class="flex items-center">
+      <span class="text-2xl font-bold text-green-600 dark:text-green-400">{{ getActiveServices() }}</span>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Stopped Services</h3>
+    <div class="flex items-center">
+      <span class="text-2xl font-bold text-red-600 dark:text-red-400">{{ getInactiveServices() }}</span>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-700 rounded-lg shadow p-4">
+    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Service Health</h3>
+    <div class="flex items-center">
+      <span class="text-2xl font-bold" [ngClass]="{
+                'text-green-600 dark:text-green-400': getServiceHealth() >= 90,
+                'text-yellow-600 dark:text-yellow-400': getServiceHealth() >= 70 && getServiceHealth() < 90,
+                'text-red-600 dark:text-red-400': getServiceHealth() < 70
+              }">
+        {{ getServiceHealth() }}%
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Services Table -->
+<div class="flex-1 overflow-auto px-4">
+  <div class="bg-white dark:bg-gray-700 rounded-lg shadow overflow-hidden">
+    <table class="w-full text-sm text-left">
+      <thead class="text-xs uppercase bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
         <tr>
-          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('name')">
-            Service Name
-            <i class="fas fa-sort ml-2"
-              [ngClass]="{ 'fas fa-sort-up': sortColumn === 'name' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'name' && sortDirection === 'desc' }"></i>
+          <!-- Reducido el ancho de la primera columna -->
+          <th scope="col" class="py-3 px-4 cursor-pointer w-1/6 min-w-[120px] hover:bg-gray-100 dark:hover:bg-gray-700"
+            (click)="sort('name')">
+            <div class="flex items-center">
+              <span class="whitespace-nowrap">Service Name</span>
+              <i class="fas fa-sort ml-2" [ngClass]="{'fas fa-sort-up': sortColumn === 'name' && sortDirection === 'asc',
+                                 'fas fa-sort-down': sortColumn === 'name' && sortDirection === 'desc'}">
+              </i>
+            </div>
           </th>
-          <th scope="col" class="py-3 px-6">Description</th>
-          <th scope="col" class="py-3 px-6 cursor-pointer" (click)="sort('status')">
-            Status
-            <i class="fas fa-sort ml-2"
-              [ngClass]="{ 'fas fa-sort-up': sortColumn === 'status' && sortDirection === 'asc', 'fas fa-sort-down': sortColumn === 'status' && sortDirection === 'desc' }"></i>
+          <!-- Columna de descripción flexible -->
+          <th scope="col" class="py-3 px-4 w-2/5">Description</th>
+          <!-- Ancho fijo para estado -->
+          <th scope="col" class="py-3 px-4 cursor-pointer w-24 hover:bg-gray-100 dark:hover:bg-gray-700"
+            (click)="sort('status')">
+            <div class="flex items-center">
+              <span class="whitespace-nowrap">Status</span>
+              <i class="fas fa-sort ml-2" [ngClass]="{'fas fa-sort-up': sortColumn === 'status' && sortDirection === 'asc',
+                                 'fas fa-sort-down': sortColumn === 'status' && sortDirection === 'desc'}">
+              </i>
+            </div>
           </th>
-          <th scope="col" class="py-3 px-6">Actions</th>
+          <!-- Ancho fijo para boot state -->
+          <th scope="col" class="py-3 px-4 cursor-pointer w-24 hover:bg-gray-100 dark:hover:bg-gray-700"
+            (click)="sort('isEnabled')">
+            <div class="flex items-center">
+              <span class="whitespace-nowrap">On Boot</span>
+              <i class="fas fa-sort ml-2" [ngClass]="{'fas fa-sort-up': sortColumn === 'isEnabled' && sortDirection === 'asc',
+                                 'fas fa-sort-down': sortColumn === 'isEnabled' && sortDirection === 'desc'}">
+              </i>
+            </div>
+          </th>
+          <!-- Ancho fijo para acciones -->
+          <th scope="col" class="py-3 px-4 w-52 text-left">Actions</th>
         </tr>
       </thead>
-      <tbody>
-        <tr *ngIf="filteredServices.length === 0">
-          <td colspan="4" class="py-4 px-6 text-center text-3xl">
-            <i class="fas fa-spinner fa-spin"></i> Loading...
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+        <tr *ngIf="isLoading" class="bg-white dark:bg-gray-800">
+          <td colspan="5" class="py-8 px-4 text-center">
+            <i class="fas fa-spinner fa-spin text-2xl text-gray-400 dark:text-gray-500 mb-2"></i>
+            <p class="text-gray-500 dark:text-gray-400">Loading services...</p>
           </td>
         </tr>
-        <tr
-          *ngFor="let service of filteredServices | filterServices: searchTerm:activeFilter:enabledFilter | stringOrder: sortColumn:sortDirection"
-          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-          <td class="py-4 px-6">{{ service.name }}</td>
-          <td class="py-4 px-6">{{ service.description }}</td>
-          <td class="py-4 px-6">
-            <span [ngClass]="{
-              'text-green-500 py-1 px-3': service.status.includes('running'),
-              'text-yellow-500 py-1 px-3': service.status.includes('exited'),
-              'text-red-500 py-1 px-3': service.status.includes('dead'),
-              }">{{ service.status }}</span>
+
+        <tr *ngFor="let service of filteredServices"
+          class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <td class="py-4 px-4 font-medium text-gray-900 dark:text-white truncate max-w-[200px]">
+            {{ service.name }}
           </td>
-          <td>
-            <div class="flex items-center space-x-3 justify-center">
-              <i class="fa-solid fa-power-off fa-lg cursor-pointer" (click)="rebootService(service.name)"></i>
-              <i class="fa-solid fa-pause fa-lg cursor-pointer" (click)="stopService(service.name)"></i>
-              <i class="fa-solid fa-play fa-lg cursor-pointer" (click)="startService(service.name)"></i>
+          <td class="py-4 px-4 text-gray-700 dark:text-gray-300">
+            <div class="truncate">{{ service.description }}</div>
+          </td>
+          <td class="py-4 px-4 whitespace-nowrap">
+            <span class="px-2 py-1 text-xs font-medium rounded-full" [ngClass]="{
+                          'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100': service.status.includes('running'),
+                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100': service.status.includes('exited'),
+                          'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100': service.status.includes('dead')
+                        }">
+              {{ service.status.includes('running') ? 'Running' :
+              service.status.includes('exited') ? 'Stopped' :
+              service.status.includes('dead') ? 'Dead' : service.status }}
+            </span>
+          </td>
+          <td class="py-4 px-4 whitespace-nowrap">
+            <span class="px-2 py-1 text-xs font-medium rounded-full" [ngClass]="{
+                          'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100': service.isEnabled,
+                          'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100': !service.isEnabled
+                        }">
+              {{ service.isEnabled ? 'Yes' : 'No' }}
+            </span>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-4">
+              <button
+                class="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+                (click)="rebootService(service.name)" title="Restart Service">
+                <i class="fa-solid fa-power-off fa-lg"></i>
+              </button>
+
+              <button *ngIf="service.status.includes('running')"
+                class="text-gray-500 hover:text-yellow-600 dark:text-gray-400 dark:hover:text-yellow-400 transition-colors"
+                (click)="stopService(service.name)" title="Stop Service">
+                <i class="fa-solid fa-pause fa-lg"></i>
+              </button>
+
+              <button *ngIf="!service.status.includes('running')"
+                class="text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400 transition-colors"
+                (click)="startService(service.name)" title="Start Service">
+                <i class="fa-solid fa-play fa-lg"></i>
+              </button>
+
+              <button *ngIf="!service.isEnabled"
+                class="text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 transition-colors"
+                (click)="enableService(service.name)" title="Enable on Boot">
+                <i class="fa-solid fa-clock fa-lg"></i>
+              </button>
+
+              <button *ngIf="service.isEnabled"
+                class="text-gray-500 hover:text-orange-600 dark:text-gray-400 dark:hover:text-orange-400 transition-colors"
+                (click)="disableService(service.name)" title="Disable on Boot">
+                <i class="fa-solid fa-clock-slash fa-lg"></i>
+              </button>
             </div>
           </td>
         </tr>
@@ -74,4 +192,5 @@
   </div>
 </div>
 <app-password-modal *ngIf="showPasswordModal" title="Enter sudo password" (confirm)="onPasswordConfirm($event)"
-  (cancel)="onPasswordCancel()"></app-password-modal>
+  (cancel)="onPasswordCancel()">
+</app-password-modal>

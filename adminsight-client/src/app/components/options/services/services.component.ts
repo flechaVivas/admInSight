@@ -6,8 +6,9 @@ export interface Service {
   name: string;
   description: string;
   status: string;
+  isEnabled: boolean;
+  loadState: string;
 }
-
 @Component({
   selector: 'app-services',
   templateUrl: './services.component.html',
@@ -21,10 +22,12 @@ export class ServicesComponent implements OnInit {
   enabledFilter: string = '';
   sortColumn: string = 'name';
   sortDirection: string = 'asc';
+  isLoading: boolean = true;
 
   showPasswordModal: boolean = false;
   currentServiceName: string = '';
-  currentAction: 'start' | 'stop' | 'restart' = 'start';
+  currentAction: 'start' | 'stop' | 'restart' | 'enable' | 'disable' = 'start';
+
 
   constructor(private sshService: SshService, private router: Router) { }
 
@@ -39,33 +42,43 @@ export class ServicesComponent implements OnInit {
   }
 
   fetchServiceInfo() {
+    this.isLoading = true;
+    // Usamos dos comandos: uno para listar los servicios y otro para obtener el estado enabled
     const commands = [
-      'systemctl list-units --type=service --all --no-pager --no-legend | sed "s/● / /"'
+      'systemctl list-units --type=service --all --no-pager --no-legend | sed "s/● / /"',
+      'systemctl list-unit-files --type=service --no-pager --no-legend'
     ];
 
     this.sshService.executeCommand(this.systemId, commands)
-      .subscribe(
-        (response: any) => {
-          const output = response['systemctl list-units --type=service --all --no-pager --no-legend | sed "s/● / /"']?.stdout || '';
-          const lines = output.trim().split('\n');
-          const headers = lines.shift()?.trim().split(/\s+/);
+      .subscribe({
+        next: (response: any) => {
+          const servicesOutput = response['systemctl list-units --type=service --all --no-pager --no-legend | sed "s/● / /"']?.stdout || '';
+          const enabledOutput = response['systemctl list-unit-files --type=service --no-pager --no-legend']?.stdout || '';
 
-          if (!headers || headers.length < 5) {
-            console.error('La salida del comando no tiene el formato esperado.');
-            return;
-          }
+          // Primero procesamos el estado enabled/disabled de los servicios
+          const enabledStates = new Map<string, boolean>();
+          enabledOutput.trim().split('\n').forEach((line: string) => {
+            const [unit, state] = line.trim().split(/\s+/);
+            enabledStates.set(
+              unit.replace('.service', ''),
+              state === 'enabled' || state === 'enabled-runtime' || state === 'static'
+            );
+          });
 
-          const serviceNameIndex = headers.indexOf('UNIT');
-          const loadStateIndex = headers.indexOf('LOAD');
-          const activeStateIndex = headers.indexOf('ACTIVE');
-          const subStateIndex = headers.indexOf('SUB');
-          const descriptionIndex = headers.indexOf('DESCRIPTION');
+          // Ahora procesamos la información principal de los servicios
+          const lines = servicesOutput.trim().split('\n');
 
           this.services = lines
-            .filter((line: string) => !line.includes('LOAD') && !line.includes('ACTIVE') && !line.includes('SUB') && !line.includes('listed') && !line.includes('To'))
+            .filter((line: string) => {
+              return !line.includes('LOAD') &&
+                !line.includes('ACTIVE') &&
+                !line.includes('SUB') &&
+                !line.includes('listed') &&
+                !line.includes('To');
+            })
             .map((line: string) => {
               const parts = line.trim().split(/\s+/);
-              const serviceName = parts[0];
+              const serviceName = parts[0].replace('.service', '');
               const loadState = parts[1] || '';
               const activeState = parts[2] || '';
               const subState = parts[3] || '';
@@ -75,17 +88,68 @@ export class ServicesComponent implements OnInit {
               return {
                 name: serviceName,
                 description,
-                status
+                status,
+                isEnabled: enabledStates.get(serviceName) || false,
+                loadState
               };
             });
 
-          this.filteredServices = [...this.services];
+          this.filterServices();
+          this.isLoading = false;
         },
-        (error) => {
+        error: (error) => {
           this.handleError(error);
+          this.isLoading = false;
         }
-      );
+      });
   }
+
+  // Agregar métodos para habilitar/deshabilitar servicios
+  enableService(serviceName: string) {
+    this.showPasswordModal = true;
+    this.currentServiceName = serviceName;
+    this.currentAction = 'enable';
+  }
+
+  disableService(serviceName: string) {
+    this.showPasswordModal = true;
+    this.currentServiceName = serviceName;
+    this.currentAction = 'disable';
+  }
+
+  filterServices() {
+    this.filteredServices = this.services.filter(service => {
+      const matchesSearch = !this.searchTerm ||
+        Object.values(service).some(value =>
+          String(value).toLowerCase().includes(this.searchTerm.toLowerCase())
+        );
+
+      const matchesActive = !this.activeFilter ||
+        (this.activeFilter === 'active' && service.status.includes('running')) ||
+        (this.activeFilter === 'inactive' && !service.status.includes('running'));
+
+      const matchesEnabled = !this.enabledFilter ||
+        (this.enabledFilter === 'enabled' && service.isEnabled) ||
+        (this.enabledFilter === 'disabled' && !service.isEnabled);
+
+      return matchesSearch && matchesActive && matchesEnabled;
+    });
+
+    // Aplicar ordenamiento actual después del filtrado
+    this.applySort();
+  }
+
+  private applySort() {
+    this.filteredServices.sort((a, b) => {
+      const aValue = String(a[this.sortColumn as keyof Service]);
+      const bValue = String(b[this.sortColumn as keyof Service]);
+
+      return this.sortDirection === 'asc'
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    });
+  }
+
 
   handleError(error: any): void {
     if (error.error.error_code === 'invalid_ssh_token') {
@@ -101,6 +165,7 @@ export class ServicesComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
+    this.applySort();
   }
 
   refreshServices() {
@@ -125,6 +190,28 @@ export class ServicesComponent implements OnInit {
     this.currentAction = 'start';
   }
 
+  getEnabledText(service: Service): string {
+    return service.isEnabled ? 'Enabled' : 'Disabled';
+  }
+
+  getTotalServices(): number {
+    return this.filteredServices.length;
+  }
+
+  getActiveServices(): number {
+    return this.filteredServices.filter(s => s.status.includes('running')).length;
+  }
+
+  getInactiveServices(): number {
+    return this.filteredServices.filter(s => !s.status.includes('running')).length;
+  }
+
+  getServiceHealth(): number {
+    if (this.filteredServices.length === 0) return 0;
+    const running = this.getActiveServices();
+    return Math.round((running / this.filteredServices.length) * 100);
+  }
+
   onPasswordConfirm(sudoPassword: string) {
     this.executeCommand(this.currentServiceName, this.currentAction, sudoPassword);
     this.showPasswordModal = false;
@@ -134,7 +221,7 @@ export class ServicesComponent implements OnInit {
     this.showPasswordModal = false;
   }
 
-  executeCommand(serviceName: string, action: 'start' | 'stop' | 'restart', sudoPassword: string) {
+  executeCommand(serviceName: string, action: 'start' | 'stop' | 'restart' | 'enable' | 'disable', sudoPassword: string) {
     let command: string;
 
     switch (action) {
@@ -147,6 +234,12 @@ export class ServicesComponent implements OnInit {
       case 'restart':
         command = `echo '${sudoPassword}' | sudo -S systemctl restart ${serviceName}`;
         break;
+      case 'enable':
+        command = `echo '${sudoPassword}' | sudo -S systemctl enable ${serviceName}`;
+        break;
+      case 'disable':
+        command = `echo '${sudoPassword}' | sudo -S systemctl disable ${serviceName}`;
+        break;
       default:
         console.error('Invalid action');
         return;
@@ -158,15 +251,15 @@ export class ServicesComponent implements OnInit {
 
   private executeCommands(commands: string[], sudoPassword?: string) {
     this.sshService.executeCommand(this.systemId, commands, sudoPassword)
-      .subscribe(
-        (response: any) => {
-          // Maneja la respuesta del servidor si es necesario
+      .subscribe({
+        next: (response: any) => {
           console.log(response);
-          this.fetchServiceInfo(); // Actualiza la lista de servicios después de ejecutar los comandos
+          this.fetchServiceInfo();
         },
-        (error) => {
-          console.error('Error al ejecutar los comandos:', error);
+        error: (error) => {
+          console.error('Error executing commands:', error);
+          // Opcional: Mostrar un mensaje de error al usuario
         }
-      );
+      });
   }
 }
